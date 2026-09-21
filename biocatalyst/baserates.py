@@ -95,6 +95,23 @@ DESIGNATION_BONUS: dict[str, float] = {
 }
 
 
+def as_text(value) -> str:
+    """Coerce a possibly-missing cell to a plain string.
+
+    NaN is a float and, crucially, it is *truthy* -- so `if not value` waves it
+    straight through and the next `.lower()` raises AttributeError. Whether a
+    null arrives as None or NaN depends on pandas dtype inference, which varies
+    with how many rows in the column happen to be null, so this failed only in
+    CI. Every free-text field from the database goes through here.
+    """
+    if value is None:
+        return ""
+    if isinstance(value, float):      # NaN, or a stray numeric cell
+        return ""
+    text = str(value).strip()
+    return "" if text.lower() in ("nan", "nat", "none") else text
+
+
 def _kw_matches(word: str, text: str) -> bool:
     """Keyword match anchored to a word start.
 
@@ -112,9 +129,9 @@ def _kw_matches(word: str, text: str) -> bool:
 
 def classify_ta(indication: str | None) -> str:
     """Map a free-text indication to a therapeutic area bucket."""
-    if not indication:
+    text = as_text(indication).lower()
+    if not text:
         return "other"
-    text = indication.lower()
     # Explicit rare-disease markers, plus the naming conventions that in
     # practice only appear on rare monogenic disease (a named deficiency
     # syndrome, a roman-numeral disease type).
@@ -141,12 +158,13 @@ def loa(stage: str | None, indication: str | None = None,
     pushed haematology PDUFAs to a 98% prior, which is not a credible number.
     The more certain the base rate, the smaller the adjustment.
     """
-    key = (stage or "").strip().lower().replace(" ", "")
+    key = as_text(stage).lower().replace(" ", "")
     base = LOA_BY_PHASE.get(key, 0.10)
 
     multiplier = TA_MULTIPLIER.get(classify_ta(indication), 1.0)
+    tags = as_text(designations).upper()
     for tag, bonus in DESIGNATION_BONUS.items():
-        if designations and tag in designations.upper():
+        if tag in tags:
             multiplier *= bonus
 
     # Shrink the multiplier toward 1.0 in proportion to the base rate.
@@ -164,7 +182,7 @@ def typical_catalyst_move(stage: str | None, market_cap: float | None) -> float:
     large caps with double-digit single-asset moves, which manufactured
     spurious "cheap volatility" signals.
     """
-    key = (stage or "").strip().lower().replace(" ", "")
+    key = as_text(stage).lower().replace(" ", "")
 
     # Ceiling on the move for a company that is essentially this one asset.
     ceiling = {

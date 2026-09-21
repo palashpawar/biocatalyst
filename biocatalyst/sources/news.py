@@ -23,6 +23,7 @@ import xml.etree.ElementTree as ET
 
 import pandas as pd
 
+from ..baserates import as_text
 from ..http import get
 from .edgar import ticker_to_cik
 
@@ -73,7 +74,7 @@ def _windows_negated(text: str, at: int, back: int = 32) -> bool:
 
 def score_text(text: str) -> tuple[int, int]:
     """Count positive and negative hits in one headline."""
-    t = (text or "").lower()
+    t = as_text(text).lower()
     pos = neg = 0
     for phrase in NEGATIVE_PHRASES:
         neg += t.count(phrase)
@@ -230,7 +231,7 @@ def is_relevant(title: str, tokens: set[str]) -> bool:
     surfaces "Novo Nordisk shares plunge". Scoring those attributes another
     company's news to this ticker, which is worse than having no sentiment.
     """
-    t = (title or "").lower()
+    t = as_text(title).lower()
     return any(re.search(rf"\b{re.escape(tok)}\b", t) for tok in tokens)
 
 

@@ -21,6 +21,7 @@ from functools import lru_cache
 
 import pandas as pd
 
+from ..baserates import as_text
 from ..http import get
 from .bpc import parse_catalyst_date
 
@@ -293,7 +294,7 @@ def _simplify_stage(raw: str | None) -> str:
     A combined PHASE1,PHASE2 trial is priced off the *earlier* phase: treating
     it as a clean Phase 2 would hand it Phase 2's much higher approval prior.
     """
-    s = (raw or "").lower().replace(" ", "")
+    s = as_text(raw).lower().replace(" ", "")
     has = lambda p: p in s
     if has("phase2") and has("phase3"):
         return "phase2/3"

@@ -82,3 +82,26 @@ def test_damping_preserves_ordering():
 
 def test_presbyopia_is_ophthalmology():
     assert b.classify_ta("presbyopia") == "ophthalmology"
+
+
+def test_nan_is_handled_everywhere():
+    # Regression: NaN is a float AND truthy, so `if not value` waved it
+    # through and the next .lower() raised AttributeError. Whether a null
+    # arrives as None or NaN depends on pandas dtype inference, so this
+    # passed locally and failed in CI.
+    nan = float("nan")
+    assert b.as_text(nan) == ""
+    assert b.classify_ta(nan) == "other"
+    assert 0 < b.loa(nan, nan, nan) <= 1
+    assert 0 < b.typical_catalyst_move(nan, nan) <= 1
+
+
+def test_as_text_normalises_null_spellings():
+    for v in [None, float("nan"), "", "  ", "nan", "NaT", "None"]:
+        assert b.as_text(v) == ""
+    assert b.as_text("  Lung Cancer  ") == "Lung Cancer"
+    assert b.as_text(123) == "123"
+
+
+def test_nan_designations_do_not_crash_loa():
+    assert b.loa("phase3", "lung cancer", float("nan")) > 0

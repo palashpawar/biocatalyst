@@ -89,3 +89,7 @@ def test_relevance_matches_whole_words_only():
     toks = company_tokens("INO", "Inovio Pharmaceuticals")
     assert not is_relevant("Casino stocks rally", toks)
     assert is_relevant("Inovio doses first patient", toks)
+
+
+def test_score_text_handles_nan():
+    assert score_text(float("nan")) == (0, 0)

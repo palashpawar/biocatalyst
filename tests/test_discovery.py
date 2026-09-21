@@ -35,3 +35,8 @@ def test_drug_id_is_stable_across_runs():
     other = {**row, "catalyst_date_raw": "2026-02-01"}
     assert stable_id(row) == stable_id(dict(row))
     assert stable_id(row) != stable_id(other)
+
+
+def test_simplify_stage_handles_nan():
+    from biocatalyst.sources.discovery import _simplify_stage
+    assert _simplify_stage(float("nan")) == "other"

@@ -110,7 +110,7 @@
   </div>
 
   <div class="tally" id="tally"></div>
-  <div class="tablewrap"><div class="empty" id="body">loading…</div></div>
+  <div class="tablewrap" id="tablewrap"><div class="empty">loading…</div></div>
 
   <div class="note">
     <b>What the verdicts mean.</b> <b>SHORT</b> and <b>LONG</b> are directional.
@@ -175,15 +175,20 @@ function render() {
   document.getElementById("sub").textContent =
     `${rows.length} catalysts · next ${horizon} days · built ${DATA.generated.replace("T", ", ")}`;
 
-  const body = document.getElementById("body");
-  if (!rows.length) { body.className = "empty"; body.textContent = "Nothing matches these filters."; return; }
+  // Render into a container that persists. Replacing the tbody with markup
+  // that opened its own <table> let the parser hoist the tags out, so every
+  // filter change stacked another <thead> inside the same table.
+  const wrap = document.getElementById("tablewrap");
+  if (!rows.length) {
+    wrap.innerHTML = '<div class="empty">Nothing matches these filters.</div>';
+    return;
+  }
 
-  body.className = "";
-  body.outerHTML = `<table><thead><tr>
+  wrap.innerHTML = `<table><thead><tr>
       <th>Verdict</th><th>Ticker</th><th>When</th><th>Catalyst</th><th>Conviction</th>
       <th class="hide-sm">Evidence</th><th class="hide-sm">Numbers</th>
       <th class="hide-sm">News</th><th class="hide-sm">Why</th>
-    </tr></thead><tbody id="body">` + rows.slice(0, 400).map(r => {
+    </tr></thead><tbody>` + rows.slice(0, 400).map(r => {
     const sentCls = r.sentiment === null ? "" : r.sent_thin ? "sent-thin"
       : r.sentiment > 0.2 ? "sent-pos" : r.sentiment < -0.2 ? "sent-neg" : "sent-flat";
     return `<tr>
@@ -218,7 +223,10 @@ function render() {
 fetch("board.json?v=" + Date.now())
   .then(r => r.json())
   .then(d => { DATA = d; render(); })
-  .catch(e => { document.getElementById("body").textContent = "Could not load board.json — " + e; });
+  .catch(e => {
+    document.getElementById("tablewrap").innerHTML =
+      '<div class="empty">Could not load board.json — ' + esc(e) + "</div>";
+  });
 </script>
 </body>
 </html>

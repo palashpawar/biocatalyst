@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catalyst Board</title>
+<style>
+  :root{
+    --bg:#f6f6f4; --panel:#fff; --ink:#191917; --muted:#6d6d67;
+    --line:#e5e5e1; --accent:#3d5a80; --accent-ink:#fff;
+    --short:#b0321a; --short-bg:#fbeae6;
+    --long:#256b42; --long-bg:#e6f3ec;
+    --vol:#8a6108; --vol-bg:#fbf1dc;
+    --none:#76766f; --none-bg:#f0f0ed;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#141417; --panel:#1d1d21; --ink:#eeeeea; --muted:#9b9b95;
+      --line:#2d2d34; --accent:#8fb0d9; --accent-ink:#11131a;
+      --short:#f08a6c; --short-bg:#3a201a;
+      --long:#79c795; --long-bg:#18301f;
+      --vol:#e0bc6e; --vol-bg:#332a14;
+      --none:#8d8d86; --none-bg:#25252a;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:14px/1.5 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:1360px;margin:0 auto;padding:0 18px 56px}
+  header{padding:26px 18px 6px;max-width:1360px;margin:0 auto}
+  h1{margin:0;font-size:21px;letter-spacing:-.015em}
+  .sub{color:var(--muted);font-size:12.5px;margin-top:2px}
+
+  .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+       background:var(--panel);border:1px solid var(--line);
+       border-radius:11px;padding:11px 13px;margin:16px 0 12px}
+  .bar label{color:var(--muted);font-size:12px}
+  select,input[type=number]{background:var(--bg);color:var(--ink);
+       border:1px solid var(--line);border-radius:7px;padding:6px 9px;font-size:13px}
+  button{background:var(--accent);color:var(--accent-ink);border:0;
+       border-radius:7px;padding:7px 15px;font-size:13px;font-weight:600;cursor:pointer}
+  .tally{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+  .tally span{font-size:12px;padding:4px 11px;border-radius:999px;font-weight:600}
+  .t-SHORT{background:var(--short-bg);color:var(--short)}
+  .t-LONG{background:var(--long-bg);color:var(--long)}
+  .t-SELLVOL,.t-BUYVOL{background:var(--vol-bg);color:var(--vol)}
+  .t-NOTRADE{background:var(--none-bg);color:var(--none)}
+
+  .tablewrap{background:var(--panel);border:1px solid var(--line);
+       border-radius:11px;overflow:auto}
+  table{border-collapse:collapse;width:100%;font-size:13px}
+  th{position:sticky;top:0;background:var(--panel);text-align:left;
+     padding:10px 12px;border-bottom:1px solid var(--line);z-index:2;
+     font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:0}
+
+  .verdict{display:inline-block;padding:5px 12px;border-radius:7px;
+           font-size:13px;font-weight:750;letter-spacing:.02em;white-space:nowrap}
+  .v-SHORT{background:var(--short-bg);color:var(--short)}
+  .v-LONG{background:var(--long-bg);color:var(--long)}
+  .v-SELLVOL,.v-BUYVOL{background:var(--vol-bg);color:var(--vol)}
+  .v-NOTRADE{background:var(--none-bg);color:var(--none)}
+  .nondir{display:block;font-size:10px;color:var(--muted);
+          margin-top:3px;letter-spacing:.03em}
+  .setup{display:block;font-size:11px;color:var(--muted);margin-top:4px}
+
+  .tick a{color:var(--ink);text-decoration:none;font-weight:700;font-size:15px;
+          letter-spacing:-.01em;display:inline-flex;align-items:center;gap:5px}
+  .tick a:hover{color:var(--accent)}
+  .tick a::after{content:"↗";font-size:10px;opacity:.45;font-weight:400}
+  .dim{color:var(--muted);font-size:11.5px}
+
+  .when{font-weight:650}
+  .date{color:var(--muted);font-size:11.5px}
+
+  .ev{display:inline-block;font-size:9.5px;letter-spacing:.05em;
+      text-transform:uppercase;font-weight:700;padding:2px 6px;border-radius:4px;
+      border:1px solid currentColor;cursor:help}
+  .ev-supported{color:var(--long)}
+  .ev-weak{color:var(--vol)}
+  .ev-not-supported{color:var(--short)}
+  .ev-untested,.ev-n\/a{color:var(--muted)}
+
+  .meter{height:4px;border-radius:3px;background:var(--line);overflow:hidden;
+         width:56px;margin-top:4px}
+  .meter i{display:block;height:100%;background:var(--accent)}
+  .why{color:var(--muted);font-size:11.5px;max-width:330px;line-height:1.45}
+  .nums{font-variant-numeric:tabular-nums;font-size:12px;white-space:nowrap}
+  .sent{font-variant-numeric:tabular-nums;font-weight:700;font-size:13px}
+  .sent-pos{color:var(--long)} .sent-neg{color:var(--short)}
+  .sent-flat{color:var(--muted)} .sent-thin{color:var(--muted);opacity:.65}
+  .headline{margin-top:4px;max-width:200px;line-height:1.35}
+
+  .note{margin-top:18px;padding:13px 15px;border-left:3px solid var(--accent);
+        background:var(--panel);border-radius:0 9px 9px 0;color:var(--muted);
+        font-size:12.5px;line-height:1.55}
+  .note b{color:var(--ink)}
+  .empty{padding:44px;text-align:center;color:var(--muted)}
+  @media(max-width:860px){.hide-sm{display:none}.why{max-width:170px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Catalyst Board</h1>
+  <div class="sub">{{ total }} catalysts · next {{ horizon }} days · soonest first · built {{ generated }}</div>
+</header>
+
+<div class="wrap">
+  <form class="bar" method="get">
+    <label>Sort</label>
+    <select name="sort">
+      <option value="date" {% if sort=='date' %}selected{% endif %}>Soonest catalyst</option>
+      <option value="conviction" {% if sort=='conviction' %}selected{% endif %}>Highest conviction</option>
+    </select>
+    <label>Show</label>
+    <select name="setup">
+      {% for s in setups %}<option value="{{ s }}" {% if s==setup %}selected{% endif %}>{{ s.replace('_',' ').title() }}</option>{% endfor %}
+    </select>
+    <label>Horizon</label>
+    <input type="number" name="horizon" value="{{ horizon }}" min="7" max="720" step="7" style="width:82px">
+    <label>Min conviction</label>
+    <input type="number" name="min_conv" value="{{ min_conv }}" min="0" max="100" step="5" style="width:74px">
+    <button type="submit">Apply</button>
+  </form>
+
+  {% if counts %}
+  <div class="tally">
+    {% for k, v in counts.items() %}<span class="t-{{ k.replace(' ','') }}">{{ k }} · {{ v }}</span>{% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="tablewrap">
+  {% if rows %}
+    <table>
+      <thead><tr>
+        <th>Verdict</th><th>Ticker</th><th>When</th><th>Catalyst</th>
+        <th>Conviction</th><th class="hide-sm">Evidence</th>
+        <th class="hide-sm">Numbers</th><th class="hide-sm">News</th>
+        <th class="hide-sm">Why</th>
+      </tr></thead>
+      <tbody>
+      {% for r in rows %}
+        <tr>
+          <td>
+            <span class="verdict v-{{ r.verdict.replace(' ','') }}">{{ r.verdict }}</span>
+            {% if not r.directional and r.verdict != 'NO TRADE' %}<span class="nondir">not directional</span>{% endif %}
+            <span class="setup">{{ r.setup }}</span>
+          </td>
+          <td class="tick">
+            <a href="{{ r.robinhood }}" target="_blank" rel="noopener">{{ r.ticker }}</a>
+            <div class="dim">{{ r.mcap }}</div>
+          </td>
+          <td>
+            <div class="when">{{ r.when }}</div>
+            <div class="date">{{ r.date }}</div>
+            <div class="dim">{{ r.precision }}</div>
+          </td>
+          <td>
+            {{ r.drug }}
+            <div class="dim">{{ r.indication }}{% if r.stage %} · {{ r.stage }}{% endif %}</div>
+          </td>
+          <td>
+            <span class="nums">{{ r.conviction }}</span>
+            <div class="meter"><i style="width:{{ r.conviction }}%"></i></div>
+          </td>
+          <td class="hide-sm"><span class="ev ev-{{ r.evidence.replace(' ','-') }}" title="{{ r.evidence_note }}">{{ r.evidence }}</span></td>
+          <td class="hide-sm nums">
+            LOA {{ r.loa }}<br>
+            <span class="dim">impl {{ r.implied }} / typ {{ r.expected }}</span><br>
+            <span class="dim">cash {{ r.runway }} · 20d {{ r.ret20 }}</span>
+          </td>
+          <td class="hide-sm">
+            {% if r.sentiment is not none %}
+              <span class="sent {% if r.sent_thin %}sent-thin{% elif r.sentiment > 0.2 %}sent-pos{% elif r.sentiment < -0.2 %}sent-neg{% else %}sent-flat{% endif %}">
+                {{ '%+.2f'|format(r.sentiment) }}
+              </span>
+              <div class="dim">{{ r.sent_n }} scored{% if r.sent_thin %} · thin{% endif %}</div>
+            {% else %}<span class="dim">—</span>{% endif %}
+            {% if r.eightk is not none %}<div class="dim">{{ r.eightk }} 8-K/90d</div>{% endif %}
+            {% if r.headline %}<div class="dim headline" title="{{ r.headline }}">{{ r.headline[:52] }}</div>{% endif %}
+          </td>
+          <td class="hide-sm why">{{ r.reasons }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="empty">Nothing matches. Run <code>python3 -m biocatalyst.cli refresh</code>, or widen the filters.</div>
+  {% endif %}
+  </div>
+
+  <div class="note">
+    <b>What the verdicts mean.</b> <b>SHORT</b> and <b>LONG</b> are directional.
+    <b>SELL VOL</b> / <b>BUY VOL</b> are not — they are a view on whether the
+    option market has priced the event richly or cheaply, not on which way it
+    resolves. Always read the verdict together with its evidence badge:
+    only <b>dilution-short</b> is <b>supported</b> (cash runway under six months
+    ran −5.4% abnormal at 21 days and −16.2% at 126 days across 5,379
+    point-in-time filing observations, both surviving multiple testing).
+    <b>Run-up fade</b> tested as <b>not supported</b>, and both volatility
+    verdicts are <b>untested</b> — there is no free source of historical option
+    chains. <b>The News column is context only and never moves a verdict</b>:
+    free news sources have no point-in-time archive, so a sentiment rule
+    cannot be backtested yet. Scores are logged daily so that it becomes
+    testable once enough forward history exists. Read <i>thin</i> scores with
+    care — they come from fewer than four scored headlines. The direction of a binary readout itself is not forecastable from
+    this data. Ticker links open Robinhood.
+  </div>
+</div>
+</body>
+</html>

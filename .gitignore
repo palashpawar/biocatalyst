@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+data/*.duckdb
+data/*.duckdb.wal
+.DS_Store
+.venv/
+.pytest_cache/
+data/cache/
+data/backtest_*.csv
+
+# the exported board is committed so Vercel can deploy it
+!web/board.json

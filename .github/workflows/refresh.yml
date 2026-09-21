@@ -1,0 +1,78 @@
+name: Refresh catalyst board
+
+on:
+  schedule:
+    # 11:00 UTC daily — after US filings settle, before the open.
+    - cron: "0 11 * * *"
+  workflow_dispatch:
+
+# Never let two refreshes race for the database.
+concurrency:
+  group: refresh
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    # The job takes ~10 minutes warm; the cap exists to catch a hang, not to
+    # constrain normal runs. GitHub's own ceiling is 6 hours.
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # SEC throttles hard and financials only move when a 10-Q lands, so a
+      # restored cache turns the slowest step into seconds.
+      - name: Restore EDGAR cache
+        uses: actions/cache@v4
+        with:
+          path: data/cache
+          key: edgar-cache-${{ github.run_id }}
+          restore-keys: edgar-cache-
+
+      - name: Refresh
+        env:
+          # SEC requires a descriptive User-Agent with contact details.
+          BIOCATALYST_SEC_UA: ${{ secrets.BIOCATALYST_SEC_UA }}
+        run: python -m biocatalyst.cli refresh
+
+      - name: Export static board
+        run: python -m biocatalyst.cli export
+
+      - name: Sanity-check the export
+        run: |
+          python - <<'PY'
+          import json, sys, datetime as dt
+          d = json.load(open("web/board.json"))
+          n = len(d["rows"])
+          print(f"{n} rows, generated {d['generated']}")
+          # Refuse to publish an empty or obviously broken board.
+          if n < 25:
+              sys.exit(f"only {n} rows — refusing to publish")
+          age = dt.datetime.now() - dt.datetime.fromisoformat(d["generated"])
+          if age.total_seconds() > 3600:
+              sys.exit("board.json is stale — export did not run")
+          PY
+
+      - name: Commit if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/board.json
+          if git diff --staged --quiet; then
+            echo "no change"
+          else
+            git commit -m "data: refresh catalyst board $(date -u +%Y-%m-%d)"
+            git push
+          fi

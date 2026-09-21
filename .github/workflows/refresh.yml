@@ -22,9 +22,9 @@ jobs:
     timeout-minutes: 45
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
           cache: pip
@@ -35,7 +35,7 @@ jobs:
       # SEC throttles hard and financials only move when a 10-Q lands, so a
       # restored cache turns the slowest step into seconds.
       - name: Restore EDGAR cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: data/cache
           key: edgar-cache-${{ github.run_id }}

@@ -177,19 +177,25 @@ def classify(r) -> dict:
     if lean == "short" and pd.notna(build) and build > 0.5:
         reasons.append(f"short interest +{build:.0%} since last reading")
 
-    # Insider activity is displayed, never scored: it has not been through the
-    # harness yet. But a C-suite buy or a cluster of insiders buying while the
-    # engine is calling a short is a contradiction worth reading before acting,
-    # so it is surfaced as a caution rather than silently ignored.
+    # Insider activity is displayed, never scored -- and now that is a tested
+    # decision rather than a pending one. Across 5,399 observations and 338
+    # tickers, nothing separates: net buying over $250k ran +3.8% @21d
+    # (p=0.097), cluster buying +2.5% (p=0.298), net selling nothing at all,
+    # none surviving multiple testing. The interaction is suggestive in the
+    # expected direction -- low runway with insiders buying ran +5.7% @21d
+    # against -3.8% without -- but n=68 with a [-5.8%, +21.9%] interval is not
+    # a finding. A single extreme case can still inform a human reading the
+    # row, so contradictions are surfaced; they just carry no weight.
     if lean == "short":
         if r.get("cluster_buy"):
             reasons.append(
                 f"CAUTION: {int(r.get('n_buyers') or 0)} insiders bought "
-                "(cluster) -- untested, not scored")
+                "(cluster) -- tested, not supported, not scored")
         senior = r.get("senior_net_usd")
         if pd.notna(senior) and senior > 100_000:
             reasons.append(
-                f"CAUTION: C-suite net bought ${senior:,.0f} -- untested, not scored")
+                f"CAUTION: C-suite net bought ${senior:,.0f} -- "
+                "tested, not supported, not scored")
         desc = r.get("biggest_move_desc")
         big = r.get("biggest_delta_own")
         if desc and pd.notna(big) and big > 0.5:

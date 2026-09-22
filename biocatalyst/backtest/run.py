@@ -379,3 +379,99 @@ def run_financing(start: dt.date, end: dt.date, tickers: list[str],
         "by_interaction": stats.summarize(df, "interaction", horizons=horizons),
         "missing_tickers": missing,
     }
+
+
+def _quarters_between(start: dt.date, end: dt.date) -> list[str]:
+    """Quarters spanning the window, plus one before it for the lookback."""
+    q = []
+    y, qq = start.year, (start.month - 1) // 3 + 1
+    qq -= 1                                    # one quarter of lead-in
+    if qq == 0:
+        y, qq = y - 1, 4
+    while (y, qq) <= (end.year, (end.month - 1) // 3 + 1):
+        q.append(f"{y}q{qq}")
+        qq += 1
+        if qq == 5:
+            y, qq = y + 1, 1
+    return q
+
+
+def _net_bucket(v) -> str:
+    if pd.isna(v):
+        return "unknown"
+    if v > 250_000:
+        return "a. net buying >$250k"
+    if v > 0:
+        return "b. net buying"
+    if v == 0:
+        return "c. none"
+    if v > -250_000:
+        return "d. net selling"
+    return "e. net selling >$250k"
+
+
+def run_insider(start: dt.date, end: dt.date, tickers: list[str],
+                horizons=(21, 63, 126), verbose: bool = True) -> dict:
+    """Does open-market insider activity predict anything?
+
+    The last shown-but-unscored signal that can actually be tested. Uses SEC's
+    bulk Form 345 data sets rather than per-filing XML, which is the only
+    tractable way to cover several years, and keys everything on the filing
+    date rather than the trade date.
+
+    Restricted throughout to codes P and S. Grants, option exercises and
+    share-withholding for taxes are roughly three quarters of all Form 4 rows
+    and say nothing about an insider's view.
+    """
+    if verbose:
+        print(f"[insider] filing events for {len(tickers)} tickers ...",
+              flush=True)
+    events = universe.filing_events(tickers, start, end, verbose=verbose)
+    if events.empty:
+        return {"events": events}
+
+    closes, _, missing = engine.build_price_panel(
+        list(events.ticker.unique()), start, end, verbose=verbose)
+    rets = engine.event_returns(events, closes, horizons=horizons,
+                                entry_offset=0)
+    if rets.empty:
+        return {"events": rets}
+
+    quarters = _quarters_between(start, end)
+    if verbose:
+        print(f"[insider] loading {len(quarters)} quarters of Form 345 ...",
+              flush=True)
+    panel = pit.insider_panel(quarters, set(rets["ticker"].unique()))
+    if verbose:
+        print(f"      {len(panel)} open-market transactions", flush=True)
+
+    rows = []
+    for t, grp in rets.groupby("ticker"):
+        facts = pit.companyfacts(t)
+        for _, r in grp.iterrows():
+            ins = pit.insider_at(panel, t, r["entry_date"])
+            fin = pit.pit_financials(t, r["entry_date"], facts=facts) if facts else None
+            rows.append({**r.to_dict(), **ins,
+                         "runway_months": (fin or {}).get("runway_months")})
+    df = pd.DataFrame(rows)
+    if df.empty:
+        return {"events": df}
+
+    df["net_bucket"] = df["insider_net_usd"].map(_net_bucket)
+    df["cluster"] = np.where(df["insider_buyers"].fillna(0) >= 3,
+                             "cluster buy (3+ filings)", "no cluster")
+
+    low = df["runway_months"] < RUNWAY_CRITICAL_MONTHS
+    buying = df["insider_net_usd"].fillna(0) > 0
+    df["interaction"] = np.where(
+        low & buying, "low runway + insiders buying",
+        np.where(low & ~buying, "low runway, no insider buying",
+                 np.where(~low & buying, "insiders buying only", "neither")))
+
+    return {
+        "events": df,
+        "by_net": stats.summarize(df, "net_bucket", horizons=horizons),
+        "by_cluster": stats.summarize(df, "cluster", horizons=horizons),
+        "by_interaction": stats.summarize(df, "interaction", horizons=horizons),
+        "missing_tickers": missing,
+    }

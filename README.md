@@ -60,6 +60,13 @@ every bucket tested.
   crowded ran −1.1% (p=0.63) and −6.4% (p=0.23). Crowded shorts on *well-funded*
   names drifted the other way, +3.1% at 63 days (p=0.001) — the squeeze itself.
 - **Microcaps underperform**: −10.5% at 126 days; large caps +8.8%. Both survive.
+- **Insider activity does not separate outcomes.** Across 5,399 observations:
+  net open-market buying over $250k ran +3.8% at 21 days (p=0.097), cluster
+  buying +2.5% (p=0.298), net selling nothing. None survive correction. The
+  interaction points the expected way — low runway with insiders buying ran
+  +5.7% at 21 days against −3.8% without — but on n=68 with a
+  [−5.8%, +21.9%] interval that is a hint, not a result. Displayed, never
+  scored.
 - **Trial design does not separate outcomes.** Across 1,915 readouts:
   randomized-blinded +3.6% at 21 days (p=0.052), randomized-open +0.4%
   (p=0.76), single-arm-open +1.6% (p=0.53). Nothing survives correction, so
@@ -128,7 +135,7 @@ python3 -m biocatalyst.cli refresh --source bpc --include-paid
 python3 -m biocatalyst.cli backtest --mode both --start 2021-01-01 --save
 ```
 
-Five studies (`--mode runway | cadence | squeeze | financing | catalyst | both`), kept apart
+Six studies (`--mode runway | cadence | squeeze | financing | insider | catalyst | both`), kept apart
 because their anchors are not equally trustworthy.
 
 **Filing-anchored** (`runway`, `cadence`, `squeeze`) use 10-Q/10-K filing dates,
@@ -167,13 +174,15 @@ Significance is flagged in three tiers: `*** survives multiple testing`,
 - **`VOL_SELL_RICH` / `VOL_BUY_CHEAP`** compare a live straddle to a base rate,
   and there is no free source of historical option chains. Permanently
   unvalidated on free data; the harness says so on every run.
-- **Insider activity** is shipped but **not yet backtested**. It is parsed
+- **Insider activity** has been backtested and came out **not supported**
+  (see findings). It is kept on the board because a single extreme case — a
+  CEO quadrupling a personal stake against a short call — is worth a human
+  second look even when the average effect is nil. It is parsed
   from Form 4 and filtered to open-market `P` and `S`, with officer rank and
   the change in the insider's own holding — openinsider.com surfaces the same
   fields and is a good manual cross-check, but everything it shows is in the
   filings, so this reads the source rather than scraping a third party.
-  Contradictions are surfaced as CAUTION chips on a short without moving the
-  conviction number. The bulk Form 345
+  Contradictions appear as CAUTION chips that never move the conviction. The bulk Form 345
   data sets make it testable (`insider.load_bulk_quarter`), which is the next
   thing to run; until then it is shown and never scored.
 - **News sentiment** has no free point-in-time archive either, so it is
@@ -236,7 +245,7 @@ biocatalyst/
     universe.py       historical event universes, both anchors
     engine.py         price panel, abnormal returns vs XBI
     stats.py          ticker-clustered bootstrap, multiple-testing control
-    run.py            the five studies
+    run.py            the six studies
 dashboard/app.py      local Flask board
 web/                  static site published to Vercel
 .github/workflows/    nightly refresh

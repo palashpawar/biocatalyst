@@ -358,3 +358,61 @@ def short_interest_at(rows: list[dict], asof: dt.date) -> dict | None:
     if not visible:
         return None
     return max(visible, key=lambda r: r["published_date"])
+
+
+_INSIDER_PANEL = {}
+
+
+def insider_panel(quarters: list[str], tickers: set[str]):
+    """Open-market insider transactions across several quarters, cached.
+
+    Keyed by FILING date. Form 4 is due within two business days of the
+    trade, but the filing is when the market could see it, so that is the
+    only honest key for a point-in-time study.
+    """
+    import pandas as pd
+    from ..sources import insider as _ins
+
+    key = (tuple(quarters), len(tickers))
+    if key in _INSIDER_PANEL:
+        return _INSIDER_PANEL[key]
+
+    frames = []
+    for q in quarters:
+        df = _ins.load_bulk_quarter(q)
+        if df.empty:
+            continue
+        frames.append(df[df["ticker"].isin(tickers)])
+    panel = (pd.concat(frames, ignore_index=True)
+             if frames else pd.DataFrame())
+    if not panel.empty:
+        panel = panel.sort_values("filed_date")
+    _INSIDER_PANEL[key] = panel
+    return panel
+
+
+def insider_at(panel, ticker: str, asof: dt.date, window: int = 90) -> dict:
+    """Trailing-window insider activity visible on `asof`."""
+    if panel is None or len(panel) == 0:
+        return {}
+    lo = asof - dt.timedelta(days=window)
+    sub = panel[(panel["ticker"] == ticker)
+                & (panel["filed_date"] > lo)
+                & (panel["filed_date"] <= asof)]
+    if len(sub) == 0:
+        return {"insider_net_usd": 0.0, "insider_buy_usd": 0.0,
+                "insider_sell_usd": 0.0, "insider_filings": 0,
+                "insider_buyers": 0, "any_insider_activity": False}
+
+    buys = sub[sub["code"] == "P"]
+    sells = sub[sub["code"] == "S"]
+    buy_usd = float(buys["usd"].sum())
+    sell_usd = float(sells["usd"].sum())
+    return {
+        "insider_net_usd": buy_usd - sell_usd,
+        "insider_buy_usd": buy_usd,
+        "insider_sell_usd": sell_usd,
+        "insider_filings": int(sub["accession"].nunique()),
+        "insider_buyers": int(buys["accession"].nunique()),
+        "any_insider_activity": True,
+    }

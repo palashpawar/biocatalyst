@@ -290,6 +290,29 @@ def cmd_backtest(args) -> int:
                 ev.to_csv("data/backtest_cadence.csv", index=False)
                 print("\nsaved data/backtest_cadence.csv")
 
+    if args.mode in ("insider", "both"):
+        res = bt.run_insider(start, end, tickers, verbose=True)
+        print("\n" + "=" * 100)
+        print("INSIDER STUDY  (anchor: filing dates; Form 4 matched by FILING "
+              "date, open-market P/S only)")
+        print("=" * 100)
+        ev = res.get("events")
+        if ev is None or ev.empty:
+            print("no observations")
+        else:
+            print(f"{len(ev)} observations, {ev.ticker.nunique()} tickers\n")
+            keys = (("by_net", "By net open-market insider flow (90d)"),
+                    ("by_cluster", "By cluster buying"),
+                    ("by_interaction", "Insider buying against the runway signal"))
+            tables = [res.get(k) for k, _ in keys]
+            n_tests += btstats.apply_multiple_testing(tables)
+            for (key, title), tbl in zip(keys, tables):
+                if tbl is not None and not tbl.empty:
+                    print(f"\n-- {title}")
+                    print(btstats.format_table(tbl))
+            if args.save:
+                ev.to_csv("data/backtest_insider.csv", index=False)
+
     if args.mode in ("financing", "both"):
         res = bt.run_financing(start, end, tickers, verbose=True)
         print("\n" + "=" * 100)
@@ -425,7 +448,7 @@ def main(argv=None) -> int:
     k.add_argument("--end", default="2025-06-30")
     k.add_argument("--mode",
                    choices=["runway", "catalyst", "cadence", "squeeze",
-                            "financing", "both"],
+                            "financing", "insider", "both"],
                    default="both")
     k.add_argument("--max-tickers", type=int, default=None)
     k.add_argument("--save", action="store_true", help="write per-event CSVs")

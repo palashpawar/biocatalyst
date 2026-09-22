@@ -261,6 +261,7 @@ def load_bulk_quarter(quarter: str) -> pd.DataFrame:
             except (ValueError, TypeError):
                 continue
             rows.append({"ticker": ticker.upper(), "filed_date": filed_date,
+                         "accession": r["ACCESSION_NUMBER"],
                          "code": r["TRANS_CODE"], "shares": shares,
                          "price": price,
                          "usd": shares * price if price else 0.0})

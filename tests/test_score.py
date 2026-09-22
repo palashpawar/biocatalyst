@@ -168,3 +168,17 @@ def test_squeeze_never_penalises_a_long():
 def test_short_build_is_surfaced():
     r = classify(row(runway_at_catalyst=-2.0, short_build=6.7))
     assert "short interest +670%" in r["reasons"]
+
+
+def test_insider_caution_states_it_was_tested():
+    # It is no longer "untested" -- it was tested and came out unsupported.
+    r = classify(row(runway_at_catalyst=-2.0, cluster_buy=True, n_buyers=3))
+    assert "not supported" in r["reasons"]
+
+
+def test_insider_activity_never_moves_conviction():
+    plain = classify(row(runway_at_catalyst=-2.0, microcap=True))
+    flagged = classify(row(runway_at_catalyst=-2.0, microcap=True,
+                           cluster_buy=True, n_buyers=4,
+                           senior_net_usd=500_000))
+    assert plain["conviction"] == flagged["conviction"]

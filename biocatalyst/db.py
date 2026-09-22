@@ -106,6 +106,17 @@ CREATE TABLE IF NOT EXISTS outcomes (
     PRIMARY KEY (drug_id, catalyst_date)
 );
 
+-- Company-stated readout timing pulled from 8-K text. Narrows the trial
+-- window; never replaces it.
+CREATE TABLE IF NOT EXISTS guidance (
+    ticker                 VARCHAR PRIMARY KEY,
+    filed                  DATE,
+    period_lo              DATE,
+    period_hi              DATE,
+    phrase                 VARCHAR,
+    pulled_at              TIMESTAMP
+);
+
 -- Shelf/offering posture and open-market insider activity.
 CREATE TABLE IF NOT EXISTS financing (
     ticker                 VARCHAR PRIMARY KEY,

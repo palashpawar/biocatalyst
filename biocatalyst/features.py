@@ -6,12 +6,34 @@ import datetime as dt
 import pandas as pd
 
 from . import baserates
+from .sources import guidance as guidance_src
 from .sources import shortinterest
+
+
+def shortinterest_guidance_narrow(r):
+    """Apply company guidance to a trial-derived window only."""
+    if r.get("date_precision") != "readout_window":
+        return r["catalyst_date_lo"], r["catalyst_date_hi"], "trial"
+    lo, hi, src = guidance_src.narrow(
+        r["catalyst_date_lo"], r["catalyst_date_hi"],
+        r.get("guide_lo"), r.get("guide_hi"))
+    return lo, hi, src
 
 # How much to trust a catalyst date, by how precisely BPC states it.
 PRECISION_WEIGHT = {
     "day": 1.0, "month_part": 0.8, "month": 0.6,
     "quarter": 0.4, "half": 0.25, "year": 0.15, "unknown": 0.0,
+    # A trial's primary completion date tells you when the last patient hit
+    # the endpoint, not when the company will say so. It tested no better
+    # than chance at locating the market reaction, so it is weighted below a
+    # stated quarter -- a company guiding to "Q1 2027" is telling you more
+    # than a completion date does.
+    "readout_window": 0.2,
+    # A company saying "topline expected in Q1 2027" on a dated filing is a
+    # real statement about timing. Rated a little above a bare quarter, but
+    # well below a hard PDUFA date: the guidance is company-level, so a
+    # sponsor running several programmes may be guiding to a different one.
+    "guidance": 0.45,
 }
 
 JOINED_SQL = """
@@ -30,6 +52,8 @@ SELECT c.*,
        si.settlement_date AS short_asof,
        fz.dilution_label, fz.dilution_readiness, fz.offerings_24m,
        fz.days_since_offering, fz.shelf_live, fz.last_offering_date,
+       g.period_lo AS guide_lo, g.period_hi AS guide_hi,
+       g.phrase AS guide_phrase, g.filed AS guide_filed,
        ins.insider_tilt, ins.net_usd AS insider_net_usd,
        ins.form4_filings, ins.senior_net_usd, ins.cluster_buy,
        ins.n_buyers, ins.biggest_delta_own, ins.biggest_move_desc
@@ -50,6 +74,7 @@ LEFT JOIN (
     QUALIFY ROW_NUMBER() OVER (PARTITION BY ticker ORDER BY settlement_date DESC) = 1
 ) si ON c.ticker = si.ticker
 LEFT JOIN financing fz ON c.ticker = fz.ticker
+LEFT JOIN guidance  g  ON c.ticker = g.ticker
 LEFT JOIN (
     SELECT * FROM insider
     QUALIFY ROW_NUMBER() OVER (PARTITION BY ticker ORDER BY snapshot_date DESC) = 1
@@ -66,6 +91,17 @@ def build(con, horizon_days: int = 180, today: dt.date | None = None) -> pd.Data
 
     df["catalyst_date_lo"] = pd.to_datetime(df["catalyst_date_lo"]).dt.date
     df["catalyst_date_hi"] = pd.to_datetime(df["catalyst_date_hi"]).dt.date
+
+    # Narrow a trial-derived window with what the company has guided to.
+    # Guidance only ever tightens the range; a stated period the trial cannot
+    # support is more likely to be about another programme than evidence of an
+    # early readout, so those are left alone.
+    df["guide_lo"] = pd.to_datetime(df.get("guide_lo"), errors="coerce").dt.date
+    df["guide_hi"] = pd.to_datetime(df.get("guide_hi"), errors="coerce").dt.date
+    narrowed = df.apply(
+        lambda r: shortinterest_guidance_narrow(r), axis=1, result_type="expand")
+    df[["catalyst_date_lo", "catalyst_date_hi", "date_source"]] = narrowed
+    df.loc[df["date_source"] == "guidance", "date_precision"] = "guidance"
 
     df["days_to_catalyst"] = df["catalyst_date_lo"].map(
         lambda d: (d - today).days if pd.notna(d) else None)

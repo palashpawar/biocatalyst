@@ -28,6 +28,11 @@ from .bpc import parse_catalyst_date
 EFTS = "https://efts.sec.gov/LATEST/search-index"
 CTGOV = "https://clinicaltrials.gov/api/v2/studies"
 
+# How long after primary completion a readout may plausibly be announced.
+# Six months covers the bulk of observed 8-K reactions; the point is the
+# breadth, not the endpoint.
+READOUT_WINDOW_DAYS = 180
+
 _SUFFIXES = re.compile(
     r"\b(inc|corp|corporation|company|co|ltd|limited|plc|holdings|holding|"
     r"group|sa|nv|ag|ab|as|oyj|therapeutics|pharmaceuticals|pharmaceutical|"
@@ -378,9 +383,26 @@ def build_calendar(horizon_days: int = 180, with_pdufa: bool = True,
         tr = tr[tr["ticker"].notna()].copy()
         lohi = tr["primary_completion"].map(parse_catalyst_date)
         tr["catalyst_date_lo"] = [x[0] for x in lohi]
-        tr["catalyst_date_hi"] = [x[1] for x in lohi]
-        tr["date_precision"] = [x[2] for x in lohi]
-        tr["catalyst_date_raw"] = tr["primary_completion"]
+
+        # A primary completion date is when the last patient reaches the
+        # endpoint -- NOT when the company announces. Measured across 2,190
+        # day-precision readouts, only 3.3% of the largest abnormal moves
+        # landed within five days of the stated date, against 5.2% expected
+        # from chance alone over the same window: the date carries no
+        # information about when the market actually reacts. Two attempts to
+        # recover the true announcement date (largest abnormal move; first
+        # outlier 8-K reaction) both returned distributions sitting at their
+        # search-window midpoint, i.e. indistinguishable from noise.
+        #
+        # So the honest representation is a window opening at the completion
+        # date, not a point on it. Calling it day-precision overstated the
+        # timing of every trial-derived row on the board.
+        tr["catalyst_date_hi"] = tr["catalyst_date_lo"].map(
+            lambda d: d + dt.timedelta(days=READOUT_WINDOW_DAYS)
+            if pd.notna(d) else d)
+        tr["date_precision"] = "readout_window"
+        tr["catalyst_date_raw"] = tr["primary_completion"].map(
+            lambda v: f"{v} + window" if v else v)
         tr["simplified_stage"] = tr["stage"].map(_simplify_stage)
         tr["next_catalyst"] = "Primary completion"
         tr["company_name"] = tr["lead_sponsor"]

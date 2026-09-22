@@ -89,6 +89,7 @@
              letter-spacing:.05em;margin-bottom:2px}
   .detail dd{margin:0;font-variant-numeric:tabular-nums}
   .detail .full{grid-column:1/-1;color:var(--muted);line-height:1.6;margin-top:6px}
+  .vague{opacity:.7;font-style:italic}
   .dupe{display:inline-block;font-size:9.5px;color:var(--muted);
         border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-left:5px}
   .caret{color:var(--muted);font-size:10px;margin-left:4px}
@@ -264,8 +265,12 @@ function render() {
       <td class="tick"><a href="${esc(r.robinhood)}" target="_blank" rel="noopener">${esc(r.ticker)}</a>
         ${counts[r.ticker] > 1 ? `<span class="dupe">${counts[r.ticker]} catalysts</span>` : ""}
         <div class="dim">${fmtCap(r.mcap)}</div></td>
-      <td><div class="when">${when(r.days)}</div><div class="dim">${esc(r.date)}</div>
-        <div class="dim">${esc(r.precision)}</div></td>
+      <td><div class="when">${when(r.days)}</div>
+        <div class="dim">${esc(r.date)}${r.precision === "readout_window" || r.precision === "guidance"
+          ? " \u2192 " + esc(String(r.date_hi || "").slice(0, 10)) : ""}</div>
+        <div class="dim ${r.precision === "readout_window" ? "vague" : ""}">${esc(
+          r.precision === "readout_window" ? "window" :
+          r.precision === "guidance" ? "guided" : r.precision)}</div></td>
       <td>${esc((r.drug || "").slice(0, 64))}
         <div class="dim">${esc((r.indication || "").slice(0, 56))}${r.stage ? " · " + esc(r.stage) : ""}</div></td>
       <td><span class="nums">${r.conviction}</span>
@@ -312,7 +317,9 @@ function detailRow(r) {
     ${row("Stage", esc(r.stage || "—"))}
     ${row("Trial design", esc((r.design || "unknown").replace(/_/g, " "))
         + (r.enrollment ? " · n=" + r.enrollment : ""))}
-    ${row("Catalyst date", esc(r.date) + " (" + esc(r.precision) + ")")}
+    ${row("Catalyst window", esc(r.date) + (r.date_hi ? " \u2192 " + esc(String(r.date_hi).slice(0,10)) : "")
+        + " (" + esc(r.precision) + ")")}
+    ${r.guide_phrase ? `<div class="full"><b>Company guidance:</b> \u201c${esc(r.guide_phrase)}\u201d</div>` : ""}
     ${row("Market cap", fmtCap(r.mcap))}
     ${row("Base-rate LOA", fmtPct(r.loa))}
     ${row("Implied / typical move", fmtPct(r.implied) + " / " + fmtPct(r.expected))}

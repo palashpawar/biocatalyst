@@ -13,20 +13,21 @@ from .backtest import run as bt
 from .backtest import stats as btstats
 from .backtest import universe as btuniverse
 from .db import connect, upsert
-from .sources import (bpc, ctgov, discovery, edgar, financing, insider,
-                      news, prices, shortinterest)
+from .sources import (bpc, ctgov, discovery, edgar, financing,
+                      guidance as guidance_src, insider, news,
+                      prices, shortinterest)
 
 
 def cmd_refresh(args) -> int:
     if args.source == "bpc":
-        print("[1/9] BiopharmCatalyst FDA calendar ...", flush=True)
+        print("[1/10] BiopharmCatalyst FDA calendar ...", flush=True)
         cal = bpc.fetch(max_pages=args.max_pages, include_paid=args.include_paid)
         if not args.include_paid and len(cal) <= 10:
             print("      NOTE: BPC's free tier returns only the first 10 rows; "
                   "the rest arrive blurred. Use --source discovery for full "
                   "coverage, or --include-paid with a subscriber cookie.")
     else:
-        print("[1/9] Catalyst discovery (ClinicalTrials.gov + EDGAR) ...", flush=True)
+        print("[1/10] Catalyst discovery (ClinicalTrials.gov + EDGAR) ...", flush=True)
         cal = discovery.build_calendar(horizon_days=args.horizon,
                                        with_pdufa=not args.no_pdufa,
                                        verbose=True,
@@ -55,19 +56,19 @@ def cmd_refresh(args) -> int:
             [args.lookback])
         upsert(con, "catalysts", cal)
 
-    print(f"[2/9] ClinicalTrials.gov ({len(ncts)} NCTs) ...", flush=True)
+    print(f"[2/10] ClinicalTrials.gov ({len(ncts)} NCTs) ...", flush=True)
     trials = ctgov.fetch(ncts)
     print(f"      {len(trials)} trials")
     with connect() as con:
         upsert(con, "trials", trials)
 
-    print(f"[3/9] SEC EDGAR cash & burn ({len(tickers)} tickers) ...", flush=True)
+    print(f"[3/10] SEC EDGAR cash & burn ({len(tickers)} tickers) ...", flush=True)
     fins = edgar.fetch(tickers, verbose=True)
     print(f"      {len(fins)} filers")
     with connect() as con:
         upsert(con, "financials", fins)
 
-    print(f"[4/9] Prices & volatility ({len(tickers)} tickers) ...", flush=True)
+    print(f"[4/10] Prices & volatility ({len(tickers)} tickers) ...", flush=True)
     px = prices.fetch(tickers, verbose=True)
     print(f"      {len(px)} price histories")
 
@@ -85,7 +86,7 @@ def cmd_refresh(args) -> int:
         upsert(con, "prices", px)
 
     if not args.no_news:
-        print(f"[5/9] News sentiment & filing cadence ({len(tickers)}) ...",
+        print(f"[5/10] News sentiment & filing cadence ({len(tickers)}) ...",
               flush=True)
         companies = (cal.dropna(subset=["ticker"])
                      .drop_duplicates("ticker")
@@ -97,7 +98,7 @@ def cmd_refresh(args) -> int:
     else:
         sent = pd.DataFrame()
 
-    print("[6/9] Option-implied catalyst moves ...", flush=True)
+    print("[6/10] Option-implied catalyst moves ...", flush=True)
     today = dt.date.today()
     # Don't gate on the `optionable` flag: the discovery source can't know it.
     # implied_move() returns None for names with no listed chain, which is the
@@ -133,7 +134,7 @@ def cmd_refresh(args) -> int:
     with connect() as con:
         upsert(con, "implied", imp)
     if not args.no_short_interest:
-        print(f"[7/9] FINRA short interest ({len(tickers)}) ...", flush=True)
+        print(f"[7/10] FINRA short interest ({len(tickers)}) ...", flush=True)
         si = shortinterest.fetch(tickers, verbose=True)
         print(f"      {len(si)} readings")
         with connect() as con:
@@ -141,7 +142,7 @@ def cmd_refresh(args) -> int:
     else:
         si = pd.DataFrame()
 
-    print(f"[8/9] Shelf, offerings & insider activity ({len(tickers)}) ...",
+    print(f"[8/10] Shelf, offerings & insider activity ({len(tickers)}) ...",
           flush=True)
     from .backtest.pit import all_filings
     fin_rows, ins_rows = [], []
@@ -166,7 +167,14 @@ def cmd_refresh(args) -> int:
         upsert(con, "financing", fin_df)
         upsert(con, "insider", ins_df)
 
-    print("[9/9] Scoring board & realised outcomes ...", flush=True)
+    print("[9/10] Readout guidance from 8-K text ...", flush=True)
+    guide = guidance_src.fetch(verbose=True) if not args.no_guidance else pd.DataFrame()
+    print(f"      {len(guide)} companies with stated timing")
+    with connect() as con:
+        con.execute("DELETE FROM guidance")
+        upsert(con, "guidance", guide)
+
+    print("[10/10] Scoring board & realised outcomes ...", flush=True)
     from . import outcomes as outcomes_mod
     with connect() as con:
         feat = features.build(con, horizon_days=args.horizon)
@@ -180,7 +188,7 @@ def cmd_refresh(args) -> int:
     print(f"\nwrote catalysts={len(cal)} trials={len(trials)} "
           f"financials={len(fins)} prices={len(px)} implied={len(imp)} "
           f"sentiment={len(sent)} short={len(si)} financing={len(fin_df)} "
-          f"insider={len(ins_df)} outcomes={len(outs)}")
+          f"insider={len(ins_df)} guidance={len(guide)} outcomes={len(outs)}")
     return 0
 
 
@@ -423,6 +431,8 @@ def main(argv=None) -> int:
     r.add_argument("--implied-horizon", type=int, default=90)
     r.add_argument("--lookback", type=int, default=45,
                    help="days of already-passed catalysts to keep and score")
+    r.add_argument("--no-guidance", action="store_true",
+                   help="skip the 8-K readout-guidance search")
     r.add_argument("--no-insider", action="store_true",
                    help="skip the Form 4 pull (the slowest step)")
     r.add_argument("--no-short-interest", action="store_true",

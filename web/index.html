@@ -77,6 +77,7 @@
             padding:2px 7px;font-size:11px;color:var(--muted);line-height:1.5}
   .chip-why.neg{border-color:color-mix(in srgb,var(--short) 40%,var(--line));color:var(--short)}
   .chip-why.pos{border-color:color-mix(in srgb,var(--long) 40%,var(--line));color:var(--long)}
+  .chip-why.caution{border-color:var(--vol);color:var(--vol);font-weight:650}
   tr.row{cursor:pointer}
   tr.row:hover{background:color-mix(in srgb,var(--accent) 6%,transparent)}
   tr.untested .verdict{opacity:.55}
@@ -297,9 +298,10 @@ function chips(reasons) {
   const parts = String(reasons).split("|").map(x => x.trim()).filter(Boolean);
   return '<div class="chips-why">' + parts.map(p => {
     const l = p.toLowerCase();
-    const neg = /squeeze|thin|immaterial|rare issuer|runs out|only \d+mo|ran up|size unknown/.test(l);
+    const caution = l.startsWith("caution");
+    const neg = !caution && /squeeze|thin|immaterial|rare issuer|runs out|only \d+mo|ran up|size unknown/.test(l);
     const pos = /serial issuer|loaded|8-ks in 90d|microcap:|priced a deal|financing not forced|expectations reset/.test(l);
-    return `<span class="chip-why ${neg ? "neg" : pos ? "pos" : ""}">${esc(p)}</span>`;
+    return `<span class="chip-why ${caution ? "caution" : neg ? "neg" : pos ? "pos" : ""}">${esc(p)}</span>`;
   }).join("") + "</div>";
 }
 
@@ -318,10 +320,13 @@ function detailRow(r) {
     ${row("Days to cover", r.dtc === null || r.dtc === undefined ? "—" : r.dtc.toFixed(1))}
     ${row("Short % of shares", r.short_pct === null || r.short_pct === undefined ? "—" : fmtPct(r.short_pct, 1))}
     ${row("Insider tilt (90d)", r.insider_tilt === null || r.insider_tilt === undefined ? "—" : (r.insider_tilt > 0 ? "+" : "") + r.insider_tilt.toFixed(2))}
+    ${row("Insider buyers (90d)", (r.form4_filings ?? 0) + " filings" + (r.cluster_buy ? " \u00b7 cluster buy" : ""))}
+    ${row("C-suite net (90d)", r.senior_net_usd ? "$" + Math.round(r.senior_net_usd).toLocaleString() : "—")}
     ${row("8-Ks (90d)", r.eightk ?? "—")}
     ${row("20-day return", fmtPct(r.ret20))}
     ${row("Evidence", esc(r.evidence))}
     <div class="full"><b>Evidence note:</b> ${esc(r.evidence_note || "—")}</div>
+    ${r.insider_note ? `<div class="full"><b>Notable insider move:</b> ${esc(r.insider_note)}</div>` : ""}
     ${r.headline ? `<div class="full"><b>Recent headline:</b> ${esc(r.headline)}</div>` : ""}
     ${r.nct ? `<div class="full"><a href="https://clinicaltrials.gov/study/${esc(r.nct)}" target="_blank" rel="noopener">${esc(r.nct)} on ClinicalTrials.gov \u2197</a></div>` : ""}
   </dl></td></tr>`;

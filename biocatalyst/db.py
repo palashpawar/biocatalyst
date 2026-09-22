@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import contextlib
+import re
 from typing import Iterator
 
 import duckdb
@@ -132,6 +133,12 @@ CREATE TABLE IF NOT EXISTS insider (
     sell_usd               DOUBLE,
     net_usd                DOUBLE,
     insider_tilt           DOUBLE,
+    senior_net_usd         DOUBLE,
+    n_buyers               INTEGER,
+    n_sellers              INTEGER,
+    cluster_buy            BOOLEAN,
+    biggest_delta_own      DOUBLE,
+    biggest_move_desc      VARCHAR,
     pulled_at              TIMESTAMP,
     PRIMARY KEY (ticker, snapshot_date)
 );
@@ -187,6 +194,30 @@ CREATE TABLE IF NOT EXISTS implied (
 """
 
 
+def _migrate(con) -> None:
+    """Add columns that exist in SCHEMA but not yet in the database.
+
+    `CREATE TABLE IF NOT EXISTS` is a no-op against a table that already
+    exists, so adding a column to SCHEMA silently does nothing to a database
+    created earlier and the next insert fails on the missing column. This
+    reconciles the two by parsing SCHEMA and adding whatever is absent.
+    """
+    for block in re.finditer(
+            r"CREATE TABLE IF NOT EXISTS\s+(\w+)\s*\((.*?)\n\);", SCHEMA, re.S):
+        table, body = block.group(1), block.group(2)
+        try:
+            have = {r[0] for r in con.execute(f"DESCRIBE {table}").fetchall()}
+        except Exception:
+            continue                      # table not created yet; SCHEMA will
+        for line in body.splitlines():
+            line = line.strip().rstrip(",")
+            if not line or line.startswith(("PRIMARY KEY", "--")):
+                continue
+            name, _, decl = line.partition(" ")
+            if name and name not in have and decl.strip():
+                con.execute(f"ALTER TABLE {table} ADD COLUMN {name} {decl.strip()}")
+
+
 @contextlib.contextmanager
 def connect(read_only: bool = False) -> Iterator[duckdb.DuckDBPyConnection]:
     """Yield a DuckDB connection, creating the schema on first write."""
@@ -195,6 +226,7 @@ def connect(read_only: bool = False) -> Iterator[duckdb.DuckDBPyConnection]:
     try:
         if not read_only:
             con.execute(SCHEMA)
+            _migrate(con)
         yield con
     finally:
         con.close()

@@ -177,6 +177,24 @@ def classify(r) -> dict:
     if lean == "short" and pd.notna(build) and build > 0.5:
         reasons.append(f"short interest +{build:.0%} since last reading")
 
+    # Insider activity is displayed, never scored: it has not been through the
+    # harness yet. But a C-suite buy or a cluster of insiders buying while the
+    # engine is calling a short is a contradiction worth reading before acting,
+    # so it is surfaced as a caution rather than silently ignored.
+    if lean == "short":
+        if r.get("cluster_buy"):
+            reasons.append(
+                f"CAUTION: {int(r.get('n_buyers') or 0)} insiders bought "
+                "(cluster) -- untested, not scored")
+        senior = r.get("senior_net_usd")
+        if pd.notna(senior) and senior > 100_000:
+            reasons.append(
+                f"CAUTION: C-suite net bought ${senior:,.0f} -- untested, not scored")
+        desc = r.get("biggest_move_desc")
+        big = r.get("biggest_delta_own")
+        if desc and pd.notna(big) and big > 0.5:
+            reasons.append(f"CAUTION: {desc}")
+
     # Conviction blends signal strength with how well-dated the catalyst is.
     strength = abs(runway_s) * 0.4 + abs(runup_s) * 0.25 + abs(loa_s) * 0.35
 

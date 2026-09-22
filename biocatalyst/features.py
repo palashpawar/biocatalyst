@@ -30,7 +30,8 @@ SELECT c.*,
        fz.dilution_label, fz.dilution_readiness, fz.offerings_24m,
        fz.days_since_offering, fz.shelf_live,
        ins.insider_tilt, ins.net_usd AS insider_net_usd,
-       ins.form4_filings
+       ins.form4_filings, ins.senior_net_usd, ins.cluster_buy,
+       ins.n_buyers, ins.biggest_delta_own, ins.biggest_move_desc
 FROM catalysts c
 LEFT JOIN trials     t ON c.nct_id = t.nct_id
 LEFT JOIN financials f ON c.ticker = f.ticker

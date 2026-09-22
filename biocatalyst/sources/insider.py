@@ -45,8 +45,38 @@ def _archive(cik: int, accession: str) -> str:
             f"{accession.replace('-', '')}")
 
 
+# Insiders are not interchangeable. A CEO or CFO trades with a view of the
+# whole company; a director sees board packets; a 10% holder may be a fund
+# rebalancing for reasons that have nothing to do with the business. Rank is
+# why openinsider.com surfaces a Title column, and it is in the filing too.
+SENIOR = re.compile(r"\b(chief exec|ceo|chief financial|cfo|president|"
+                    r"chief operating|coo|chief medical|cmo|chief scientific|cso)\b",
+                    re.I)
+
+
+def _owner_role(xml: str) -> tuple[str, str]:
+    """(role, title) for the reporting owner."""
+    def flag(tag):
+        m = re.search(rf"<{tag}>(.*?)</{tag}>", xml, re.S)
+        v = (m.group(1).strip().lower() if m else "")
+        return v in ("1", "true")
+
+    t = re.search(r"<officerTitle>(.*?)</officerTitle>", xml, re.S)
+    title = re.sub(r"\s+", " ", t.group(1)).strip() if t else ""
+    if flag("isOfficer"):
+        return ("senior" if SENIOR.search(title) else "officer"), title
+    if flag("isDirector"):
+        return "director", title or "Director"
+    if flag("isTenPercentOwner"):
+        return "ten_percent", title or "10% owner"
+    return "other", title
+
+
 def _parse_form4(xml: str) -> list[dict]:
     """Pull open-market transactions out of one Form 4."""
+    role, title = _owner_role(xml)
+    owner = re.search(r"<rptOwnerName>(.*?)</rptOwnerName>", xml, re.S)
+    owner = re.sub(r"\s+", " ", owner.group(1)).strip() if owner else ""
     out = []
     blocks = re.findall(r"<nonDerivativeTransaction>(.*?)</nonDerivativeTransaction>",
                         xml, re.S)
@@ -66,8 +96,25 @@ def _parse_form4(xml: str) -> list[dict]:
             px = float(price.group(1).strip()) if price else None
         except ValueError:
             px = None
+        # Share count after the trade lets us express size as a fraction of
+        # what the insider held. Selling 5,000 of 240,000 is housekeeping;
+        # selling 5,000 of 6,000 is an exit.
+        after = re.search(
+            r"<sharesOwnedFollowingTransaction>\s*<value>(.*?)</value>", b, re.S)
+        try:
+            held_after = float(after.group(1).strip()) if after else None
+        except ValueError:
+            held_after = None
+        delta_own = None
+        if held_after is not None and n:
+            before = held_after - n if code == "P" else held_after + n
+            if before > 0:
+                delta_own = (n / before) * (1 if code == "P" else -1)
+
         out.append({"code": code, "shares": n, "price": px,
-                    "date": date.group(1).strip() if date else None})
+                    "date": date.group(1).strip() if date else None,
+                    "role": role, "title": title, "owner": owner,
+                    "held_after": held_after, "delta_own": delta_own})
     return out
 
 
@@ -86,7 +133,9 @@ def recent_activity(ticker: str, days: int = 90,
     cutoff = dt.date.today() - dt.timedelta(days=days)
     bought = sold = 0.0
     buy_usd = sell_usd = 0.0
+    senior_usd = 0.0
     buyers, sellers = set(), set()
+    biggest_move, biggest_desc = 0.0, None
     seen = 0
 
     for form, filed, acc, doc in zip(recent.get("form", []),
@@ -114,11 +163,19 @@ def recent_activity(ticker: str, days: int = 90,
             if tx["code"] == "P":
                 bought += tx["shares"]
                 buy_usd += usd
-                buyers.add(acc)
+                buyers.add(tx["owner"] or acc)
             else:
                 sold += tx["shares"]
                 sell_usd += usd
-                sellers.add(acc)
+                sellers.add(tx["owner"] or acc)
+            if tx["role"] == "senior":
+                senior_usd += usd if tx["code"] == "P" else -usd
+            d = tx.get("delta_own")
+            if d is not None and abs(d) > abs(biggest_move):
+                biggest_move = d
+                biggest_desc = (f"{tx['owner'] or 'insider'} "
+                                f"({tx['title'] or tx['role']}) "
+                                f"{'+' if d > 0 else ''}{d:.0%} of holding")
 
     net_usd = buy_usd - sell_usd
     total_usd = buy_usd + sell_usd
@@ -133,6 +190,15 @@ def recent_activity(ticker: str, days: int = 90,
         "net_usd": net_usd,
         # -1 (all selling) to +1 (all buying); 0 when nothing open-market happened.
         "insider_tilt": round(net_usd / total_usd, 3) if total_usd else 0.0,
+        # Broken out because a C-suite trade and a 10%-holder rebalance are
+        # not the same evidence, and an aggregate tilt hides the difference.
+        "senior_net_usd": senior_usd,
+        "n_buyers": len(buyers),
+        "n_sellers": len(sellers),
+        # A cluster of separate insiders buying is the classic strong read.
+        "cluster_buy": len(buyers) >= 3,
+        "biggest_delta_own": round(biggest_move, 4) if biggest_move else None,
+        "biggest_move_desc": biggest_desc,
         "pulled_at": dt.datetime.now(),
     }
 

@@ -97,3 +97,30 @@ def test_form4_with_no_open_market_activity():
     only_tax = FORM4.replace("<transactionCode>P</transactionCode>",
                              "<transactionCode>F</transactionCode>")
     assert _parse_form4(only_tax) == []
+
+
+def test_schema_migration_adds_new_columns(tmp_path, monkeypatch):
+    # Regression: CREATE TABLE IF NOT EXISTS is a no-op on an existing table,
+    # so adding a column to SCHEMA did nothing to an older database and the
+    # next insert failed on the missing column.
+    import duckdb
+    from biocatalyst import db
+
+    con = duckdb.connect(":memory:")
+    con.execute("CREATE TABLE insider (ticker VARCHAR, snapshot_date DATE)")
+    db._migrate(con)
+    cols = {r[0] for r in con.execute("DESCRIBE insider").fetchall()}
+    assert {"senior_net_usd", "cluster_buy", "n_buyers"} <= cols
+    con.close()
+
+
+def test_migration_is_idempotent():
+    import duckdb
+    from biocatalyst import db
+    con = duckdb.connect(":memory:")
+    con.execute(db.SCHEMA)
+    db._migrate(con)
+    before = {r[0] for r in con.execute("DESCRIBE insider").fetchall()}
+    db._migrate(con)
+    assert {r[0] for r in con.execute("DESCRIBE insider").fetchall()} == before
+    con.close()

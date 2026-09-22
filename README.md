@@ -92,7 +92,7 @@ noise.
 | SEC EDGAR full-text | PDUFA dates, drug and indication from 8-Ks | UA header |
 | SEC EDGAR submissions | 8-K filing cadence | UA header |
 | SEC EDGAR submissions | Shelf (S-3) and offering (424B5) history | UA header |
-| SEC Form 4 / bulk Form 345 | Open-market insider buys and sales | UA header |
+| SEC Form 4 / bulk Form 345 | Open-market insider buys and sales, officer rank, ownership change | UA header |
 | FINRA | Consolidated short interest, ~9 years of history | none |
 | Yahoo (yfinance) | Prices, realized vol, option chains | none |
 | Google News RSS | Headlines for sentiment | none |
@@ -161,7 +161,13 @@ Significance is flagged in three tiers: `*** survives multiple testing`,
 - **`VOL_SELL_RICH` / `VOL_BUY_CHEAP`** compare a live straddle to a base rate,
   and there is no free source of historical option chains. Permanently
   unvalidated on free data; the harness says so on every run.
-- **Insider activity** is shipped but **not yet backtested**. The bulk Form 345
+- **Insider activity** is shipped but **not yet backtested**. It is parsed
+  from Form 4 and filtered to open-market `P` and `S`, with officer rank and
+  the change in the insider's own holding — openinsider.com surfaces the same
+  fields and is a good manual cross-check, but everything it shows is in the
+  filings, so this reads the source rather than scraping a third party.
+  Contradictions are surfaced as CAUTION chips on a short without moving the
+  conviction number. The bulk Form 345
   data sets make it testable (`insider.load_bulk_quarter`), which is the next
   thing to run; until then it is shown and never scored.
 - **News sentiment** has no free point-in-time archive either, so it is

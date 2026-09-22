@@ -10,6 +10,12 @@ behind it never looks like one without.
 
 **Live board:** https://biocatalyst-iota.vercel.app
 
+> Research output, not investment advice. This is a personal tool built from
+> public data. Base rates are population averages, several weights are chosen
+> by hand, and three of the signals on the board were tested and **failed** —
+> they are shown with that label rather than removed. Nothing here is a
+> recommendation to buy or sell any security.
+
 ```bash
 python3 -m biocatalyst.cli refresh        # pull every source into DuckDB
 python3 -m biocatalyst.cli board --why 5  # ranked board + reasoning

@@ -71,7 +71,26 @@
   .ev-not-supported{color:var(--short)} .ev-untested,.ev-na{color:var(--muted)}
   .meter{height:4px;border-radius:3px;background:var(--line);overflow:hidden;width:56px;margin-top:4px}
   .meter i{display:block;height:100%;background:var(--accent)}
-  .why{color:var(--muted);font-size:11.5px;max-width:330px;line-height:1.45}
+  .why{max-width:340px}
+  .chips-why{display:flex;flex-wrap:wrap;gap:4px}
+  .chip-why{background:var(--bg);border:1px solid var(--line);border-radius:5px;
+            padding:2px 7px;font-size:11px;color:var(--muted);line-height:1.5}
+  .chip-why.neg{border-color:color-mix(in srgb,var(--short) 40%,var(--line));color:var(--short)}
+  .chip-why.pos{border-color:color-mix(in srgb,var(--long) 40%,var(--line));color:var(--long)}
+  tr.row{cursor:pointer}
+  tr.row:hover{background:color-mix(in srgb,var(--accent) 6%,transparent)}
+  tr.untested .verdict{opacity:.55}
+  tr.untested td{opacity:.88}
+  .detail td{background:var(--bg);font-size:12px;padding:14px 16px}
+  .detail dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+             gap:10px 18px;margin:0}
+  .detail dt{color:var(--muted);font-size:10.5px;text-transform:uppercase;
+             letter-spacing:.05em;margin-bottom:2px}
+  .detail dd{margin:0;font-variant-numeric:tabular-nums}
+  .detail .full{grid-column:1/-1;color:var(--muted);line-height:1.6;margin-top:6px}
+  .dupe{display:inline-block;font-size:9.5px;color:var(--muted);
+        border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-left:5px}
+  .caret{color:var(--muted);font-size:10px;margin-left:4px}
   .nums{font-variant-numeric:tabular-nums;font-size:12px;white-space:nowrap}
   .sent{font-variant-numeric:tabular-nums;font-weight:700;font-size:13px}
   .sent-pos{color:var(--long)} .sent-neg{color:var(--short)}
@@ -117,6 +136,14 @@
     <select id="sort">
       <option value="date">Soonest catalyst</option>
       <option value="conviction">Highest conviction</option>
+    </select>
+    <label>Search</label>
+    <input type="search" id="q" placeholder="ticker or drug" style="width:130px">
+    <label>Evidence</label>
+    <select id="evidence">
+      <option value="ALL">Any</option>
+      <option value="supported">Supported only</option>
+      <option value="tested">Tested (excl. untested)</option>
     </select>
     <label>Show</label>
     <select id="setup">
@@ -184,8 +211,17 @@ function render() {
   const horizon = +document.getElementById("horizon").value || 180;
   const minconv = +document.getElementById("minconv").value || 0;
 
+  const q = (document.getElementById("q").value || "").trim().toLowerCase();
+  const ev = document.getElementById("evidence").value;
+
   let rows = DATA.rows.filter(r => r.days !== null && r.days <= horizon
                                    && r.conviction >= minconv);
+  if (q) rows = rows.filter(r =>
+    r.ticker.toLowerCase().includes(q) ||
+    (r.drug || "").toLowerCase().includes(q) ||
+    (r.indication || "").toLowerCase().includes(q));
+  if (ev === "supported") rows = rows.filter(r => r.evidence === "supported");
+  else if (ev === "tested") rows = rows.filter(r => r.evidence !== "untested");
   if (setup === "ACTIONABLE") rows = rows.filter(r => r.setup !== "NO_EDGE");
   else if (setup !== "ALL") rows = rows.filter(r => r.setup === setup);
 
@@ -194,8 +230,10 @@ function render() {
     : (a.days - b.days) || (b.conviction - a.conviction));
 
   const counts = {};
-  rows.forEach(r => counts[r.verdict] = (counts[r.verdict] || 0) + 1);
-  document.getElementById("tally").innerHTML = Object.entries(counts)
+  rows.forEach(r => counts[r.ticker] = (counts[r.ticker] || 0) + 1);
+  const vcounts = {};
+  rows.forEach(r => vcounts[r.verdict] = (vcounts[r.verdict] || 0) + 1);
+  document.getElementById("tally").innerHTML = Object.entries(vcounts)
     .map(([k, v]) => `<span class="t-${k.replace(/ /g, "")}">${esc(k)} · ${v}</span>`).join("");
 
   document.getElementById("sub").textContent =
@@ -215,14 +253,15 @@ function render() {
       <th class="hide-sm">Evidence</th><th class="hide-sm">Numbers</th>
       <th class="hide-sm">Squeeze</th>
       <th class="hide-sm">News</th><th class="hide-sm">Why</th>
-    </tr></thead><tbody>` + rows.slice(0, 400).map(r => {
+    </tr></thead><tbody>` + rows.slice(0, 400).map((r, idx) => {
     const sentCls = r.sentiment === null ? "" : r.sent_thin ? "sent-thin"
       : r.sentiment > 0.2 ? "sent-pos" : r.sentiment < -0.2 ? "sent-neg" : "sent-flat";
-    return `<tr>
+    return `<tr class="row${r.evidence === "untested" ? " untested" : ""}" data-i="${idx}">
       <td><span class="verdict v-${r.verdict.replace(/ /g, "")}">${esc(r.verdict)}</span>
         ${!r.directional && r.verdict !== "NO TRADE" ? '<span class="nondir">not directional</span>' : ""}
         <span class="setup">${esc(r.setup.replace(/_/g, " ").toLowerCase())}</span></td>
       <td class="tick"><a href="${esc(r.robinhood)}" target="_blank" rel="noopener">${esc(r.ticker)}</a>
+        ${counts[r.ticker] > 1 ? `<span class="dupe">${counts[r.ticker]} catalysts</span>` : ""}
         <div class="dim">${fmtCap(r.mcap)}</div></td>
       <td><div class="when">${when(r.days)}</div><div class="dim">${esc(r.date)}</div>
         <div class="dim">${esc(r.precision)}</div></td>
@@ -244,9 +283,60 @@ function render() {
         : `<span class="sent ${sentCls}">${r.sentiment > 0 ? "+" : ""}${r.sentiment.toFixed(2)}</span>
            <div class="dim">${r.sent_n || 0} scored${r.sent_thin ? " · thin" : ""}</div>`}
         ${r.eightk !== null ? `<div class="dim">${r.eightk} 8-K/90d</div>` : ""}</td>
-      <td class="hide-sm why">${esc(r.reasons)}</td>
+      <td class="hide-sm why">${chips(r.reasons)}</td>
     </tr>`;
   }).join("") + "</tbody></table>";
+  wireExpansion(rows);
+}
+
+// Reasons arrive as one pipe-joined string; median 138 characters and up to
+// 476, which is unreadable in a table cell. Split into chips and tint the
+// ones that carry a direction.
+function chips(reasons) {
+  if (!reasons) return "";
+  const parts = String(reasons).split("|").map(x => x.trim()).filter(Boolean);
+  return '<div class="chips-why">' + parts.map(p => {
+    const l = p.toLowerCase();
+    const neg = /squeeze|thin|immaterial|rare issuer|runs out|only \d+mo|ran up|size unknown/.test(l);
+    const pos = /serial issuer|loaded|8-ks in 90d|microcap:|priced a deal|financing not forced|expectations reset/.test(l);
+    return `<span class="chip-why ${neg ? "neg" : pos ? "pos" : ""}">${esc(p)}</span>`;
+  }).join("") + "</div>";
+}
+
+function detailRow(r) {
+  const row = (k, v) => `<div><dt>${k}</dt><dd>${v}</dd></div>`;
+  return `<tr class="detail"><td colspan="10"><dl>
+    ${row("Company", esc(r.company || "—"))}
+    ${row("Stage", esc(r.stage || "—"))}
+    ${row("Catalyst date", esc(r.date) + " (" + esc(r.precision) + ")")}
+    ${row("Market cap", fmtCap(r.mcap))}
+    ${row("Base-rate LOA", fmtPct(r.loa))}
+    ${row("Implied / typical move", fmtPct(r.implied) + " / " + fmtPct(r.expected))}
+    ${row("Cash runway", r.runway === null ? "—" : Math.round(r.runway) + " months")}
+    ${row("Offerings (24mo)", r.offerings_24m ?? "—")}
+    ${row("Dilution readiness", esc(r.dilution || "—"))}
+    ${row("Days to cover", r.dtc === null || r.dtc === undefined ? "—" : r.dtc.toFixed(1))}
+    ${row("Short % of shares", r.short_pct === null || r.short_pct === undefined ? "—" : fmtPct(r.short_pct, 1))}
+    ${row("Insider tilt (90d)", r.insider_tilt === null || r.insider_tilt === undefined ? "—" : (r.insider_tilt > 0 ? "+" : "") + r.insider_tilt.toFixed(2))}
+    ${row("8-Ks (90d)", r.eightk ?? "—")}
+    ${row("20-day return", fmtPct(r.ret20))}
+    ${row("Evidence", esc(r.evidence))}
+    <div class="full"><b>Evidence note:</b> ${esc(r.evidence_note || "—")}</div>
+    ${r.headline ? `<div class="full"><b>Recent headline:</b> ${esc(r.headline)}</div>` : ""}
+    ${r.nct ? `<div class="full"><a href="https://clinicaltrials.gov/study/${esc(r.nct)}" target="_blank" rel="noopener">${esc(r.nct)} on ClinicalTrials.gov \u2197</a></div>` : ""}
+  </dl></td></tr>`;
+}
+
+function wireExpansion(rows) {
+  document.querySelectorAll("tr.row").forEach(tr => {
+    tr.addEventListener("click", e => {
+      if (e.target.closest("a")) return;          // let ticker links through
+      const next = tr.nextElementSibling;
+      if (next && next.classList.contains("detail")) { next.remove(); return; }
+      document.querySelectorAll("tr.detail").forEach(d => d.remove());
+      tr.insertAdjacentHTML("afterend", detailRow(rows[+tr.dataset.i]));
+    });
+  });
 }
 
 let VIEW = "upcoming";
@@ -303,7 +393,7 @@ document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () =>
   show();
 }));
 
-["sort", "setup", "horizon", "minconv"].forEach(id =>
+["sort", "setup", "horizon", "minconv", "q", "evidence"].forEach(id =>
   document.getElementById(id).addEventListener("input", render));
 document.getElementById("recentsort").addEventListener("input", renderRecent);
 

@@ -26,7 +26,11 @@ SELECT c.*,
        s.scored_articles, s.top_positive, s.top_negative,
        s.eightk_30d, s.eightk_90d, s.days_since_8k,
        si.shares_short, si.shares_short_prior, si.days_to_cover,
-       si.settlement_date AS short_asof
+       si.settlement_date AS short_asof,
+       fz.dilution_label, fz.dilution_readiness, fz.offerings_24m,
+       fz.days_since_offering, fz.shelf_live,
+       ins.insider_tilt, ins.net_usd AS insider_net_usd,
+       ins.form4_filings
 FROM catalysts c
 LEFT JOIN trials     t ON c.nct_id = t.nct_id
 LEFT JOIN financials f ON c.ticker = f.ticker
@@ -43,6 +47,11 @@ LEFT JOIN (
     SELECT * FROM short_interest
     QUALIFY ROW_NUMBER() OVER (PARTITION BY ticker ORDER BY settlement_date DESC) = 1
 ) si ON c.ticker = si.ticker
+LEFT JOIN financing fz ON c.ticker = fz.ticker
+LEFT JOIN (
+    SELECT * FROM insider
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY ticker ORDER BY snapshot_date DESC) = 1
+) ins ON c.ticker = ins.ticker
 """
 
 

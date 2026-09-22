@@ -48,6 +48,13 @@ every bucket tested.
   126 days (p=0.000) on its own. With low runway and a microcap valuation it
   reaches **−39.8% at 126 days on a 19% hit rate**. The *burst ratio* against a
   company's own baseline found nothing — the absolute count carries the signal.
+- **Serial issuance is the actual mechanism.** Splitting low-runway names on
+  two offerings in 24 months: serial issuers ran −8.8% at 21 days and **−27.7%
+  at 126 days** (both survive); rare issuers ran −0.3% (p=0.87) and +2.2%
+  (p=0.64) — nothing. Low cash only predicts a decline when the company
+  habitually raises. Dilution readiness is monotone across its four buckets,
+  with "loaded" at −17.0% at 126 days, and a company that priced a deal in the
+  last 120 days ran −9.0% at 126 days.
 - **Short crowding erases the edge.** Splitting low-runway names on 5 days to
   cover: uncrowded ran −7.2% at 21 days and −20.2% at 126 days (both survive);
   crowded ran −1.1% (p=0.63) and −6.4% (p=0.23). Crowded shorts on *well-funded*
@@ -84,6 +91,8 @@ noise.
 | SEC EDGAR XBRL | Cash, burn, shares → runway | UA header |
 | SEC EDGAR full-text | PDUFA dates, drug and indication from 8-Ks | UA header |
 | SEC EDGAR submissions | 8-K filing cadence | UA header |
+| SEC EDGAR submissions | Shelf (S-3) and offering (424B5) history | UA header |
+| SEC Form 4 / bulk Form 345 | Open-market insider buys and sales | UA header |
 | FINRA | Consolidated short interest, ~9 years of history | none |
 | Yahoo (yfinance) | Prices, realized vol, option chains | none |
 | Google News RSS | Headlines for sentiment | none |
@@ -115,7 +124,7 @@ python3 -m biocatalyst.cli refresh --source bpc --include-paid
 python3 -m biocatalyst.cli backtest --mode both --start 2021-01-01 --save
 ```
 
-Four studies (`--mode runway | cadence | squeeze | catalyst | both`), kept apart
+Five studies (`--mode runway | cadence | squeeze | financing | catalyst | both`), kept apart
 because their anchors are not equally trustworthy.
 
 **Filing-anchored** (`runway`, `cadence`, `squeeze`) use 10-Q/10-K filing dates,
@@ -152,6 +161,9 @@ Significance is flagged in three tiers: `*** survives multiple testing`,
 - **`VOL_SELL_RICH` / `VOL_BUY_CHEAP`** compare a live straddle to a base rate,
   and there is no free source of historical option chains. Permanently
   unvalidated on free data; the harness says so on every run.
+- **Insider activity** is shipped but **not yet backtested**. The bulk Form 345
+  data sets make it testable (`insider.load_bulk_quarter`), which is the next
+  thing to run; until then it is shown and never scored.
 - **News sentiment** has no free point-in-time archive either, so it is
   **context only and never moves a verdict**. Scores are logged daily to the
   `sentiment` table so that it becomes testable once enough forward history
@@ -204,13 +216,15 @@ biocatalyst/
     edgar.py          cash, burn, runway from XBRL (TTL-cached)
     prices.py         price/vol history, option-implied moves
     shortinterest.py  FINRA short interest, squeeze metrics
+    financing.py      shelf registrations, offerings, dilution readiness
+    insider.py        Form 4 open-market buys/sales (P and S only)
     news.py           headline sentiment, 8-K filing cadence
   backtest/
     pit.py            point-in-time financials, 8-K and short-interest history
     universe.py       historical event universes, both anchors
     engine.py         price panel, abnormal returns vs XBI
     stats.py          ticker-clustered bootstrap, multiple-testing control
-    run.py            the four studies
+    run.py            the five studies
 dashboard/app.py      local Flask board
 web/                  static site published to Vercel
 .github/workflows/    nightly refresh
@@ -218,4 +232,4 @@ web/                  static site published to Vercel
 
 Deployment and the nightly refresh are documented in [DEPLOY.md](DEPLOY.md).
 
-Run the tests with `python3 -m pytest tests/ -q` (120 tests).
+Run the tests with `python3 -m pytest tests/ -q` (129 tests).

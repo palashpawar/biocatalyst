@@ -105,6 +105,37 @@ CREATE TABLE IF NOT EXISTS outcomes (
     PRIMARY KEY (drug_id, catalyst_date)
 );
 
+-- Shelf/offering posture and open-market insider activity.
+CREATE TABLE IF NOT EXISTS financing (
+    ticker                 VARCHAR PRIMARY KEY,
+    last_shelf_date        DATE,
+    shelf_live             BOOLEAN,
+    shelf_count            INTEGER,
+    last_offering_date     DATE,
+    days_since_offering    INTEGER,
+    offerings_24m          INTEGER,
+    offerings_total        INTEGER,
+    dilution_readiness     INTEGER,
+    dilution_label         VARCHAR,
+    dilution_notes         VARCHAR,
+    pulled_at              TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS insider (
+    ticker                 VARCHAR,
+    snapshot_date          DATE,
+    window_days            INTEGER,
+    form4_filings          INTEGER,
+    shares_bought          DOUBLE,
+    shares_sold            DOUBLE,
+    buy_usd                DOUBLE,
+    sell_usd               DOUBLE,
+    net_usd                DOUBLE,
+    insider_tilt           DOUBLE,
+    pulled_at              TIMESTAMP,
+    PRIMARY KEY (ticker, snapshot_date)
+);
+
 -- FINRA consolidated short interest. Bi-monthly and published ~8 business
 -- days after settlement, so `published_date` is the only honest key for any
 -- historical use.

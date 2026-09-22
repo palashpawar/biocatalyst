@@ -152,6 +152,36 @@ SUBMISSIONS = "https://data.sec.gov/submissions/CIK{cik:010d}.json"
 SHARD = "https://data.sec.gov/submissions/{name}"
 
 
+def all_filings(ticker: str, refresh: bool = False) -> list[tuple[str, str]]:
+    """Every (form, filing-date) pair for a company, disk-cached.
+
+    One fetch serves 8-K cadence, shelf registrations, offering prospectuses
+    and Form 4 counts -- they all live in the same submissions index.
+    """
+    CACHE.mkdir(parents=True, exist_ok=True)
+    path = CACHE / f"{ticker.upper()}.forms.json"
+    if path.exists() and not refresh:
+        try:
+            return [tuple(x) for x in json.loads(path.read_text())]
+        except Exception:
+            pass
+    cik = ticker_to_cik().get(ticker.upper())
+    if not cik:
+        return []
+    try:
+        payload = get(SUBMISSIONS.format(cik=cik)).json()
+    except Exception:
+        return []
+    recent = payload.get("filings", {}).get("recent", {})
+    out = [(str(f), str(d)) for f, d in zip(recent.get("form", []),
+                                            recent.get("filingDate", []))]
+    try:
+        path.write_text(json.dumps(out))
+    except OSError:
+        pass
+    return out
+
+
 def submissions(ticker: str, since: dt.date | None = None,
                 refresh: bool = False) -> list[dt.date]:
     """Every 8-K filing date for a company, disk-cached.

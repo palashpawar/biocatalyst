@@ -23,7 +23,10 @@ SETUP_EVIDENCE = {
                        "(p=0.000, 19% hit rate). Requires an UNCROWDED short: "
                        "split on 5 days to cover, uncrowded ran -7.2% @21d / "
                        "-20.2% @126d (both survive) while crowded ran -1.1% "
-                       "(p=0.63). Caveat: 2025 sub-sample reversed positive"),
+                       "(p=0.63). Driven by serial issuers: low runway + 2+ "
+                       "offerings in 24mo ran -8.8% @21d / -27.7% @126d, while "
+                       "rare issuers ran flat (p=0.87). Caveat: 2025 sub-sample "
+                       "reversed positive"),
     "RUNUP_FADE": ("not supported",
                    "ran up >15% into a readout: -1.5% @1d (p=0.26), "
                    "+0.1% @21d -- no measurable edge"),
@@ -179,6 +182,26 @@ def classify(r) -> dict:
 
     # Measured amplifiers on the one validated setup.
     if setup == "DILUTION_SHORT":
+        # Serial issuance is what the runway signal was actually picking up.
+        # Split on two offerings in 24 months: serial issuers ran -8.8% @21d
+        # and -27.7% @126d (both survive multiple testing) while rare issuers
+        # ran -0.3% (p=0.87) and +2.2% (p=0.64) -- nothing at all. Low cash
+        # only predicts a decline when the company habitually raises.
+        serial = (r.get("offerings_24m") or 0) >= 2
+        if serial:
+            strength = min(1.0, strength * 1.35)
+            reasons.append(
+                f"{int(r['offerings_24m'])} offerings in 24mo: serial issuer "
+                "(-27.7% @126d vs +2.2% for rare issuers)")
+        else:
+            strength *= 0.5
+            reasons.append("rare issuer: low runway alone tested flat (p=0.87)")
+        if r.get("dilution_label") == "loaded":
+            reasons.append("dilution readiness loaded (-17.0% @126d)")
+        since = r.get("days_since_offering")
+        if pd.notna(since) and since <= 120:
+            reasons.append(f"priced a deal {int(since)}d ago (-9.0% @126d)")
+
         busy = (r.get("eightk_90d") or 0) >= 6
         if r.get("microcap"):
             strength = min(1.0, strength * 1.25)

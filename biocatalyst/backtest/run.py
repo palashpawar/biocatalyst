@@ -22,6 +22,7 @@ import pandas as pd
 
 from .. import baserates
 from ..config import RUNWAY_CRITICAL_MONTHS, RUNWAY_WARN_MONTHS
+from ..sources import financing
 from . import engine, pit, stats, universe
 
 UNTESTABLE = ("VOL_SELL_RICH", "VOL_BUY_CHEAP")
@@ -303,6 +304,66 @@ def run_squeeze(start: dt.date, end: dt.date, tickers: list[str],
     return {
         "events": df,
         "by_dtc": stats.summarize(df, "dtc_bucket", horizons=horizons),
+        "by_interaction": stats.summarize(df, "interaction", horizons=horizons),
+        "missing_tickers": missing,
+    }
+
+
+def run_financing(start: dt.date, end: dt.date, tickers: list[str],
+                  horizons=(21, 63, 126), verbose: bool = True) -> dict:
+    """Does shelf/offering posture add anything to cash runway alone?
+
+    Free in request terms -- it reads the same cached submissions index the
+    8-K study uses -- and point-in-time by construction, since filing dates
+    are immutable.
+    """
+    if verbose:
+        print(f"[financing] filing events for {len(tickers)} tickers ...",
+              flush=True)
+    events = universe.filing_events(tickers, start, end, verbose=verbose)
+    if events.empty:
+        return {"events": events}
+
+    closes, _, missing = engine.build_price_panel(
+        list(events.ticker.unique()), start, end, verbose=verbose)
+    rets = engine.event_returns(events, closes, horizons=horizons,
+                                entry_offset=0)
+    if rets.empty:
+        return {"events": rets}
+
+    if verbose:
+        print("[financing] attaching shelf/offering history ...", flush=True)
+    rows = []
+    for t, grp in rets.groupby("ticker"):
+        filings = pit.all_filings(t)
+        facts = pit.companyfacts(t)
+        for _, r in grp.iterrows():
+            fz = financing.financing_at(filings, r["entry_date"])
+            fin = pit.pit_financials(t, r["entry_date"], facts=facts) if facts else None
+            runway = (fin or {}).get("runway_months")
+            rows.append({**r.to_dict(), **fz,
+                         "runway_months": runway,
+                         **financing.dilution_readiness(fz, runway)})
+    df = pd.DataFrame(rows)
+    if df.empty:
+        return {"events": df}
+
+    df["readiness_bucket"] = df["dilution_label"]
+    df["recent_deal"] = np.where(
+        df["days_since_offering"].notna() & (df["days_since_offering"] <= 120),
+        "priced <120d ago", "no recent deal")
+
+    low = df["runway_months"] < RUNWAY_CRITICAL_MONTHS
+    serial = df["offerings_24m"].fillna(0) >= 2
+    df["interaction"] = np.where(
+        low & serial, "low runway + serial issuer",
+        np.where(low & ~serial, "low runway, rare issuer",
+                 np.where(~low & serial, "serial issuer only", "neither")))
+
+    return {
+        "events": df,
+        "by_readiness": stats.summarize(df, "readiness_bucket", horizons=horizons),
+        "by_recent_deal": stats.summarize(df, "recent_deal", horizons=horizons),
         "by_interaction": stats.summarize(df, "interaction", horizons=horizons),
         "missing_tickers": missing,
     }

@@ -13,20 +13,20 @@ from .backtest import run as bt
 from .backtest import stats as btstats
 from .backtest import universe as btuniverse
 from .db import connect, upsert
-from .sources import (bpc, ctgov, discovery, edgar, news, prices,
-                      shortinterest)
+from .sources import (bpc, ctgov, discovery, edgar, financing, insider,
+                      news, prices, shortinterest)
 
 
 def cmd_refresh(args) -> int:
     if args.source == "bpc":
-        print("[1/8] BiopharmCatalyst FDA calendar ...", flush=True)
+        print("[1/9] BiopharmCatalyst FDA calendar ...", flush=True)
         cal = bpc.fetch(max_pages=args.max_pages, include_paid=args.include_paid)
         if not args.include_paid and len(cal) <= 10:
             print("      NOTE: BPC's free tier returns only the first 10 rows; "
                   "the rest arrive blurred. Use --source discovery for full "
                   "coverage, or --include-paid with a subscriber cookie.")
     else:
-        print("[1/8] Catalyst discovery (ClinicalTrials.gov + EDGAR) ...", flush=True)
+        print("[1/9] Catalyst discovery (ClinicalTrials.gov + EDGAR) ...", flush=True)
         cal = discovery.build_calendar(horizon_days=args.horizon,
                                        with_pdufa=not args.no_pdufa,
                                        verbose=True,
@@ -55,19 +55,19 @@ def cmd_refresh(args) -> int:
             [args.lookback])
         upsert(con, "catalysts", cal)
 
-    print(f"[2/8] ClinicalTrials.gov ({len(ncts)} NCTs) ...", flush=True)
+    print(f"[2/9] ClinicalTrials.gov ({len(ncts)} NCTs) ...", flush=True)
     trials = ctgov.fetch(ncts)
     print(f"      {len(trials)} trials")
     with connect() as con:
         upsert(con, "trials", trials)
 
-    print(f"[3/8] SEC EDGAR cash & burn ({len(tickers)} tickers) ...", flush=True)
+    print(f"[3/9] SEC EDGAR cash & burn ({len(tickers)} tickers) ...", flush=True)
     fins = edgar.fetch(tickers, verbose=True)
     print(f"      {len(fins)} filers")
     with connect() as con:
         upsert(con, "financials", fins)
 
-    print(f"[4/8] Prices & volatility ({len(tickers)} tickers) ...", flush=True)
+    print(f"[4/9] Prices & volatility ({len(tickers)} tickers) ...", flush=True)
     px = prices.fetch(tickers, verbose=True)
     print(f"      {len(px)} price histories")
 
@@ -85,7 +85,7 @@ def cmd_refresh(args) -> int:
         upsert(con, "prices", px)
 
     if not args.no_news:
-        print(f"[5/8] News sentiment & filing cadence ({len(tickers)}) ...",
+        print(f"[5/9] News sentiment & filing cadence ({len(tickers)}) ...",
               flush=True)
         companies = (cal.dropna(subset=["ticker"])
                      .drop_duplicates("ticker")
@@ -97,7 +97,7 @@ def cmd_refresh(args) -> int:
     else:
         sent = pd.DataFrame()
 
-    print("[6/8] Option-implied catalyst moves ...", flush=True)
+    print("[6/9] Option-implied catalyst moves ...", flush=True)
     today = dt.date.today()
     # Don't gate on the `optionable` flag: the discovery source can't know it.
     # implied_move() returns None for names with no listed chain, which is the
@@ -133,7 +133,7 @@ def cmd_refresh(args) -> int:
     with connect() as con:
         upsert(con, "implied", imp)
     if not args.no_short_interest:
-        print(f"[7/8] FINRA short interest ({len(tickers)}) ...", flush=True)
+        print(f"[7/9] FINRA short interest ({len(tickers)}) ...", flush=True)
         si = shortinterest.fetch(tickers, verbose=True)
         print(f"      {len(si)} readings")
         with connect() as con:
@@ -141,7 +141,32 @@ def cmd_refresh(args) -> int:
     else:
         si = pd.DataFrame()
 
-    print("[8/8] Scoring board & realised outcomes ...", flush=True)
+    print(f"[8/9] Shelf, offerings & insider activity ({len(tickers)}) ...",
+          flush=True)
+    from .backtest.pit import all_filings
+    fin_rows, ins_rows = [], []
+    fin_by_ticker = (fins.set_index("ticker")["runway_months"].to_dict()
+                     if not fins.empty else {})
+    for i, t in enumerate(tickers, 1):
+        fz = financing.financing_at(all_filings(t))
+        fz.update(financing.dilution_readiness(fz, fin_by_ticker.get(t)))
+        fin_rows.append({"ticker": t, **fz, "pulled_at": dt.datetime.now()})
+        if not args.no_insider:
+            rec = insider.recent_activity(t)
+            if rec:
+                ins_rows.append({**rec, "snapshot_date": dt.date.today()})
+        if i % 25 == 0:
+            print(f"    financing {i}/{len(tickers)}", flush=True)
+    fin_df = pd.DataFrame(fin_rows).drop(
+        columns=["shelf_age_days"], errors="ignore")
+    ins_df = pd.DataFrame(ins_rows)
+    print(f"      {len(fin_df)} financing, {len(ins_df)} insider")
+    with connect() as con:
+        con.execute("DELETE FROM financing")
+        upsert(con, "financing", fin_df)
+        upsert(con, "insider", ins_df)
+
+    print("[9/9] Scoring board & realised outcomes ...", flush=True)
     from . import outcomes as outcomes_mod
     with connect() as con:
         feat = features.build(con, horizon_days=args.horizon)
@@ -154,7 +179,8 @@ def cmd_refresh(args) -> int:
 
     print(f"\nwrote catalysts={len(cal)} trials={len(trials)} "
           f"financials={len(fins)} prices={len(px)} implied={len(imp)} "
-          f"sentiment={len(sent)} short={len(si)} outcomes={len(outs)}")
+          f"sentiment={len(sent)} short={len(si)} financing={len(fin_df)} "
+          f"insider={len(ins_df)} outcomes={len(outs)}")
     return 0
 
 
@@ -264,6 +290,29 @@ def cmd_backtest(args) -> int:
                 ev.to_csv("data/backtest_cadence.csv", index=False)
                 print("\nsaved data/backtest_cadence.csv")
 
+    if args.mode in ("financing", "both"):
+        res = bt.run_financing(start, end, tickers, verbose=True)
+        print("\n" + "=" * 100)
+        print("FINANCING STUDY  (anchor: filing dates; shelf and offering "
+              "history, immutable filing dates)")
+        print("=" * 100)
+        ev = res.get("events")
+        if ev is None or ev.empty:
+            print("no observations")
+        else:
+            print(f"{len(ev)} observations, {ev.ticker.nunique()} tickers\n")
+            keys = (("by_readiness", "By dilution readiness"),
+                    ("by_recent_deal", "By recency of the last offering"),
+                    ("by_interaction", "Serial issuance against the runway signal"))
+            tables = [res.get(k) for k, _ in keys]
+            n_tests += btstats.apply_multiple_testing(tables)
+            for (key, title), tbl in zip(keys, tables):
+                if tbl is not None and not tbl.empty:
+                    print(f"\n-- {title}")
+                    print(btstats.format_table(tbl))
+            if args.save:
+                ev.to_csv("data/backtest_financing.csv", index=False)
+
     if args.mode in ("squeeze", "both"):
         res = bt.run_squeeze(start, end, tickers, verbose=True)
         print("\n" + "=" * 100)
@@ -349,6 +398,8 @@ def main(argv=None) -> int:
     r.add_argument("--implied-horizon", type=int, default=90)
     r.add_argument("--lookback", type=int, default=45,
                    help="days of already-passed catalysts to keep and score")
+    r.add_argument("--no-insider", action="store_true",
+                   help="skip the Form 4 pull (the slowest step)")
     r.add_argument("--no-short-interest", action="store_true",
                    help="skip the FINRA short-interest pull")
     r.add_argument("--no-news", action="store_true",
@@ -371,7 +422,8 @@ def main(argv=None) -> int:
     k.add_argument("--start", default="2021-01-01")
     k.add_argument("--end", default="2025-06-30")
     k.add_argument("--mode",
-                   choices=["runway", "catalyst", "cadence", "squeeze", "both"],
+                   choices=["runway", "catalyst", "cadence", "squeeze",
+                            "financing", "both"],
                    default="both")
     k.add_argument("--max-tickers", type=int, default=None)
     k.add_argument("--save", action="store_true", help="write per-event CSVs")

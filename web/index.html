@@ -310,11 +310,15 @@ function detailRow(r) {
   return `<tr class="detail"><td colspan="10"><dl>
     ${row("Company", esc(r.company || "—"))}
     ${row("Stage", esc(r.stage || "—"))}
+    ${row("Trial design", esc((r.design || "unknown").replace(/_/g, " "))
+        + (r.enrollment ? " · n=" + r.enrollment : ""))}
     ${row("Catalyst date", esc(r.date) + " (" + esc(r.precision) + ")")}
     ${row("Market cap", fmtCap(r.mcap))}
     ${row("Base-rate LOA", fmtPct(r.loa))}
     ${row("Implied / typical move", fmtPct(r.implied) + " / " + fmtPct(r.expected))}
-    ${row("Cash runway", r.runway === null ? "—" : Math.round(r.runway) + " months")}
+    ${row("Cash runway", (r.runway === null ? "—" : Math.round(r.runway) + " months")
+        + (r.runway_stale ? ' <span style="color:var(--vol)">(stale)</span>' : ""))}
+    ${row("Cash as of", esc(r.cash_asof || "—"))}
     ${row("Offerings (24mo)", r.offerings_24m ?? "—")}
     ${row("Dilution readiness", esc(r.dilution || "—"))}
     ${row("Days to cover", r.dtc === null || r.dtc === undefined ? "—" : r.dtc.toFixed(1))}

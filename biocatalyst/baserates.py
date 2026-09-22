@@ -201,3 +201,72 @@ def typical_catalyst_move(stage: str | None, market_cap: float | None) -> float:
     if not market_cap or market_cap <= 0:
         return ceiling
     return max(0.01, min(ceiling, at_risk / market_cap))
+
+
+# Trial design quality.
+#
+# NOT APPLIED TO THE PRIOR. Tested across 1,915 historical readouts, design
+# quality did not separate post-catalyst returns -- randomized-blinded
+# +3.6% @21d (p=0.052) against single-arm-open +1.6% (p=0.53), with nothing
+# surviving multiple testing. The classification is kept because it is
+# genuinely informative when reading a row (a single-arm open-label study can
+# only describe what happened to the people who took the drug), but it is
+# displayed as context, never scored.
+#
+# The reasoning is about what a result can support, not about the science: a
+# randomised double-blind trial with a control arm can attribute an effect to
+# the drug, while a single-arm open-label study can only describe what
+# happened to the people who took it. Regulators treat those very differently,
+# and so should a prior.
+DESIGN_MULTIPLIER = {
+    "randomized_blinded": 1.25,
+    "randomized_open": 1.05,
+    "single_arm_blinded": 0.85,
+    "single_arm_open": 0.70,
+    "unknown": 1.0,
+}
+
+# Below this, a result is fragile regardless of how well the trial is built.
+SMALL_ENROLLMENT = 60
+
+
+def classify_design(allocation: str | None, masking: str | None) -> str:
+    """Bucket a trial by what its design can actually establish."""
+    alloc = as_text(allocation).upper()
+    mask = as_text(masking).upper()
+    randomized = alloc == "RANDOMIZED"
+    blinded = mask not in ("", "NONE", "NA", "OPEN")
+    if randomized and blinded:
+        return "randomized_blinded"
+    if randomized:
+        return "randomized_open"
+    if not alloc or alloc == "NA":
+        return "unknown"
+    return "single_arm_blinded" if blinded else "single_arm_open"
+
+
+def design_adjustment(allocation: str | None, masking: str | None,
+                      enrollment: float | None, stage: str | None = None) -> dict:
+    """Multiplier on the approval prior from trial design, plus a label."""
+    bucket = classify_design(allocation, masking)
+    mult = DESIGN_MULTIPLIER[bucket]
+
+    notes = []
+    if bucket != "unknown":
+        notes.append(bucket.replace("_", " "))
+    if enrollment is not None and enrollment == enrollment:   # not NaN
+        if enrollment < SMALL_ENROLLMENT:
+            mult *= 0.85
+            notes.append(f"n={int(enrollment)}, underpowered")
+        elif enrollment >= 300:
+            mult *= 1.05
+            notes.append(f"n={int(enrollment)}")
+
+    # Damped for the same reason the therapeutic-area multiplier is: by the
+    # time a filing is accepted, design quality has already been adjudicated.
+    base = LOA_BY_PHASE.get(as_text(stage).lower().replace(" ", ""), 0.10)
+    damped = 1.0 + (mult - 1.0) * (1.0 - base)
+
+    return {"design_bucket": bucket,
+            "design_multiplier": round(damped, 3),
+            "design_note": ", ".join(notes) if notes else None}

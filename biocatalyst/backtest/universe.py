@@ -37,7 +37,8 @@ def catalyst_events(start: dt.date, end: dt.date,
             "query.term": "AREA[LeadSponsorClass]INDUSTRY",
             "filter.advanced": f"AREA[PrimaryCompletionDate]RANGE[{start},{end}]",
             "fields": ("NCTId,Phase,PrimaryCompletionDate,LeadSponsorName,"
-                       "EnrollmentCount,Condition,OverallStatus,BriefTitle"),
+                       "EnrollmentCount,Condition,OverallStatus,BriefTitle,"
+                       "DesignAllocation,DesignMasking"),
             "pageSize": 1000,
         }
         if token:
@@ -68,6 +69,9 @@ def catalyst_events(start: dt.date, end: dt.date,
                 "indication": "; ".join(conds[:3]),
                 "lead_sponsor": ps["sponsorCollaboratorsModule"]["leadSponsor"]["name"],
                 "enrollment": (design.get("enrollmentInfo") or {}).get("count"),
+                "allocation": (design.get("designInfo") or {}).get("allocation"),
+                "masking": ((design.get("designInfo") or {})
+                            .get("maskingInfo") or {}).get("masking"),
                 "overall_status": ps["statusModule"].get("overallStatus"),
             })
         token = payload.get("nextPageToken")

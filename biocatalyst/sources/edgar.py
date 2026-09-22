@@ -37,13 +37,30 @@ def ticker_to_cik() -> dict[str, int]:
 
 
 def _units(facts: dict, tags: list[str], unit: str = "USD") -> list[dict]:
+    """Rows from the tag that reports the most recent period.
+
+    Filers migrate between tags. CELZ stopped reporting
+    CashAndCashEquivalentsAtCarryingValue in 2023 and moved to the
+    restricted-cash tag, so taking the first tag with any rows handed back a
+    three-year-old balance. Merging every tag instead is worse: the tags mean
+    different things, and a tie on period end would pick between them
+    arbitrarily. Choosing whichever tag is still being reported keeps one
+    consistent definition and stays current.
+    """
+    best: list[dict] = []
+    best_end = ""
     for tag in tags:
         node = facts.get("us-gaap", {}).get(tag) or facts.get("dei", {}).get(tag)
-        if node:
-            rows = node.get("units", {}).get(unit, [])
-            if rows:
-                return rows
-    return []
+        if not node:
+            continue
+        rows = node.get("units", {}).get(unit, [])
+        ends = [r["end"] for r in rows if r.get("end") and r.get("val") is not None]
+        if not ends:
+            continue
+        latest = max(ends)
+        if latest > best_end:
+            best, best_end = rows, latest
+    return best
 
 
 def _latest(rows: list[dict]):

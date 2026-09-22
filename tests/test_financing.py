@@ -124,3 +124,35 @@ def test_migration_is_idempotent():
     db._migrate(con)
     assert {r[0] for r in con.execute("DESCRIBE insider").fetchall()} == before
     con.close()
+
+
+def test_freshest_tag_wins_over_an_abandoned_one():
+    # Regression: _units returned the first tag with any rows. CELZ stopped
+    # reporting CashAndCashEquivalentsAtCarryingValue in 2023 and moved to the
+    # restricted-cash tag, so the live board showed a three-year-old balance.
+    from biocatalyst.sources.edgar import _units
+    facts = {"us-gaap": {
+        "CashAndCashEquivalentsAtCarryingValue": {"units": {"USD": [
+            {"end": "2023-09-30", "val": 1, "filed": "2023-11-01"}]}},
+        "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents": {
+            "units": {"USD": [{"end": "2026-06-30", "val": 2,
+                               "filed": "2026-08-01"}]}},
+    }}
+    rows = _units(facts, ["CashAndCashEquivalentsAtCarryingValue",
+                          "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents"])
+    assert rows and rows[0]["end"] == "2026-06-30"
+
+
+def test_tags_are_not_merged():
+    # Merging would mix definitions and make a tie on period end arbitrary.
+    from biocatalyst.sources.edgar import _units
+    facts = {"us-gaap": {
+        "A": {"units": {"USD": [{"end": "2026-06-30", "val": 10, "filed": "x"}]}},
+        "B": {"units": {"USD": [{"end": "2026-06-30", "val": 99, "filed": "x"}]}},
+    }}
+    assert len(_units(facts, ["A", "B"])) == 1
+
+
+def test_missing_tags_return_empty():
+    from biocatalyst.sources.edgar import _units
+    assert _units({"us-gaap": {}}, ["Nope"]) == []

@@ -214,6 +214,14 @@ def classify(r) -> dict:
         else:
             strength *= 0.5
             reasons.append("rare issuer: low runway alone tested flat (p=0.87)")
+        if r.get("runway_stale"):
+            # The thesis rests on a cash figure the company has already
+            # superseded. Direction of the error is known -- they have more
+            # money than the filing shows -- so the short is weaker than it
+            # looks, even though the amount is not knowable from the index.
+            strength *= 0.6
+            reasons.append(
+                "runway predates a later offering: cash figure understated")
         if r.get("dilution_label") == "loaded":
             reasons.append("dilution readiness loaded (-17.0% @126d)")
         since = r.get("days_since_offering")

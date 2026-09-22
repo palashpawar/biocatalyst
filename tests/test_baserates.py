@@ -105,3 +105,19 @@ def test_as_text_normalises_null_spellings():
 
 def test_nan_designations_do_not_crash_loa():
     assert b.loa("phase3", "lung cancer", float("nan")) > 0
+
+
+def test_design_classification():
+    assert b.classify_design("RANDOMIZED", "QUADRUPLE") == "randomized_blinded"
+    assert b.classify_design("RANDOMIZED", "NONE") == "randomized_open"
+    assert b.classify_design("NON_RANDOMIZED", "NONE") == "single_arm_open"
+    assert b.classify_design("NA", "NONE") == "unknown"
+    assert b.classify_design(None, None) == "unknown"
+
+
+def test_design_does_not_move_the_prior():
+    # Design tested flat across 1,915 readouts, so it is displayed but never
+    # applied. loa() must not take design arguments or vary with them.
+    import inspect
+    params = set(inspect.signature(b.loa).parameters)
+    assert params == {"stage", "indication", "designations"}

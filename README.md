@@ -60,6 +60,10 @@ every bucket tested.
   crowded ran −1.1% (p=0.63) and −6.4% (p=0.23). Crowded shorts on *well-funded*
   names drifted the other way, +3.1% at 63 days (p=0.001) — the squeeze itself.
 - **Microcaps underperform**: −10.5% at 126 days; large caps +8.8%. Both survive.
+- **Trial design does not separate outcomes.** Across 1,915 readouts:
+  randomized-blinded +3.6% at 21 days (p=0.052), randomized-open +0.4%
+  (p=0.76), single-arm-open +1.6% (p=0.53). Nothing survives correction, so
+  design is displayed as context and never touches the prior.
 - **Run-up fade is not supported** (−1.5% @1d, p=0.26), and readout direction is
   unforecastable (+0.11% @1d across all readouts).
 
@@ -150,6 +154,8 @@ filing-anchored results.
 | Bootstrap, not t-tests | Readout returns are violently fat-tailed; the normal approximation does not hold. |
 | Bonferroni across all buckets | Dozens of buckets tested at once. Nominal 5% means nothing at that width. |
 | `MIN_CLUSTERS = 12` | Buckets below this are printed but never called a result. |
+| Freshest-tag XBRL selection | Filers migrate between tags. Taking the first tag with any rows returned a three-year-old cash balance for one name, and merging tags would mix definitions. |
+| Runway staleness flag | Runway comes from the last 10-Q; if a 424B5 priced after that balance-sheet date the figure is known to understate cash. Flagged, and the short de-rated, rather than guessed. |
 | Split-consistent market caps | Price history is back-adjusted for splits; EDGAR share counts are not. Multiplying them raw inflated 20% of observations — one by 53,000,000× — and flipped the sign of every size result. |
 | Delisted tickers counted | Companies acquired or gone to zero have no price history. The count is reported as survivorship bias, not hidden. |
 

@@ -19,6 +19,7 @@ SELECT c.*,
        t.overall_status, t.phases, t.enrollment, t.allocation, t.masking,
        t.primary_completion, t.lead_sponsor,
        f.cash_usd, f.quarterly_burn_usd, f.runway_months, f.shares_outstanding,
+       f.cash_asof,
        p.last, p.ret_20d, p.ret_60d, p.rvol_20d, p.rvol_60d,
        p.adv_usd, p.pct_of_52w_high, p.market_cap,
        i.atm_iv, i.implied_move, i.expiry AS implied_expiry,
@@ -28,7 +29,7 @@ SELECT c.*,
        si.shares_short, si.shares_short_prior, si.days_to_cover,
        si.settlement_date AS short_asof,
        fz.dilution_label, fz.dilution_readiness, fz.offerings_24m,
-       fz.days_since_offering, fz.shelf_live,
+       fz.days_since_offering, fz.shelf_live, fz.last_offering_date,
        ins.insider_tilt, ins.net_usd AS insider_net_usd,
        ins.form4_filings, ins.senior_net_usd, ins.cluster_buy,
        ins.n_buyers, ins.biggest_delta_own, ins.biggest_move_desc
@@ -81,6 +82,20 @@ def build(con, horizon_days: int = 180, today: dt.date | None = None) -> pd.Data
         return df
 
     df["ta"] = df["indication"].map(baserates.classify_ta)
+    design = df.apply(
+        lambda r: baserates.design_adjustment(
+            r.get("allocation"), r.get("masking"), r.get("enrollment"),
+            r.get("simplified_stage")),
+        axis=1, result_type="expand")
+    df = pd.concat([df, design], axis=1)
+
+    # Design is shown, not applied. Tested across 1,915 readouts, design
+    # quality did not separate post-catalyst returns: randomized-blinded
+    # +3.6% @21d (p=0.052), randomized-open +0.4% (p=0.76), single-arm-open
+    # +1.6% (p=0.53), nothing surviving multiple testing. The multiplier's
+    # premise -- that design predicts *approval* -- is literature-backed and
+    # untested here, but the thing that could be measured showed nothing, so
+    # it does not touch the prior.
     df["loa"] = df.apply(
         lambda r: baserates.loa(r["simplified_stage"], r["indication"],
                                 r["designations"]), axis=1)
@@ -107,6 +122,18 @@ def build(con, horizon_days: int = 180, today: dt.date | None = None) -> pd.Data
 
     # Months of cash left once the catalyst has come and gone.
     df["runway_at_catalyst"] = df["runway_months"] - (df["days_to_catalyst"] / 30.44)
+
+    # Runway comes from the last 10-Q. If the company priced an offering after
+    # that balance sheet date, the figure is known to be understated -- they
+    # have cash the filing does not show. The size is not knowable without
+    # reading the prospectus, so the number is flagged rather than guessed.
+    df["cash_asof"] = pd.to_datetime(df["cash_asof"], errors="coerce").dt.date
+    df["last_offering"] = pd.to_datetime(
+        df.get("last_offering_date"), errors="coerce").dt.date
+    df["runway_stale"] = df.apply(
+        lambda r: bool(pd.notna(r.get("cash_asof"))
+                       and pd.notna(r.get("last_offering"))
+                       and r["last_offering"] > r["cash_asof"]), axis=1)
 
     squeeze = df.apply(
         lambda r: shortinterest.squeeze_metrics(

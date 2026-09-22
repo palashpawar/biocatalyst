@@ -129,14 +129,24 @@ def run_catalyst(start: dt.date, end: dt.date, horizons=(1, 5, 21, 63),
     if df.empty:
         return {"events": df}
 
-    meta = events.set_index("nct_id")[["indication", "simplified_stage"]]
-    df = df.drop(columns=["indication", "simplified_stage"], errors="ignore")
+    meta = events.set_index("nct_id")[
+        ["indication", "simplified_stage", "allocation", "masking", "enrollment"]]
+    df = df.drop(columns=["indication", "simplified_stage", "allocation",
+                          "masking", "enrollment"], errors="ignore")
     df = df.join(meta, on="nct_id")
 
     df["loa"] = df.apply(
         lambda r: baserates.loa(r["simplified_stage"], r["indication"]), axis=1)
     df["prior_bucket"] = pd.cut(df["loa"], [0, .15, .35, 1.0],
                                 labels=["low prior", "mid prior", "high prior"])
+    # Design quality, from data ClinicalTrials.gov already provides.
+    df["design_bucket"] = df.apply(
+        lambda r: baserates.classify_design(r.get("allocation"), r.get("masking")),
+        axis=1)
+    df["enroll_bucket"] = pd.cut(
+        pd.to_numeric(df["enrollment"], errors="coerce"),
+        [0, 60, 300, 1e9], labels=["n<60", "n 60-300", "n>300"])
+
     df["runup_bucket"] = pd.cut(
         df["ret_20d"], [-np.inf, -.15, .15, np.inf],
         labels=["sold off", "flat", "ran up >15%"])
@@ -146,6 +156,8 @@ def run_catalyst(start: dt.date, end: dt.date, horizons=(1, 5, 21, 63),
         "by_stage": stats.summarize(df, "simplified_stage", horizons=horizons),
         "by_prior": stats.summarize(df, "prior_bucket", horizons=horizons),
         "by_runup": stats.summarize(df, "runup_bucket", horizons=horizons),
+        "by_design": stats.summarize(df, "design_bucket", horizons=horizons),
+        "by_enrollment": stats.summarize(df, "enroll_bucket", horizons=horizons),
         "overall": stats.summarize(df, None, horizons=horizons),
         "missing_tickers": missing,
     }

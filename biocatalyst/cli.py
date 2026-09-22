@@ -352,7 +352,9 @@ def cmd_backtest(args) -> int:
             keys = (("overall", "All readouts"),
                     ("by_stage", "By phase"),
                     ("by_prior", "By base-rate prior"),
-                    ("by_runup", "By 20-day run-up into the date"))
+                    ("by_runup", "By 20-day run-up into the date"),
+                    ("by_design", "By trial design"),
+                    ("by_enrollment", "By enrollment"))
             tables = [res.get(k) for k, _ in keys]
             n_tests += btstats.apply_multiple_testing(tables)
             for (key, title), tbl in zip(keys, tables):

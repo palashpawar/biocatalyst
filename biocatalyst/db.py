@@ -69,6 +69,42 @@ CREATE TABLE IF NOT EXISTS prices (
     pulled_at              TIMESTAMP
 );
 
+-- What the board said about a catalyst *before* it happened. Scoring the
+-- engine against outcomes it can already see would be worthless, so verdicts
+-- are snapshotted on every refresh and the outcome joins the last snapshot
+-- taken before the catalyst date.
+CREATE TABLE IF NOT EXISTS verdict_log (
+    drug_id                BIGINT,
+    snapshot_date          DATE,
+    ticker                 VARCHAR,
+    catalyst_date          DATE,
+    verdict                VARCHAR,
+    setup                  VARCHAR,
+    conviction             INTEGER,
+    evidence               VARCHAR,
+    pulled_at              TIMESTAMP,
+    PRIMARY KEY (drug_id, snapshot_date)
+);
+
+-- Realised move around a catalyst that has already passed.
+CREATE TABLE IF NOT EXISTS outcomes (
+    drug_id                BIGINT,
+    catalyst_date          DATE,
+    ticker                 VARCHAR,
+    entry_date             DATE,
+    entry_price            DOUBLE,
+    last_price             DOUBLE,
+    last_date              DATE,
+    move_1d                DOUBLE,
+    move_5d                DOUBLE,
+    move_todate            DOUBLE,
+    abn_1d                 DOUBLE,
+    abn_5d                 DOUBLE,
+    abn_todate             DOUBLE,
+    computed_at            TIMESTAMP,
+    PRIMARY KEY (drug_id, catalyst_date)
+);
+
 -- Forward sentiment log: one row per ticker per day, never deleted. Free news
 -- sources have no point-in-time archive, so the only way to make sentiment
 -- testable is to start recording it and wait.

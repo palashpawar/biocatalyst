@@ -18,17 +18,18 @@ from .sources import bpc, ctgov, discovery, edgar, news, prices
 
 def cmd_refresh(args) -> int:
     if args.source == "bpc":
-        print("[1/6] BiopharmCatalyst FDA calendar ...", flush=True)
+        print("[1/7] BiopharmCatalyst FDA calendar ...", flush=True)
         cal = bpc.fetch(max_pages=args.max_pages, include_paid=args.include_paid)
         if not args.include_paid and len(cal) <= 10:
             print("      NOTE: BPC's free tier returns only the first 10 rows; "
                   "the rest arrive blurred. Use --source discovery for full "
                   "coverage, or --include-paid with a subscriber cookie.")
     else:
-        print("[1/6] Catalyst discovery (ClinicalTrials.gov + EDGAR) ...", flush=True)
+        print("[1/7] Catalyst discovery (ClinicalTrials.gov + EDGAR) ...", flush=True)
         cal = discovery.build_calendar(horizon_days=args.horizon,
                                        with_pdufa=not args.no_pdufa,
-                                       verbose=True)
+                                       verbose=True,
+                                       lookback_days=args.lookback)
     if cal.empty:
         print("  no catalysts returned; aborting", file=sys.stderr)
         return 1
@@ -42,25 +43,30 @@ def cmd_refresh(args) -> int:
 
     # Each stage is persisted as it lands: a stall in a later source then
     # costs only that source, not the whole run.
-    # The calendar is a complete snapshot, so replace it rather than merging.
-    # Merging leaves behind catalysts that have since passed or been revised.
+    # The feed only returns upcoming catalysts, so rebuild just that slice and
+    # keep everything already in the past. Deleting the whole table each run
+    # threw away the history needed to see what a catalyst actually did.
     with connect() as con:
-        con.execute("DELETE FROM catalysts")
+        # Rebuild the forward slice and the lookback window; anything older
+        # stays as history.
+        con.execute(
+            "DELETE FROM catalysts WHERE catalyst_date_hi >= current_date - INTERVAL (?) DAY",
+            [args.lookback])
         upsert(con, "catalysts", cal)
 
-    print(f"[2/6] ClinicalTrials.gov ({len(ncts)} NCTs) ...", flush=True)
+    print(f"[2/7] ClinicalTrials.gov ({len(ncts)} NCTs) ...", flush=True)
     trials = ctgov.fetch(ncts)
     print(f"      {len(trials)} trials")
     with connect() as con:
         upsert(con, "trials", trials)
 
-    print(f"[3/6] SEC EDGAR cash & burn ({len(tickers)} tickers) ...", flush=True)
+    print(f"[3/7] SEC EDGAR cash & burn ({len(tickers)} tickers) ...", flush=True)
     fins = edgar.fetch(tickers, verbose=True)
     print(f"      {len(fins)} filers")
     with connect() as con:
         upsert(con, "financials", fins)
 
-    print(f"[4/6] Prices & volatility ({len(tickers)} tickers) ...", flush=True)
+    print(f"[4/7] Prices & volatility ({len(tickers)} tickers) ...", flush=True)
     px = prices.fetch(tickers, verbose=True)
     print(f"      {len(px)} price histories")
 
@@ -78,7 +84,7 @@ def cmd_refresh(args) -> int:
         upsert(con, "prices", px)
 
     if not args.no_news:
-        print(f"[5/6] News sentiment & filing cadence ({len(tickers)}) ...",
+        print(f"[5/7] News sentiment & filing cadence ({len(tickers)}) ...",
               flush=True)
         companies = (cal.dropna(subset=["ticker"])
                      .drop_duplicates("ticker")
@@ -90,7 +96,7 @@ def cmd_refresh(args) -> int:
     else:
         sent = pd.DataFrame()
 
-    print("[6/6] Option-implied catalyst moves ...", flush=True)
+    print("[6/7] Option-implied catalyst moves ...", flush=True)
     today = dt.date.today()
     # Don't gate on the `optionable` flag: the discovery source can't know it.
     # implied_move() returns None for names with no listed chain, which is the
@@ -125,9 +131,20 @@ def cmd_refresh(args) -> int:
 
     with connect() as con:
         upsert(con, "implied", imp)
+    print("[7/7] Scoring board & realised outcomes ...", flush=True)
+    from . import outcomes as outcomes_mod
+    with connect() as con:
+        feat = features.build(con, horizon_days=args.horizon)
+        board = score.score(feat) if not feat.empty else pd.DataFrame()
+        snaps = outcomes_mod.snapshot_verdicts(con, board)
+        upsert(con, "verdict_log", snaps)
+        outs = outcomes_mod.compute(con, lookback_days=args.lookback, verbose=True)
+        upsert(con, "outcomes", outs)
+    print(f"      {len(snaps)} verdicts logged, {len(outs)} outcomes scored")
+
     print(f"\nwrote catalysts={len(cal)} trials={len(trials)} "
           f"financials={len(fins)} prices={len(px)} implied={len(imp)} "
-          f"sentiment={len(sent)}")
+          f"sentiment={len(sent)} outcomes={len(outs)}")
     return 0
 
 
@@ -274,11 +291,14 @@ def cmd_backtest(args) -> int:
 
 
 def cmd_export(args) -> int:
-    path = exporter.export(args.out, horizon=args.horizon)
+    path = exporter.export(args.out, horizon=args.horizon,
+                           lookback=args.lookback)
     size = path.stat().st_size
     import json as _json
-    n = len(_json.loads(path.read_text())["rows"])
-    print(f"wrote {path} ({size / 1024:.0f} KB, {n} rows)")
+    payload = _json.loads(path.read_text())
+    print(f"wrote {path} ({size / 1024:.0f} KB, "
+          f"{len(payload['rows'])} upcoming, "
+          f"{len(payload.get('recent', []))} recent)")
     return 0
 
 
@@ -294,6 +314,8 @@ def main(argv=None) -> int:
     r.add_argument("--max-pages", type=int, default=None)
     r.add_argument("--max-tickers", type=int, default=None)
     r.add_argument("--implied-horizon", type=int, default=90)
+    r.add_argument("--lookback", type=int, default=45,
+                   help="days of already-passed catalysts to keep and score")
     r.add_argument("--no-news", action="store_true",
                    help="skip the news/sentiment pull")
     r.add_argument("--include-paid", action="store_true",
@@ -323,6 +345,7 @@ def main(argv=None) -> int:
     e = sub.add_parser("export", help="write web/board.json for static hosting")
     e.add_argument("--out", default=None)
     e.add_argument("--horizon", type=int, default=180)
+    e.add_argument("--lookback", type=int, default=45)
     e.set_defaults(func=cmd_export)
 
     args = ap.parse_args(argv)

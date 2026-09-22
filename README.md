@@ -34,6 +34,22 @@ alike.
 | `BASE_RATE_LONG` | LONG | Strong prior, funded past the event, not yet crowded. |
 | `NO_EDGE` | NO TRADE | The honest default. |
 
+## Recent results
+
+The board keeps catalysts for 45 days after they happen and scores what the
+stock actually did — day-one move, move since, and the abnormal move against
+XBI, measured the same way as the backtest so the numbers are comparable.
+
+Verdicts are snapshotted on every refresh into `verdict_log`. An outcome joins
+the last snapshot taken *before* its catalyst date, so the engine is scored on
+what it said in advance rather than on a verdict re-derived with the answer
+already visible. That column reads "not yet logged" for catalysts that passed
+before logging began, and fills in from here.
+
+Only catalysts with a day- or part-of-month-precision date are scored: a
+readout stated as "Q4 2026" has no event day, and a move measured around an
+arbitrary date inside that range is noise.
+
 ## Data sources
 
 | Source | Use | Auth |

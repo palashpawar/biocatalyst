@@ -31,6 +31,13 @@
   .bar label{color:var(--muted);font-size:12px}
   select,input[type=number]{background:var(--bg);color:var(--ink);border:1px solid var(--line);
        border-radius:7px;padding:6px 9px;font-size:13px}
+  .tabs{display:flex;gap:6px;margin:16px 0 0}
+  .tab{background:transparent;color:var(--muted);border:1px solid var(--line);
+       border-radius:8px 8px 0 0;border-bottom:none;padding:8px 16px;font-size:13px;
+       font-weight:600;cursor:pointer}
+  .tab.active{background:var(--panel);color:var(--ink)}
+  .move{font-variant-numeric:tabular-nums;font-weight:700;font-size:14px}
+  .up{color:var(--long)} .down{color:var(--short)} .flat{color:var(--muted)}
   .tally{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
   .tally span{font-size:12px;padding:4px 11px;border-radius:999px;font-weight:600}
   .t-SHORT{background:var(--short-bg);color:var(--short)}
@@ -86,7 +93,20 @@
 </header>
 
 <div class="wrap">
-  <div class="bar">
+  <div class="tabs">
+    <button class="tab active" data-view="upcoming">Upcoming</button>
+    <button class="tab" data-view="recent">Recent results</button>
+  </div>
+
+  <div class="bar" id="recentbar" style="display:none">
+    <label>Sort</label>
+    <select id="recentsort">
+      <option value="move">Biggest move</option>
+      <option value="date">Most recent</option>
+    </select>
+  </div>
+
+  <div class="bar" id="filters">
     <label>Sort</label>
     <select id="sort">
       <option value="date">Soonest catalyst</option>
@@ -110,7 +130,7 @@
   </div>
 
   <div class="tally" id="tally"></div>
-  <div class="tablewrap" id="tablewrap"><div class="empty">loading…</div></div>
+  <div class="tablewrap" id="tablewrap" style="border-radius:0 11px 11px 11px"><div class="empty">loading…</div></div>
 
   <div class="note">
     <b>What the verdicts mean.</b> <b>SHORT</b> and <b>LONG</b> are directional.
@@ -217,12 +237,67 @@ function render() {
   }).join("") + "</tbody></table>";
 }
 
+let VIEW = "upcoming";
+
+function renderRecent() {
+  const wrap = document.getElementById("tablewrap");
+  const mode = document.getElementById("recentsort").value;
+  const rows = (DATA.recent || []).slice().sort((a, b) => mode === "date"
+    ? String(b.date).localeCompare(String(a.date))
+    : Math.abs(b.move_todate ?? 0) - Math.abs(a.move_todate ?? 0));
+  document.getElementById("tally").innerHTML = "";
+  document.getElementById("sub").textContent =
+    `${rows.length} catalysts that have already happened · last 45 days`
+    + ` · ${rows.filter(r => (r.move_todate ?? 0) > 0).length} up, `
+    + `${rows.filter(r => (r.move_todate ?? 0) < 0).length} down`;
+
+  if (!rows.length) {
+    wrap.innerHTML = '<div class="empty">No completed catalysts in the window yet.</div>';
+    return;
+  }
+  const cls = v => v === null || v === undefined ? "flat"
+    : v > 0.02 ? "up" : v < -0.02 ? "down" : "flat";
+  const sign = v => v === null || v === undefined ? "—"
+    : (v > 0 ? "+" : "") + (v * 100).toFixed(1) + "%";
+
+  wrap.innerHTML = `<table><thead><tr>
+      <th>Ticker</th><th>Catalyst</th><th>Date</th>
+      <th>Day 1</th><th>Since</th><th class="hide-sm">Abnormal vs XBI</th>
+      <th class="hide-sm">Verdict beforehand</th>
+    </tr></thead><tbody>` + rows.map(r => `<tr>
+      <td class="tick"><a href="${esc(r.robinhood)}" target="_blank" rel="noopener">${esc(r.ticker)}</a></td>
+      <td>${esc((r.drug || "").slice(0, 60))}
+        <div class="dim">${esc((r.indication || "").slice(0, 52))}${r.stage ? " · " + esc(r.stage) : ""}</div></td>
+      <td>${esc(r.date)}</td>
+      <td><span class="move ${cls(r.move_1d)}">${sign(r.move_1d)}</span></td>
+      <td><span class="move ${cls(r.move_todate)}">${sign(r.move_todate)}</span>
+        <div class="dim">to ${esc(r.last_date)}</div></td>
+      <td class="hide-sm nums"><span class="${cls(r.abn_1d)}">${sign(r.abn_1d)}</span> day 1<br>
+        <span class="dim"><span class="${cls(r.abn_todate)}">${sign(r.abn_todate)}</span> since</span></td>
+      <td class="hide-sm">${r.prior_verdict
+        ? `<span class="verdict v-${r.prior_verdict.replace(/ /g, "")}">${esc(r.prior_verdict)}</span>`
+        : '<span class="dim">not yet logged</span>'}</td>
+    </tr>`).join("") + "</tbody></table>";
+}
+
+function show() { VIEW === "recent" ? renderRecent() : render(); }
+
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+  t.classList.add("active");
+  VIEW = t.dataset.view;
+  document.getElementById("filters").style.display = VIEW === "recent" ? "none" : "";
+  document.getElementById("recentbar").style.display = VIEW === "recent" ? "" : "none";
+  show();
+}));
+
 ["sort", "setup", "horizon", "minconv"].forEach(id =>
   document.getElementById(id).addEventListener("input", render));
+document.getElementById("recentsort").addEventListener("input", renderRecent);
 
 fetch("board.json?v=" + Date.now())
   .then(r => r.json())
-  .then(d => { DATA = d; render(); })
+  .then(d => { DATA = d; show(); })
   .catch(e => {
     document.getElementById("tablewrap").innerHTML =
       '<div class="empty">Could not load board.json — ' + esc(e) + "</div>";

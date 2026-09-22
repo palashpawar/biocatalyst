@@ -307,9 +307,15 @@ def _simplify_stage(raw: str | None) -> str:
 
 
 def trial_readouts(horizon_days: int = 180, phases=("PHASE2", "PHASE3"),
-                   max_studies: int = 1000) -> pd.DataFrame:
-    """Industry-sponsored trials whose primary completion falls in the window."""
+                   max_studies: int = 1000,
+                   lookback_days: int = 0) -> pd.DataFrame:
+    """Industry-sponsored trials whose primary completion falls in the window.
+
+    `lookback_days` reaches back past today so recently-passed catalysts can be
+    scored against what the stock actually did.
+    """
     today = dt.date.today()
+    start_window = today - dt.timedelta(days=lookback_days)
     end = today + dt.timedelta(days=horizon_days)
     rows, token = [], None
 
@@ -318,7 +324,7 @@ def trial_readouts(horizon_days: int = 180, phases=("PHASE2", "PHASE3"),
             "filter.overallStatus": "RECRUITING,ACTIVE_NOT_RECRUITING",
             "query.term": "AREA[LeadSponsorClass]INDUSTRY",
             "filter.advanced": (
-                f"AREA[PrimaryCompletionDate]RANGE[{today},{end}]"),
+                f"AREA[PrimaryCompletionDate]RANGE[{start_window},{end}]"),
             "fields": ("NCTId,BriefTitle,Phase,PrimaryCompletionDate,"
                        "LeadSponsorName,EnrollmentCount,Condition,OverallStatus"),
             "pageSize": 200,
@@ -359,13 +365,15 @@ def trial_readouts(horizon_days: int = 180, phases=("PHASE2", "PHASE3"),
 
 
 def build_calendar(horizon_days: int = 180, with_pdufa: bool = True,
-                   verbose: bool = False) -> pd.DataFrame:
+                   verbose: bool = False,
+                   lookback_days: int = 45) -> pd.DataFrame:
     """Combined catalyst calendar in the same shape as the BPC table."""
     frames = []
 
     if verbose:
         print("    ClinicalTrials.gov readouts ...", flush=True)
-    tr = trial_readouts(horizon_days=horizon_days)
+    tr = trial_readouts(horizon_days=horizon_days,
+                        lookback_days=lookback_days)
     if not tr.empty:
         tr = tr[tr["ticker"].notna()].copy()
         lohi = tr["primary_completion"].map(parse_catalyst_date)
@@ -412,7 +420,8 @@ def build_calendar(horizon_days: int = 180, with_pdufa: bool = True,
 
     cal = pd.concat(frames, ignore_index=True, sort=False)
     today = dt.date.today()
-    cal = cal[cal["catalyst_date_hi"].map(lambda d: pd.notna(d) and d >= today)]
+    floor = today - dt.timedelta(days=lookback_days)
+    cal = cal[cal["catalyst_date_hi"].map(lambda d: pd.notna(d) and d >= floor)]
     # A stable, content-derived id. A row counter would hand the same catalyst
     # a different id on every refresh, so the (drug_id, catalyst_date_raw)
     # primary key would never match and each run would duplicate the table.

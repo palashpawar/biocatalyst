@@ -105,6 +105,22 @@ CREATE TABLE IF NOT EXISTS outcomes (
     PRIMARY KEY (drug_id, catalyst_date)
 );
 
+-- FINRA consolidated short interest. Bi-monthly and published ~8 business
+-- days after settlement, so `published_date` is the only honest key for any
+-- historical use.
+CREATE TABLE IF NOT EXISTS short_interest (
+    ticker                 VARCHAR,
+    settlement_date        DATE,
+    published_date         DATE,
+    shares_short           DOUBLE,
+    shares_short_prior     DOUBLE,
+    avg_daily_volume       DOUBLE,
+    days_to_cover          DOUBLE,
+    change_pct             DOUBLE,
+    pulled_at              TIMESTAMP,
+    PRIMARY KEY (ticker, settlement_date)
+);
+
 -- Forward sentiment log: one row per ticker per day, never deleted. Free news
 -- sources have no point-in-time archive, so the only way to make sentiment
 -- testable is to start recording it and wait.

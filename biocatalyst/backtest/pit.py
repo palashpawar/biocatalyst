@@ -287,3 +287,44 @@ def market_cap_at(ticker: str, asof: dt.date, price: float,
     shares = shares_in_current_terms(fin.get("shares_outstanding"),
                                      ticker, asof)
     return shares * price if shares else None
+
+
+def short_interest_history(ticker: str, refresh: bool = False) -> list[dict]:
+    """Full FINRA short-interest series for a ticker, disk-cached."""
+    CACHE.mkdir(parents=True, exist_ok=True)
+    path = CACHE / f"{ticker.upper()}.si.json"
+    if path.exists() and not refresh:
+        try:
+            return json.loads(path.read_text())
+        except Exception:
+            pass
+    from ..sources import shortinterest
+    df = shortinterest.fetch_ticker(ticker)
+    rows = []
+    if not df.empty:
+        for _, r in df.iterrows():
+            rows.append({
+                "settlement_date": r["settlement_date"].isoformat(),
+                "published_date": r["published_date"].isoformat(),
+                "shares_short": r["shares_short"],
+                "shares_short_prior": r["shares_short_prior"],
+                "days_to_cover": r["days_to_cover"],
+            })
+    try:
+        path.write_text(json.dumps(rows))
+    except OSError:
+        pass
+    return rows
+
+
+def short_interest_at(rows: list[dict], asof: dt.date) -> dict | None:
+    """The most recent reading that was *published* on or before `asof`.
+
+    Keying off settlement date instead would hand the study a position that
+    the market could not see for another eight business days.
+    """
+    stamp = asof.isoformat()
+    visible = [r for r in rows if r.get("published_date", "") <= stamp]
+    if not visible:
+        return None
+    return max(visible, key=lambda r: r["published_date"])

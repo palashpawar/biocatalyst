@@ -54,3 +54,32 @@ def get(url: str, **kwargs) -> requests.Response:
             last_exc = exc
             time.sleep(2**attempt)
     raise RuntimeError(f"GET failed after {MAX_RETRIES} attempts: {url}") from last_exc
+
+
+def post(url: str, **kwargs) -> requests.Response:
+    """POST with the same rate limiting and backoff as get()."""
+    headers = {"User-Agent": SEC_USER_AGENT if "sec.gov" in url else HTTP_UA,
+               "Content-Type": "application/json"}
+    headers.update(kwargs.pop("headers", {}))
+    last_exc: Exception | None = None
+    for attempt in range(MAX_RETRIES):
+        _wait(url)
+        try:
+            resp = _session.post(url, headers=headers,
+                                 timeout=REQUEST_TIMEOUT, **kwargs)
+            if resp.status_code in (429, 500, 502, 503, 504):
+                time.sleep(2**attempt)
+                continue
+            if 400 <= resp.status_code < 500:
+                resp.raise_for_status()
+            resp.raise_for_status()
+            return resp
+        except requests.HTTPError as exc:
+            if exc.response is not None and 400 <= exc.response.status_code < 500:
+                raise
+            last_exc = exc
+            time.sleep(2**attempt)
+        except requests.RequestException as exc:  # pragma: no cover - network
+            last_exc = exc
+            time.sleep(2**attempt)
+    raise RuntimeError(f"POST failed after {MAX_RETRIES} attempts: {url}") from last_exc

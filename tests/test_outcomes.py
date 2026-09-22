@@ -97,3 +97,21 @@ def test_benchmark_is_the_shared_one():
     # Outcomes must use the same benchmark as the backtest, or a move on the
     # board would not be comparable to a move in the validated studies.
     assert BENCHMARK == "XBI"
+
+
+def test_site_table_headers_match_row_cells():
+    # Regression: the Squeeze <td> was added but its <th> insert silently
+    # missed, so the table rendered 10 cells under 9 headers and every column
+    # after "Numbers" was shifted one to the left.
+    import re
+    html = (pathlib.Path(__file__).resolve().parent.parent
+            / "web" / "index.html").read_text()
+
+    thead = re.search(r"<thead>(.*?)</thead>", html, re.S).group(1)
+    n_headers = len(re.findall(r"<th[ >]", thead))
+
+    # The row template is the block between `<tbody>` and the closing backtick.
+    body = html.split("</thead><tbody>")[1].split('"</tbody></table>"')[0]
+    n_cells = len(re.findall(r"<td[ >]", body))
+
+    assert n_headers == n_cells, f"{n_headers} headers vs {n_cells} cells"

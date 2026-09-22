@@ -18,7 +18,8 @@ HTTP_UA = (
 )
 
 # Politeness: seconds between successive requests to the same host.
-RATE_LIMIT = {"biopharmcatalyst.com": 1.0, "sec.gov": 0.12, "clinicaltrials.gov": 0.2}
+RATE_LIMIT = {"biopharmcatalyst.com": 1.0, "sec.gov": 0.12,
+              "clinicaltrials.gov": 0.2, "finra.org": 0.3}
 
 REQUEST_TIMEOUT = 30
 MAX_RETRIES = 3

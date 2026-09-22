@@ -143,3 +143,28 @@ def test_filing_activity_only_amplifies_the_validated_setup():
     r = classify(row(runway_at_catalyst=30.0, eightk_90d=9, microcap=True))
     assert r["setup"] != "DILUTION_SHORT"
     assert "8-Ks in 90d" not in r["reasons"]
+
+
+def test_crowded_short_is_heavily_discounted():
+    # Measured, not assumed: low-runway shorts split on 5 days to cover ran
+    # -7.2% @21d uncrowded but only -1.1% (p=0.63) crowded. The edge does not
+    # survive a crowded exit, so conviction has to fall sharply.
+    clean = classify(row(runway_at_catalyst=-2.0, microcap=True,
+                         squeeze_risk=0, squeeze_label="low"))
+    crowded = classify(row(runway_at_catalyst=-2.0, microcap=True,
+                           squeeze_risk=3, squeeze_label="high",
+                           days_to_cover=12.0))
+    assert crowded["conviction"] < clean["conviction"] * 0.5
+    assert "squeeze risk high" in crowded["reasons"]
+
+
+def test_squeeze_never_penalises_a_long():
+    plain = classify(row(loa=0.8, runway_at_catalyst=30.0))
+    squeezed = classify(row(loa=0.8, runway_at_catalyst=30.0,
+                            squeeze_risk=3, squeeze_label="high"))
+    assert plain["conviction"] == squeezed["conviction"]
+
+
+def test_short_build_is_surfaced():
+    r = classify(row(runway_at_catalyst=-2.0, short_build=6.7))
+    assert "short interest +670%" in r["reasons"]

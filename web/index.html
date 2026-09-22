@@ -76,6 +76,12 @@
   .sent{font-variant-numeric:tabular-nums;font-weight:700;font-size:13px}
   .sent-pos{color:var(--long)} .sent-neg{color:var(--short)}
   .sent-flat{color:var(--muted)} .sent-thin{color:var(--muted);opacity:.65}
+  .sq{display:inline-block;font-size:10px;letter-spacing:.04em;text-transform:uppercase;
+      font-weight:700;padding:2px 7px;border-radius:4px}
+  .sq-low{background:var(--long-bg);color:var(--long)}
+  .sq-moderate{background:var(--none-bg);color:var(--none)}
+  .sq-elevated{background:var(--vol-bg);color:var(--vol)}
+  .sq-high{background:var(--short-bg);color:var(--short)}
   .note{margin-top:18px;padding:13px 15px;border-left:3px solid var(--accent);
         background:var(--panel);border-radius:0 9px 9px 0;color:var(--muted);
         font-size:12.5px;line-height:1.55}
@@ -207,6 +213,7 @@ function render() {
   wrap.innerHTML = `<table><thead><tr>
       <th>Verdict</th><th>Ticker</th><th>When</th><th>Catalyst</th><th>Conviction</th>
       <th class="hide-sm">Evidence</th><th class="hide-sm">Numbers</th>
+      <th class="hide-sm">Squeeze</th>
       <th class="hide-sm">News</th><th class="hide-sm">Why</th>
     </tr></thead><tbody>` + rows.slice(0, 400).map(r => {
     const sentCls = r.sentiment === null ? "" : r.sent_thin ? "sent-thin"
@@ -228,6 +235,11 @@ function render() {
       <td class="hide-sm nums">LOA ${fmtPct(r.loa)}<br>
         <span class="dim">impl ${fmtPct(r.implied)} / typ ${fmtPct(r.expected)}</span><br>
         <span class="dim">cash ${r.runway === null ? "—" : Math.round(r.runway) + "mo"} · 20d ${fmtPct(r.ret20)}</span></td>
+      <td class="hide-sm">${r.squeeze
+        ? `<span class="sq sq-${r.squeeze}">${esc(r.squeeze)}</span>
+           <div class="dim">${r.dtc === null ? "—" : r.dtc.toFixed(1) + "d to cover"}</div>
+           <div class="dim">${r.short_pct === null ? "" : (r.short_pct * 100).toFixed(1) + "% of shares"}</div>`
+        : '<span class="dim">—</span>'}</td>
       <td class="hide-sm">${r.sentiment === null ? '<span class="dim">—</span>'
         : `<span class="sent ${sentCls}">${r.sentiment > 0 ? "+" : ""}${r.sentiment.toFixed(2)}</span>
            <div class="dim">${r.sent_n || 0} scored${r.sent_thin ? " · thin" : ""}</div>`}

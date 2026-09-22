@@ -77,6 +77,10 @@ def build_payload(horizon: int = 180, lookback: int = 45) -> dict:
             "sent_thin": bool(r.get("sentiment_thin")) if pd.notna(
                 r.get("sentiment_thin")) else True,
             "eightk": _clean(r.get("eightk_90d")),
+            "dtc": _clean(r.get("days_to_cover")),
+            "short_pct": _clean(r.get("short_pct_outstanding")),
+            "squeeze": _clean(r.get("squeeze_label")),
+            "short_asof": _clean(r.get("short_asof")),
             "headline": _clean(r.get("top_negative")) or _clean(r.get("top_positive")),
             "reasons": r["reasons"],
             "nct": _clean(r.get("nct_id")),

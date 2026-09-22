@@ -134,6 +134,12 @@ Over 2021-01-01 to 2025-06-30, 5,379 point-in-time filing observations, 338 tick
 - **Microcaps underperform**: −10.5% at 126 days, while large caps run +8.8%.
   Both survive multiple testing. An earlier version of this README claimed the
   opposite; that analysis used corrupted market caps (see the guard table).
+- **Short crowding erases the runway edge.** Splitting low-runway names on 5
+  days to cover: uncrowded ran −7.2% at 21 days and −20.2% at 126 days (both
+  survive multiple testing); crowded ran −1.1% (p=0.63) and −6.4% (p=0.23).
+  Crowded shorts on well-funded names drifted the *other* way, +3.1% at 63
+  days (p=0.001) — the squeeze itself. Short interest is matched by FINRA
+  publication date, ~8 business days after settlement.
 - **Run-up fade is not supported** (−1.5% @1d, p=0.26), and readout direction
   is unforecastable (+0.11% @1d across all readouts).
 

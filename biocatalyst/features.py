@@ -6,6 +6,7 @@ import datetime as dt
 import pandas as pd
 
 from . import baserates
+from .sources import shortinterest
 
 # How much to trust a catalyst date, by how precisely BPC states it.
 PRECISION_WEIGHT = {
@@ -23,7 +24,9 @@ SELECT c.*,
        i.atm_iv, i.implied_move, i.expiry AS implied_expiry,
        s.sentiment, s.thin AS sentiment_thin, s.articles AS news_articles,
        s.scored_articles, s.top_positive, s.top_negative,
-       s.eightk_30d, s.eightk_90d, s.days_since_8k
+       s.eightk_30d, s.eightk_90d, s.days_since_8k,
+       si.shares_short, si.shares_short_prior, si.days_to_cover,
+       si.settlement_date AS short_asof
 FROM catalysts c
 LEFT JOIN trials     t ON c.nct_id = t.nct_id
 LEFT JOIN financials f ON c.ticker = f.ticker
@@ -35,6 +38,11 @@ LEFT JOIN (
     SELECT * FROM sentiment
     QUALIFY ROW_NUMBER() OVER (PARTITION BY ticker ORDER BY snapshot_date DESC) = 1
 ) s ON c.ticker = s.ticker
+-- Latest short-interest reading only; the rest of the series is for backtesting.
+LEFT JOIN (
+    SELECT * FROM short_interest
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY ticker ORDER BY settlement_date DESC) = 1
+) si ON c.ticker = si.ticker
 """
 
 
@@ -89,6 +97,13 @@ def build(con, horizon_days: int = 180, today: dt.date | None = None) -> pd.Data
 
     # Months of cash left once the catalyst has come and gone.
     df["runway_at_catalyst"] = df["runway_months"] - (df["days_to_catalyst"] / 30.44)
+
+    squeeze = df.apply(
+        lambda r: shortinterest.squeeze_metrics(
+            r.get("shares_short"), r.get("days_to_cover"),
+            r.get("shares_outstanding"), r.get("shares_short_prior")),
+        axis=1, result_type="expand")
+    df = pd.concat([df, squeeze], axis=1)
 
     df["is_binary"] = df["simplified_stage"].isin(
         ["phase2", "phase2/3", "phase3", "pdufa", "nda", "bla"])

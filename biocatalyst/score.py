@@ -20,8 +20,10 @@ SETUP_EVIDENCE = {
                        "runway <6mo: -5.4% abn @21d (p=0.000), -16.2% @126d "
                        "(p=0.002), monotone across runway buckets. Sharpest "
                        "with 6+ 8-Ks in 90d AND microcap: -39.8% @126d "
-                       "(p=0.000, 19% hit rate). Caveat: 2025 sub-sample "
-                       "reversed positive (n=14)"),
+                       "(p=0.000, 19% hit rate). Requires an UNCROWDED short: "
+                       "split on 5 days to cover, uncrowded ran -7.2% @21d / "
+                       "-20.2% @126d (both survive) while crowded ran -1.1% "
+                       "(p=0.63). Caveat: 2025 sub-sample reversed positive"),
     "RUNUP_FADE": ("not supported",
                    "ran up >15% into a readout: -1.5% @1d (p=0.26), "
                    "+0.1% @21d -- no measurable edge"),
@@ -149,6 +151,29 @@ def classify(r) -> dict:
     elif loa_s > 0.25 and runway_s >= 0.2 and (r.get("ret_20d") or 0) < RUNUP_HOT_20D:
         setup, lean = "BASE_RATE_LONG", "long"
 
+    # A crowded short is how this setup goes wrong: the thesis can be correct
+    # and still be unholdable if everyone is already on the same side. This
+    # only ever *reduces* conviction on a short -- it never creates a long.
+    # Calibrated, not guessed. Splitting low-runway names on 5 days to cover:
+    # uncrowded ran -7.2% @21d and -20.2% @126d (both surviving multiple
+    # testing), crowded ran -1.1% (p=0.63) and -6.4% (p=0.23) -- the edge does
+    # not survive a crowded exit. Crowded shorts on well-funded names drifted
+    # the other way, +3.1% @63d (p=0.001). So this cuts hard at the measured
+    # threshold rather than tapering politely.
+    squeeze = r.get("squeeze_risk")
+    squeeze_penalty = 1.0
+    if lean == "short" and pd.notna(squeeze) and squeeze:
+        squeeze_penalty = {1: 0.85, 2: 0.40, 3: 0.25}.get(int(squeeze), 1.0)
+        dtc = r.get("days_to_cover")
+        reasons.append(
+            f"squeeze risk {r.get('squeeze_label')}"
+            + (f": {dtc:.1f} days to cover" if pd.notna(dtc) else "")
+            + " -- crowded low-runway shorts tested -1.1% @21d (p=0.63) vs "
+              "-7.2% uncrowded")
+    build = r.get("short_build")
+    if lean == "short" and pd.notna(build) and build > 0.5:
+        reasons.append(f"short interest +{build:.0%} since last reading")
+
     # Conviction blends signal strength with how well-dated the catalyst is.
     strength = abs(runway_s) * 0.4 + abs(runup_s) * 0.25 + abs(loa_s) * 0.35
 
@@ -168,7 +193,7 @@ def classify(r) -> dict:
     if setup == "NO_EDGE":
         strength *= 0.3
 
-    conviction = round(100 * strength * (0.35 + 0.65 * conf))
+    conviction = round(100 * strength * (0.35 + 0.65 * conf) * squeeze_penalty)
     if r.get("illiquid"):
         conviction = round(conviction * 0.6)
         reasons.append("thin: under $1M/day traded")

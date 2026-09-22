@@ -235,3 +235,74 @@ def run_cadence(start: dt.date, end: dt.date, tickers: list[str],
         "by_interaction": stats.summarize(df, "interaction", horizons=horizons),
         "missing_tickers": missing,
     }
+
+
+def _dtc_bucket(v) -> str:
+    if pd.isna(v):
+        return "unknown"
+    if v < 1.5:
+        return "a. <1.5 days"
+    if v < 3:
+        return "b. 1.5-3 days"
+    if v < 6:
+        return "c. 3-6 days"
+    return "d. 6+ days"
+
+
+def run_squeeze(start: dt.date, end: dt.date, tickers: list[str],
+                horizons=(21, 63, 126), verbose: bool = True) -> dict:
+    """Does short crowding change what happens to a low-runway name?
+
+    Short interest is the one risk input here with free history, so unlike
+    headline sentiment it can be tested. Readings are matched by publication
+    date, not settlement date -- FINRA discloses roughly eight business days
+    late, and using the settlement date would let the study act on a position
+    nobody could see yet.
+    """
+    if verbose:
+        print(f"[squeeze] filing events for {len(tickers)} tickers ...",
+              flush=True)
+    events = universe.filing_events(tickers, start, end, verbose=verbose)
+    if events.empty:
+        return {"events": events}
+
+    closes, _, missing = engine.build_price_panel(
+        list(events.ticker.unique()), start, end, verbose=verbose)
+    rets = engine.event_returns(events, closes, horizons=horizons,
+                                entry_offset=0)
+    if rets.empty:
+        return {"events": rets}
+
+    if verbose:
+        print("[squeeze] attaching point-in-time short interest ...", flush=True)
+    rows = []
+    for i, (t, grp) in enumerate(rets.groupby("ticker"), 1):
+        si_rows = pit.short_interest_history(t)
+        facts = pit.companyfacts(t)
+        for _, r in grp.iterrows():
+            si = pit.short_interest_at(si_rows, r["entry_date"])
+            fin = pit.pit_financials(t, r["entry_date"], facts=facts) if facts else None
+            rows.append({**r.to_dict(),
+                         "days_to_cover": (si or {}).get("days_to_cover"),
+                         "shares_short": (si or {}).get("shares_short"),
+                         "runway_months": (fin or {}).get("runway_months")})
+        if verbose and i % 50 == 0:
+            print(f"    short interest {i}/{rets.ticker.nunique()}", flush=True)
+    df = pd.DataFrame(rows)
+    if df.empty:
+        return {"events": df}
+
+    df["dtc_bucket"] = df["days_to_cover"].map(_dtc_bucket)
+    low = df["runway_months"] < RUNWAY_CRITICAL_MONTHS
+    crowded = df["days_to_cover"] >= 5
+    df["interaction"] = np.where(
+        low & crowded, "low runway + crowded short",
+        np.where(low & ~crowded, "low runway, uncrowded",
+                 np.where(~low & crowded, "crowded short only", "neither")))
+
+    return {
+        "events": df,
+        "by_dtc": stats.summarize(df, "dtc_bucket", horizons=horizons),
+        "by_interaction": stats.summarize(df, "interaction", horizons=horizons),
+        "missing_tickers": missing,
+    }

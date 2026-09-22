@@ -13,19 +13,20 @@ from .backtest import run as bt
 from .backtest import stats as btstats
 from .backtest import universe as btuniverse
 from .db import connect, upsert
-from .sources import bpc, ctgov, discovery, edgar, news, prices
+from .sources import (bpc, ctgov, discovery, edgar, news, prices,
+                      shortinterest)
 
 
 def cmd_refresh(args) -> int:
     if args.source == "bpc":
-        print("[1/7] BiopharmCatalyst FDA calendar ...", flush=True)
+        print("[1/8] BiopharmCatalyst FDA calendar ...", flush=True)
         cal = bpc.fetch(max_pages=args.max_pages, include_paid=args.include_paid)
         if not args.include_paid and len(cal) <= 10:
             print("      NOTE: BPC's free tier returns only the first 10 rows; "
                   "the rest arrive blurred. Use --source discovery for full "
                   "coverage, or --include-paid with a subscriber cookie.")
     else:
-        print("[1/7] Catalyst discovery (ClinicalTrials.gov + EDGAR) ...", flush=True)
+        print("[1/8] Catalyst discovery (ClinicalTrials.gov + EDGAR) ...", flush=True)
         cal = discovery.build_calendar(horizon_days=args.horizon,
                                        with_pdufa=not args.no_pdufa,
                                        verbose=True,
@@ -54,19 +55,19 @@ def cmd_refresh(args) -> int:
             [args.lookback])
         upsert(con, "catalysts", cal)
 
-    print(f"[2/7] ClinicalTrials.gov ({len(ncts)} NCTs) ...", flush=True)
+    print(f"[2/8] ClinicalTrials.gov ({len(ncts)} NCTs) ...", flush=True)
     trials = ctgov.fetch(ncts)
     print(f"      {len(trials)} trials")
     with connect() as con:
         upsert(con, "trials", trials)
 
-    print(f"[3/7] SEC EDGAR cash & burn ({len(tickers)} tickers) ...", flush=True)
+    print(f"[3/8] SEC EDGAR cash & burn ({len(tickers)} tickers) ...", flush=True)
     fins = edgar.fetch(tickers, verbose=True)
     print(f"      {len(fins)} filers")
     with connect() as con:
         upsert(con, "financials", fins)
 
-    print(f"[4/7] Prices & volatility ({len(tickers)} tickers) ...", flush=True)
+    print(f"[4/8] Prices & volatility ({len(tickers)} tickers) ...", flush=True)
     px = prices.fetch(tickers, verbose=True)
     print(f"      {len(px)} price histories")
 
@@ -84,7 +85,7 @@ def cmd_refresh(args) -> int:
         upsert(con, "prices", px)
 
     if not args.no_news:
-        print(f"[5/7] News sentiment & filing cadence ({len(tickers)}) ...",
+        print(f"[5/8] News sentiment & filing cadence ({len(tickers)}) ...",
               flush=True)
         companies = (cal.dropna(subset=["ticker"])
                      .drop_duplicates("ticker")
@@ -96,7 +97,7 @@ def cmd_refresh(args) -> int:
     else:
         sent = pd.DataFrame()
 
-    print("[6/7] Option-implied catalyst moves ...", flush=True)
+    print("[6/8] Option-implied catalyst moves ...", flush=True)
     today = dt.date.today()
     # Don't gate on the `optionable` flag: the discovery source can't know it.
     # implied_move() returns None for names with no listed chain, which is the
@@ -131,7 +132,16 @@ def cmd_refresh(args) -> int:
 
     with connect() as con:
         upsert(con, "implied", imp)
-    print("[7/7] Scoring board & realised outcomes ...", flush=True)
+    if not args.no_short_interest:
+        print(f"[7/8] FINRA short interest ({len(tickers)}) ...", flush=True)
+        si = shortinterest.fetch(tickers, verbose=True)
+        print(f"      {len(si)} readings")
+        with connect() as con:
+            upsert(con, "short_interest", si)
+    else:
+        si = pd.DataFrame()
+
+    print("[8/8] Scoring board & realised outcomes ...", flush=True)
     from . import outcomes as outcomes_mod
     with connect() as con:
         feat = features.build(con, horizon_days=args.horizon)
@@ -144,7 +154,7 @@ def cmd_refresh(args) -> int:
 
     print(f"\nwrote catalysts={len(cal)} trials={len(trials)} "
           f"financials={len(fins)} prices={len(px)} implied={len(imp)} "
-          f"sentiment={len(sent)} outcomes={len(outs)}")
+          f"sentiment={len(sent)} short={len(si)} outcomes={len(outs)}")
     return 0
 
 
@@ -254,6 +264,29 @@ def cmd_backtest(args) -> int:
                 ev.to_csv("data/backtest_cadence.csv", index=False)
                 print("\nsaved data/backtest_cadence.csv")
 
+    if args.mode in ("squeeze", "both"):
+        res = bt.run_squeeze(start, end, tickers, verbose=True)
+        print("\n" + "=" * 100)
+        print("SQUEEZE STUDY  (anchor: filing dates; short interest matched by "
+              "FINRA PUBLICATION date, not settlement)")
+        print("=" * 100)
+        ev = res.get("events")
+        if ev is None or ev.empty:
+            print("no observations")
+        else:
+            print(f"{len(ev)} observations, {ev.ticker.nunique()} tickers\n")
+            keys = (("by_dtc", "By days to cover"),
+                    ("by_interaction", "Crowding against the validated runway signal"))
+            tables = [res.get(k) for k, _ in keys]
+            n_tests += btstats.apply_multiple_testing(tables)
+            for (key, title), tbl in zip(keys, tables):
+                if tbl is not None and not tbl.empty:
+                    print(f"\n-- {title}")
+                    print(btstats.format_table(tbl))
+            if args.save:
+                ev.to_csv("data/backtest_squeeze.csv", index=False)
+                print("\nsaved data/backtest_squeeze.csv")
+
     if args.mode in ("catalyst", "both"):
         res = bt.run_catalyst(start, end, verbose=True)
         print("\n" + "=" * 100)
@@ -316,6 +349,8 @@ def main(argv=None) -> int:
     r.add_argument("--implied-horizon", type=int, default=90)
     r.add_argument("--lookback", type=int, default=45,
                    help="days of already-passed catalysts to keep and score")
+    r.add_argument("--no-short-interest", action="store_true",
+                   help="skip the FINRA short-interest pull")
     r.add_argument("--no-news", action="store_true",
                    help="skip the news/sentiment pull")
     r.add_argument("--include-paid", action="store_true",
@@ -336,7 +371,7 @@ def main(argv=None) -> int:
     k.add_argument("--start", default="2021-01-01")
     k.add_argument("--end", default="2025-06-30")
     k.add_argument("--mode",
-                   choices=["runway", "catalyst", "cadence", "both"],
+                   choices=["runway", "catalyst", "cadence", "squeeze", "both"],
                    default="both")
     k.add_argument("--max-tickers", type=int, default=None)
     k.add_argument("--save", action="store_true", help="write per-event CSVs")

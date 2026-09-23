@@ -1,15 +1,13 @@
 name: Refresh catalyst board
 
 on:
-  schedule:
-    # 11:23 UTC daily — after US filings settle, before the open.
-    #
-    # Deliberately off the hour. GitHub queues `schedule` events on a
-    # best-effort basis and documents that they can be delayed or dropped
-    # under load; the top of the hour is when the most crons in the world
-    # fire at once. An odd minute sits outside that spike. The first run on
-    # "0 11 * * *" never fired at all.
-    - cron: "23 11 * * *"
+  # Triggered by Vercel Cron, not by GitHub's own scheduler.
+  #
+  # GitHub's `schedule` does fire, but it drifts badly: an 11:23 UTC cron
+  # landed at 15:29 on its first successful day, and two earlier days appeared
+  # to skip entirely. Vercel's scheduler is dependable, so it keeps the clock
+  # and calls workflow_dispatch through api/refresh.js. The work still happens
+  # here, where there is no function timeout to fight.
   workflow_dispatch:
 
 # Never let two refreshes race for the database.

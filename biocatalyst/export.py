@@ -22,6 +22,29 @@ WEB_DIR = ROOT / "web"
 ROBINHOOD = "https://robinhood.com/stocks/{}"
 
 
+# Ranked most-decision-relevant first. The board shows one line; the rest
+# live in the expanded row.
+_REASON_RANK = [
+    "serial issuer", "rare issuer", "runs out", "cash left", "cash,",
+    "offerings in 24mo", "8-Ks in 90d", "squeeze risk", "straddle prices",
+    "predates a later offering", "microcap", "base-rate LOA",
+]
+
+
+def headline_reason(reasons: str | None) -> str | None:
+    """The single reason most worth reading first."""
+    if not reasons:
+        return None
+    parts = [p.strip() for p in str(reasons).split("|") if p.strip()]
+    if not parts:
+        return None
+    for key in _REASON_RANK:
+        for p in parts:
+            if key in p.lower():
+                return p
+    return parts[0]
+
+
 def _clean(v):
     """JSON-safe scalar: NaN and NaT become null."""
     if v is None or (isinstance(v, float) and pd.isna(v)):
@@ -99,6 +122,9 @@ def build_payload(horizon: int = 180, lookback: int = 45) -> dict:
             "insider_note": _clean(r.get("biggest_move_desc")),
             "headline": _clean(r.get("top_negative")) or _clean(r.get("top_positive")),
             "reasons": r["reasons"],
+            "headline_reason": headline_reason(r.get("reasons")),
+            "n_reasons": len([x for x in str(r.get("reasons") or "").split("|")
+                              if x.strip()]),
             "nct": _clean(r.get("nct_id")),
         })
 

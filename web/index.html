@@ -6,420 +6,365 @@
 <title>BioCatalyst</title>
 <style>
   :root{
-    --bg:#f6f6f4; --panel:#fff; --ink:#191917; --muted:#6d6d67;
-    --line:#e5e5e1; --accent:#3d5a80; --accent-ink:#fff;
-    --short:#b0321a; --short-bg:#fbeae6; --long:#256b42; --long-bg:#e6f3ec;
-    --vol:#8a6108; --vol-bg:#fbf1dc; --none:#76766f; --none-bg:#f0f0ed;
+    --bg:#f7f7f5; --panel:#fff; --ink:#191917; --muted:#71716b; --faint:#9a9a93;
+    --line:#e6e6e1; --accent:#3d5a80; --accent-ink:#fff;
+    --short:#b0321a; --short-bg:#fbeae6;
+    --long:#256b42;  --long-bg:#e6f3ec;
+    --vol:#8a6108;   --vol-bg:#fbf1dc;
+    --none:#76766f;  --none-bg:#f0f0ed;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --bg:#141417; --panel:#1d1d21; --ink:#eeeeea; --muted:#9b9b95;
-      --line:#2d2d34; --accent:#8fb0d9; --accent-ink:#11131a;
-      --short:#f08a6c; --short-bg:#3a201a; --long:#79c795; --long-bg:#18301f;
-      --vol:#e0bc6e; --vol-bg:#332a14; --none:#8d8d86; --none-bg:#25252a;
+      --bg:#141417; --panel:#1c1c20; --ink:#efefeb; --muted:#9d9d96; --faint:#76766f;
+      --line:#2b2b32; --accent:#8fb0d9; --accent-ink:#11131a;
+      --short:#f08a6c; --short-bg:#38201a;
+      --long:#79c795;  --long-bg:#17301e;
+      --vol:#e0bc6e;   --vol-bg:#322a14;
+      --none:#8d8d86;  --none-bg:#24242a;
     }
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);
-       font:14px/1.5 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif}
-  header{padding:26px 18px 6px;max-width:1360px;margin:0 auto}
-  h1{margin:0;font-size:21px;letter-spacing:-.015em}
-  .sub{color:var(--muted);font-size:12.5px;margin-top:2px}
-  .wrap{max-width:1360px;margin:0 auto;padding:0 18px 56px}
-  .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--panel);
-       border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin:16px 0 12px}
-  .bar label{color:var(--muted);font-size:12px}
-  select,input[type=number]{background:var(--bg);color:var(--ink);border:1px solid var(--line);
-       border-radius:7px;padding:6px 9px;font-size:13px}
-  .tabs{display:flex;gap:6px;margin:16px 0 0}
-  .tab{background:transparent;color:var(--muted);border:1px solid var(--line);
-       border-radius:8px 8px 0 0;border-bottom:none;padding:8px 16px;font-size:13px;
-       font-weight:600;cursor:pointer}
-  .tab.active{background:var(--panel);color:var(--ink)}
-  .move{font-variant-numeric:tabular-nums;font-weight:700;font-size:14px}
-  .up{color:var(--long)} .down{color:var(--short)} .flat{color:var(--muted)}
-  .tally{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
-  .tally span{font-size:12px;padding:4px 11px;border-radius:999px;font-weight:600}
-  .t-SHORT{background:var(--short-bg);color:var(--short)}
-  .t-LONG{background:var(--long-bg);color:var(--long)}
-  .t-SELLVOL,.t-BUYVOL{background:var(--vol-bg);color:var(--vol)}
-  .t-NOTRADE{background:var(--none-bg);color:var(--none)}
-  .tablewrap{background:var(--panel);border:1px solid var(--line);border-radius:11px;overflow:auto}
-  table{border-collapse:collapse;width:100%;font-size:13px}
-  th{position:sticky;top:0;background:var(--panel);text-align:left;padding:10px 12px;
-     border-bottom:1px solid var(--line);z-index:2;font-size:10.5px;letter-spacing:.06em;
-     text-transform:uppercase;color:var(--muted)}
-  td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
-  tr:last-child td{border-bottom:0}
-  .verdict{display:inline-block;padding:5px 12px;border-radius:7px;font-size:13px;
-           font-weight:750;letter-spacing:.02em;white-space:nowrap}
-  .v-SHORT{background:var(--short-bg);color:var(--short)}
-  .v-LONG{background:var(--long-bg);color:var(--long)}
-  .v-SELLVOL,.v-BUYVOL{background:var(--vol-bg);color:var(--vol)}
-  .v-NOTRADE{background:var(--none-bg);color:var(--none)}
-  .nondir{display:block;font-size:10px;color:var(--muted);margin-top:3px}
-  .setup{display:block;font-size:11px;color:var(--muted);margin-top:4px}
-  .tick a{color:var(--ink);text-decoration:none;font-weight:700;font-size:15px;
-          display:inline-flex;align-items:center;gap:5px}
-  .tick a:hover{color:var(--accent)}
-  .tick a::after{content:"↗";font-size:10px;opacity:.45;font-weight:400}
-  .dim{color:var(--muted);font-size:11.5px}
-  .when{font-weight:650}
-  .ev{display:inline-block;font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;
-      font-weight:700;padding:2px 6px;border-radius:4px;border:1px solid currentColor;cursor:help}
-  .ev-supported{color:var(--long)} .ev-weak{color:var(--vol)}
-  .ev-not-supported{color:var(--short)} .ev-untested,.ev-na{color:var(--muted)}
-  .meter{height:4px;border-radius:3px;background:var(--line);overflow:hidden;width:56px;margin-top:4px}
+       font:15px/1.55 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px 64px}
+  header{max-width:1080px;margin:0 auto;padding:30px 20px 0}
+  h1{margin:0;font-size:22px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:13px;margin-top:3px}
+
+  /* tabs */
+  .tabs{display:flex;gap:2px;margin:22px 0 0;border-bottom:1px solid var(--line)}
+  .tab{background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);
+       padding:9px 2px;margin-right:22px;font-size:14px;font-weight:600;cursor:pointer}
+  .tab.active{color:var(--ink);border-bottom-color:var(--accent)}
+
+  /* controls — four, not seven */
+  .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0 6px}
+  .bar input[type=search],.bar select,.bar input[type=number]{
+       background:var(--panel);color:var(--ink);border:1px solid var(--line);
+       border-radius:8px;padding:7px 10px;font-size:13.5px}
+  .bar input[type=search]{min-width:190px}
+  .bar .lbl{color:var(--faint);font-size:12px}
+  .count{margin-left:auto;color:var(--faint);font-size:12.5px}
+
+  /* rows */
+  .rows{margin-top:10px}
+  .row{display:grid;grid-template-columns:104px 1fr 132px 96px;gap:18px;
+       align-items:start;padding:15px 16px 15px 13px;background:var(--panel);
+       border:1px solid var(--line);border-left:3px solid var(--line);
+       border-radius:10px;margin-bottom:7px;cursor:pointer}
+  .row:hover{border-color:var(--accent)}
+  .row.v-SHORT{border-left-color:var(--short)}
+  .row.v-LONG{border-left-color:var(--long)}
+  .row.v-SELLVOL,.row.v-BUYVOL{border-left-color:var(--vol)}
+  .row.v-NOTRADE{border-left-color:var(--line)}
+
+  .verdict{display:inline-block;padding:4px 9px;border-radius:6px;
+           font-size:11.5px;font-weight:750;letter-spacing:.03em;white-space:nowrap}
+  .v-SHORT .verdict,.verdict.v-SHORT{background:var(--short-bg);color:var(--short)}
+  .v-LONG .verdict,.verdict.v-LONG{background:var(--long-bg);color:var(--long)}
+  .v-SELLVOL .verdict,.v-BUYVOL .verdict,
+  .verdict.v-SELLVOL,.verdict.v-BUYVOL{background:var(--vol-bg);color:var(--vol)}
+  .v-NOTRADE .verdict,.verdict.v-NOTRADE{background:var(--none-bg);color:var(--none)}
+  .sub2{color:var(--faint);font-size:11px;margin-top:5px;line-height:1.35}
+
+  .tick{font-size:16px;font-weight:700;letter-spacing:-.01em}
+  .tick a{color:inherit;text-decoration:none}
+  .tick a:hover{color:var(--accent);text-decoration:underline}
+  .what{color:var(--muted);font-size:13px;margin-top:2px}
+  .why{color:var(--ink);font-size:12.5px;margin-top:7px;opacity:.82}
+  .more{color:var(--faint);font-size:11.5px}
+
+  .when{font-size:13.5px;font-weight:600}
+  .win{color:var(--faint);font-size:11.5px;margin-top:2px}
+
+  .conv{text-align:right}
+  .convn{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+  .meter{height:3px;border-radius:2px;background:var(--line);margin-top:5px;overflow:hidden}
   .meter i{display:block;height:100%;background:var(--accent)}
-  .why{max-width:340px}
-  .chips-why{display:flex;flex-wrap:wrap;gap:4px}
-  .chip-why{background:var(--bg);border:1px solid var(--line);border-radius:5px;
-            padding:2px 7px;font-size:11px;color:var(--muted);line-height:1.5}
-  .chip-why.neg{border-color:color-mix(in srgb,var(--short) 40%,var(--line));color:var(--short)}
-  .chip-why.pos{border-color:color-mix(in srgb,var(--long) 40%,var(--line));color:var(--long)}
-  .chip-why.caution{border-color:var(--vol);color:var(--vol);font-weight:650}
-  tr.row{cursor:pointer}
-  tr.row:hover{background:color-mix(in srgb,var(--accent) 6%,transparent)}
-  tr.untested .verdict{opacity:.55}
-  tr.untested td{opacity:.88}
-  .detail td{background:var(--bg);font-size:12px;padding:14px 16px}
-  .detail dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-             gap:10px 18px;margin:0}
-  .detail dt{color:var(--muted);font-size:10.5px;text-transform:uppercase;
-             letter-spacing:.05em;margin-bottom:2px}
-  .detail dd{margin:0;font-variant-numeric:tabular-nums}
-  .detail .full{grid-column:1/-1;color:var(--muted);line-height:1.6;margin-top:6px}
-  .vague{opacity:.7;font-style:italic}
-  .dupe{display:inline-block;font-size:9.5px;color:var(--muted);
-        border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-left:5px}
-  .caret{color:var(--muted);font-size:10px;margin-left:4px}
-  .nums{font-variant-numeric:tabular-nums;font-size:12px;white-space:nowrap}
-  .sent{font-variant-numeric:tabular-nums;font-weight:700;font-size:13px}
-  .sent-pos{color:var(--long)} .sent-neg{color:var(--short)}
-  .sent-flat{color:var(--muted)} .sent-thin{color:var(--muted);opacity:.65}
-  .sq{display:inline-block;font-size:10px;letter-spacing:.04em;text-transform:uppercase;
-      font-weight:700;padding:2px 7px;border-radius:4px}
-  .sq-low{background:var(--long-bg);color:var(--long)}
-  .sq-moderate{background:var(--none-bg);color:var(--none)}
-  .sq-elevated{background:var(--vol-bg);color:var(--vol)}
-  .sq-high{background:var(--short-bg);color:var(--short)}
-  .note{margin-top:18px;padding:13px 15px;border-left:3px solid var(--accent);
-        background:var(--panel);border-radius:0 9px 9px 0;color:var(--muted);
-        font-size:12.5px;line-height:1.55}
-  .note b{color:var(--ink)}
-  .disclaimer{margin-top:12px;padding:13px 15px;border-left:3px solid var(--short);
-        background:var(--panel);border-radius:0 9px 9px 0;color:var(--muted);font-size:12.5px}
-  .empty{padding:44px;text-align:center;color:var(--muted)}
-  @media(max-width:860px){.hide-sm{display:none}.why{max-width:170px}}
+  .ev{display:inline-block;margin-top:6px;font-size:9.5px;letter-spacing:.06em;
+      text-transform:uppercase;font-weight:700}
+  .ev-supported{color:var(--long)} .ev-weak{color:var(--vol)}
+  .ev-not-supported{color:var(--short)} .ev-untested,.ev-na{color:var(--faint)}
+
+  /* detail */
+  .detail{background:var(--panel);border:1px solid var(--accent);border-top:0;
+          border-radius:0 0 10px 10px;margin:-8px 0 9px;padding:16px 18px}
+  .detail dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));
+             gap:12px 20px;margin:0}
+  .detail dt{color:var(--faint);font-size:10px;text-transform:uppercase;
+             letter-spacing:.06em;margin-bottom:2px}
+  .detail dd{margin:0;font-size:13px;font-variant-numeric:tabular-nums}
+  .full{grid-column:1/-1;color:var(--muted);font-size:12.5px;line-height:1.6;
+        margin-top:4px;padding-top:10px;border-top:1px solid var(--line)}
+  .full b{color:var(--ink)}
+
+  .help{margin-top:22px;font-size:13px}
+  .help summary{cursor:pointer;color:var(--accent);font-weight:600}
+  .help div{color:var(--muted);line-height:1.65;margin-top:10px;
+            padding-left:14px;border-left:2px solid var(--line)}
+  .help b{color:var(--ink)}
+  .empty{padding:48px;text-align:center;color:var(--muted)}
+  .up{color:var(--long)} .down{color:var(--short)} .flat{color:var(--faint)}
+  .mv{font-variant-numeric:tabular-nums;font-weight:700;font-size:15px}
+
+  @media(max-width:720px){
+    .row{grid-template-columns:1fr auto;gap:8px 12px}
+    .cell-when{grid-column:1;order:3} .cell-conv{grid-column:2;order:4;text-align:left}
+    .cell-verdict{order:1} .cell-what{order:2;grid-column:1/-1}
+  }
 </style>
 </head>
 <body>
 <header>
   <h1>BioCatalyst</h1>
   <div class="sub" id="sub">loading…</div>
-</header>
-
-<div class="wrap">
   <div class="tabs">
     <button class="tab active" data-view="upcoming">Upcoming</button>
     <button class="tab" data-view="recent">Recent results</button>
   </div>
+</header>
+
+<div class="wrap">
+  <div class="bar" id="bar">
+    <input type="search" id="q" placeholder="Search ticker or drug">
+    <select id="show">
+      <option value="ACTIONABLE">Actionable only</option>
+      <option value="supported">Backed by evidence</option>
+      <option value="ALL">Everything</option>
+      <option value="DILUTION_SHORT">Dilution shorts</option>
+      <option value="VOL_SELL_RICH">Sell volatility</option>
+      <option value="VOL_BUY_CHEAP">Buy volatility</option>
+      <option value="BASE_RATE_LONG">Longs</option>
+    </select>
+    <select id="sort">
+      <option value="date">Soonest first</option>
+      <option value="conviction">Strongest first</option>
+    </select>
+    <span class="lbl">within</span>
+    <select id="horizon">
+      <option value="90">3 months</option>
+      <option value="180" selected>6 months</option>
+      <option value="365">1 year</option>
+    </select>
+    <span class="count" id="count"></span>
+  </div>
 
   <div class="bar" id="recentbar" style="display:none">
-    <label>Sort</label>
     <select id="recentsort">
-      <option value="move">Biggest move</option>
-      <option value="date">Most recent</option>
+      <option value="move">Biggest move first</option>
+      <option value="date">Most recent first</option>
     </select>
+    <span class="count" id="recentcount"></span>
   </div>
 
-  <div class="bar" id="filters">
-    <label>Sort</label>
-    <select id="sort">
-      <option value="date">Soonest catalyst</option>
-      <option value="conviction">Highest conviction</option>
-    </select>
-    <label>Search</label>
-    <input type="search" id="q" placeholder="ticker or drug" style="width:130px">
-    <label>Evidence</label>
-    <select id="evidence">
-      <option value="ALL">Any</option>
-      <option value="supported">Supported only</option>
-      <option value="tested">Tested (excl. untested)</option>
-    </select>
-    <label>Show</label>
-    <select id="setup">
-      <option value="ACTIONABLE">Actionable</option>
-      <option value="ALL">All</option>
-      <option value="DILUTION_SHORT">Dilution Short</option>
-      <option value="VOL_SELL_RICH">Vol Sell Rich</option>
-      <option value="VOL_BUY_CHEAP">Vol Buy Cheap</option>
-      <option value="RUNUP_FADE">Runup Fade</option>
-      <option value="BASE_RATE_LONG">Base Rate Long</option>
-      <option value="NO_EDGE">No Edge</option>
-    </select>
-    <label>Horizon (days)</label>
-    <input type="number" id="horizon" value="180" min="7" max="720" step="7" style="width:82px">
-    <label>Min conviction</label>
-    <input type="number" id="minconv" value="0" min="0" max="100" step="5" style="width:74px">
-  </div>
+  <div class="rows" id="rows"><div class="empty">loading…</div></div>
 
-  <div class="tally" id="tally"></div>
-  <div class="tablewrap" id="tablewrap" style="border-radius:0 11px 11px 11px"><div class="empty">loading…</div></div>
-
-  <div class="note">
-    <b>What the verdicts mean.</b> <b>SHORT</b> and <b>LONG</b> are directional.
-    <b>SELL VOL</b> / <b>BUY VOL</b> are not — they are a view on whether the option
-    market priced the event richly or cheaply, not on which way it resolves. Read every
-    verdict with its evidence badge: only <b>dilution-short</b> is <b>supported</b>
-    (cash runway under six months ran −5.4% abnormal at 21 days and −16.2% at 126 days
-    across 5,379 point-in-time filing observations, both surviving multiple testing;
-    sharpest alongside heavy 8-K filing and a microcap valuation, −39.8% at 126 days).
-    <b>Run-up fade</b> tested as <b>not supported</b>. Both volatility verdicts are
-    <b>untested</b> — there is no free source of historical option chains. The News
-    column is context and never moves a verdict. Readout <i>direction</i> is not
-    forecastable from this data.
-  </div>
-  <div class="disclaimer">
-    <b>Not investment advice.</b> This is the output of a personal research tool built
-    from public data (ClinicalTrials.gov, SEC EDGAR, Yahoo Finance). Base rates are
-    population averages, scoring weights are hand-chosen, and several signals are
-    explicitly untested. Nothing here is a recommendation to buy or sell any security.
-  </div>
+  <details class="help">
+    <summary>How to read this</summary>
+    <div>
+      <p><b>SHORT</b> and <b>LONG</b> are directional. <b>SELL VOL</b> and
+      <b>BUY VOL</b> are not — they say the option market has priced the event
+      richly or cheaply, nothing about which way it resolves.</p>
+      <p>The small label under each score is what a backtest actually found.
+      Only <b>dilution-short</b> is <b>supported</b>: across 5,379 point-in-time
+      filing observations, cash runway under six months ran −5.4% abnormal at
+      21 days, and −27.7% at 126 days when the company is also a serial issuer.
+      <b>Run-up fade</b>, <b>trial design</b> and <b>insider activity</b> were
+      tested and did <b>not</b> hold up — they are shown with that label rather
+      than deleted. Both volatility calls are <b>untested</b>: there is no free
+      source of historical option chains.</p>
+      <p>Most dates are a <b>window</b>, not a day. A trial's primary completion
+      date is when the last patient reaches the endpoint, not when the company
+      announces — only 3.3% of big moves land within five days of it, against
+      5.2% from chance. Windows narrow to <b>guided</b> where a company has
+      stated timing in a filing. Only PDUFA dates are hard.</p>
+      <p>Click any row for the full picture. Tickers open Robinhood.
+      <b>Not investment advice.</b></p>
+    </div>
+  </details>
 </div>
 
 <script>
-const fmtPct = (v, d = 0) => v === null || v === undefined ? "—" : (v * 100).toFixed(d) + "%";
-const fmtCap = v => v === null || v === undefined ? "—"
-  : v >= 1e9 ? "$" + (v / 1e9).toFixed(1) + "B" : "$" + Math.round(v / 1e6).toLocaleString() + "M";
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c =>
-  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pct = (v,d=0) => v===null||v===undefined ? "—" : (v*100).toFixed(d)+"%";
+const cap = v => v===null||v===undefined ? "—"
+  : v>=1e9 ? "$"+(v/1e9).toFixed(1)+"B" : "$"+Math.round(v/1e6).toLocaleString()+"M";
+const cls = v => v===null||v===undefined ? "flat" : v>0.02 ? "up" : v<-0.02 ? "down" : "flat";
+const sgn = v => v===null||v===undefined ? "—" : (v>0?"+":"")+(v*100).toFixed(1)+"%";
 
-function when(d) {
-  if (d === null || d === undefined) return "—";
+function when(d){
+  if(d===null||d===undefined) return "—";
   d = Math.round(d);
-  if (d <= 0) return "today";
-  if (d === 1) return "tomorrow";
-  if (d < 7) return d + " days";
-  if (d < 60) return Math.floor(d / 7) + "w";
-  return Math.floor(d / 30) + "mo";
+  if(d<=0) return "today";
+  if(d===1) return "tomorrow";
+  if(d<14) return d+" days";
+  if(d<60) return Math.round(d/7)+" weeks";
+  return Math.round(d/30)+" months";
 }
+const shortDate = s => {
+  if(!s) return "";
+  const m = String(s).slice(0,10).match(/^(\d{4})-(\d{2})/);
+  if(!m) return String(s).slice(0,10);
+  return ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+m[2]-1]
+         + " " + m[1].slice(2);
+};
 
-let DATA = { rows: [] };
+let DATA = {rows:[], recent:[]}, VIEW = "upcoming", OPEN = null;
 
-function render() {
+function filtered(){
+  const q = (document.getElementById("q").value||"").trim().toLowerCase();
+  const show = document.getElementById("show").value;
+  const horizon = +document.getElementById("horizon").value;
   const sort = document.getElementById("sort").value;
-  const setup = document.getElementById("setup").value;
-  const horizon = +document.getElementById("horizon").value || 180;
-  const minconv = +document.getElementById("minconv").value || 0;
 
-  const q = (document.getElementById("q").value || "").trim().toLowerCase();
-  const ev = document.getElementById("evidence").value;
+  let rows = DATA.rows.filter(r => r.days!==null && r.days<=horizon);
+  if(q) rows = rows.filter(r => r.ticker.toLowerCase().includes(q)
+    || (r.drug||"").toLowerCase().includes(q)
+    || (r.indication||"").toLowerCase().includes(q));
 
-  let rows = DATA.rows.filter(r => r.days !== null && r.days <= horizon
-                                   && r.conviction >= minconv);
-  if (q) rows = rows.filter(r =>
-    r.ticker.toLowerCase().includes(q) ||
-    (r.drug || "").toLowerCase().includes(q) ||
-    (r.indication || "").toLowerCase().includes(q));
-  if (ev === "supported") rows = rows.filter(r => r.evidence === "supported");
-  else if (ev === "tested") rows = rows.filter(r => r.evidence !== "untested");
-  if (setup === "ACTIONABLE") rows = rows.filter(r => r.setup !== "NO_EDGE");
-  else if (setup !== "ALL") rows = rows.filter(r => r.setup === setup);
+  if(show==="ACTIONABLE") rows = rows.filter(r => r.setup!=="NO_EDGE");
+  else if(show==="supported") rows = rows.filter(r => r.evidence==="supported");
+  else if(show!=="ALL") rows = rows.filter(r => r.setup===show);
 
-  rows.sort((a, b) => sort === "conviction"
-    ? (b.conviction - a.conviction) || (a.days - b.days)
-    : (a.days - b.days) || (b.conviction - a.conviction));
+  rows.sort((a,b) => sort==="conviction"
+    ? (b.conviction-a.conviction)||(a.days-b.days)
+    : (a.days-b.days)||(b.conviction-a.conviction));
+  return rows;
+}
 
-  const counts = {};
-  rows.forEach(r => counts[r.ticker] = (counts[r.ticker] || 0) + 1);
-  const vcounts = {};
-  rows.forEach(r => vcounts[r.verdict] = (vcounts[r.verdict] || 0) + 1);
-  document.getElementById("tally").innerHTML = Object.entries(vcounts)
-    .map(([k, v]) => `<span class="t-${k.replace(/ /g, "")}">${esc(k)} · ${v}</span>`).join("");
+function rowHtml(r, i){
+  const v = r.verdict.replace(/ /g,"");
+  const windowed = r.precision==="readout_window" || r.precision==="guidance";
+  return `<div class="row v-${v}" data-i="${i}">
+    <div class="cell-verdict">
+      <span class="verdict v-${v}">${esc(r.verdict)}</span>
+      ${!r.directional && r.verdict!=="NO TRADE"
+        ? '<div class="sub2">not directional</div>' : ""}
+    </div>
+    <div class="cell-what">
+      <div class="tick"><a href="${esc(r.robinhood)}" target="_blank" rel="noopener"
+        onclick="event.stopPropagation()">${esc(r.ticker)}</a>
+        <span class="more">· ${cap(r.mcap)}</span></div>
+      <div class="what">${esc((r.drug||"").slice(0,70))}${
+        r.indication ? ' <span class="more">· '+esc(r.indication.slice(0,42))+'</span>' : ""}</div>
+      ${r.headline_reason ? `<div class="why">${esc(r.headline_reason)}${
+        r.n_reasons>1 ? ` <span class="more">+${r.n_reasons-1} more</span>` : ""}</div>` : ""}
+    </div>
+    <div class="cell-when">
+      <div class="when">${when(r.days)}</div>
+      <div class="win">${windowed
+        ? shortDate(r.date)+" – "+shortDate(r.date_hi)+(r.precision==="guidance"?" · guided":"")
+        : esc(String(r.date).slice(0,10))}</div>
+    </div>
+    <div class="cell-conv conv">
+      <div class="convn">${r.conviction}</div>
+      <div class="meter"><i style="width:${r.conviction}%"></i></div>
+      <div class="ev ev-${r.evidence.replace(/[ /]/g,"-")}">${esc(r.evidence)}</div>
+    </div>
+  </div>`;
+}
 
+function detailHtml(r){
+  const f = (k,v) => `<div><dt>${k}</dt><dd>${v}</dd></div>`;
+  return `<div class="detail">
+    <dl>
+      ${f("Company", esc(r.company||"—"))}
+      ${f("Stage", esc(r.stage||"—"))}
+      ${f("Trial design", esc((r.design||"unknown").replace(/_/g," "))
+          + (r.enrollment ? " · n="+r.enrollment : ""))}
+      ${f("Base-rate LOA", pct(r.loa))}
+      ${f("Implied / typical", pct(r.implied)+" / "+pct(r.expected))}
+      ${f("Cash runway", (r.runway===null?"—":Math.round(r.runway)+" months")
+          + (r.runway_stale?' <span style="color:var(--vol)">stale</span>':""))}
+      ${f("Cash as of", esc(r.cash_asof||"—"))}
+      ${f("Offerings (24mo)", r.offerings_24m ?? "—")}
+      ${f("Dilution readiness", esc(r.dilution||"—"))}
+      ${f("Days to cover", r.dtc==null?"—":r.dtc.toFixed(1))}
+      ${f("Short % of shares", r.short_pct==null?"—":pct(r.short_pct,1))}
+      ${f("Squeeze risk", esc(r.squeeze||"—"))}
+      ${f("Insider (90d)", (r.form4_filings??0)+" filings"+(r.cluster_buy?" · cluster buy":""))}
+      ${f("News sentiment", r.sentiment==null?"—"
+          : (r.sentiment>0?"+":"")+r.sentiment.toFixed(2)+(r.sent_thin?" (thin)":""))}
+      ${f("8-Ks (90d)", r.eightk ?? "—")}
+      ${f("20-day return", pct(r.ret20))}
+      <div class="full"><b>Why:</b> ${esc(r.reasons)}</div>
+      <div class="full"><b>Evidence:</b> ${esc(r.evidence)} — ${esc(r.evidence_note||"—")}</div>
+      ${r.guide_phrase?`<div class="full"><b>Company guidance:</b> “${esc(r.guide_phrase)}”</div>`:""}
+      ${r.insider_note?`<div class="full"><b>Notable insider move:</b> ${esc(r.insider_note)}</div>`:""}
+      ${r.headline?`<div class="full"><b>Recent headline:</b> ${esc(r.headline)}</div>`:""}
+      ${r.nct?`<div class="full"><a href="https://clinicaltrials.gov/study/${esc(r.nct)}"
+        target="_blank" rel="noopener">${esc(r.nct)} on ClinicalTrials.gov ↗</a></div>`:""}
+    </dl></div>`;
+}
+
+function renderUpcoming(){
+  const rows = filtered();
+  const host = document.getElementById("rows");
+  const tally = {};
+  rows.forEach(r => tally[r.verdict] = (tally[r.verdict]||0)+1);
+  document.getElementById("count").textContent =
+    Object.entries(tally).map(([k,v]) => `${v} ${k.toLowerCase()}`).join(" · ");
   document.getElementById("sub").textContent =
-    `${rows.length} catalysts · next ${horizon} days · built ${DATA.generated.replace("T", ", ")}`;
+    `${rows.length} catalysts · built ${DATA.generated.replace("T",", ")}`;
 
-  // Render into a container that persists. Replacing the tbody with markup
-  // that opened its own <table> let the parser hoist the tags out, so every
-  // filter change stacked another <thead> inside the same table.
-  const wrap = document.getElementById("tablewrap");
-  if (!rows.length) {
-    wrap.innerHTML = '<div class="empty">Nothing matches these filters.</div>';
-    return;
-  }
+  if(!rows.length){ host.innerHTML = '<div class="empty">Nothing matches.</div>'; return; }
+  host.innerHTML = rows.slice(0,300).map((r,i) =>
+    rowHtml(r,i) + (OPEN===i ? detailHtml(r) : "")).join("");
 
-  wrap.innerHTML = `<table><thead><tr>
-      <th>Verdict</th><th>Ticker</th><th>When</th><th>Catalyst</th><th>Conviction</th>
-      <th class="hide-sm">Evidence</th><th class="hide-sm">Numbers</th>
-      <th class="hide-sm">Squeeze</th>
-      <th class="hide-sm">News</th><th class="hide-sm">Why</th>
-    </tr></thead><tbody>` + rows.slice(0, 400).map((r, idx) => {
-    const sentCls = r.sentiment === null ? "" : r.sent_thin ? "sent-thin"
-      : r.sentiment > 0.2 ? "sent-pos" : r.sentiment < -0.2 ? "sent-neg" : "sent-flat";
-    return `<tr class="row${r.evidence === "untested" ? " untested" : ""}" data-i="${idx}">
-      <td><span class="verdict v-${r.verdict.replace(/ /g, "")}">${esc(r.verdict)}</span>
-        ${!r.directional && r.verdict !== "NO TRADE" ? '<span class="nondir">not directional</span>' : ""}
-        <span class="setup">${esc(r.setup.replace(/_/g, " ").toLowerCase())}</span></td>
-      <td class="tick"><a href="${esc(r.robinhood)}" target="_blank" rel="noopener">${esc(r.ticker)}</a>
-        ${counts[r.ticker] > 1 ? `<span class="dupe">${counts[r.ticker]} catalysts</span>` : ""}
-        <div class="dim">${fmtCap(r.mcap)}</div></td>
-      <td><div class="when">${when(r.days)}</div>
-        <div class="dim">${esc(r.date)}${r.precision === "readout_window" || r.precision === "guidance"
-          ? " \u2192 " + esc(String(r.date_hi || "").slice(0, 10)) : ""}</div>
-        <div class="dim ${r.precision === "readout_window" ? "vague" : ""}">${esc(
-          r.precision === "readout_window" ? "window" :
-          r.precision === "guidance" ? "guided" : r.precision)}</div></td>
-      <td>${esc((r.drug || "").slice(0, 64))}
-        <div class="dim">${esc((r.indication || "").slice(0, 56))}${r.stage ? " · " + esc(r.stage) : ""}</div></td>
-      <td><span class="nums">${r.conviction}</span>
-        <div class="meter"><i style="width:${r.conviction}%"></i></div></td>
-      <td class="hide-sm"><span class="ev ev-${r.evidence.replace(/[ /]/g, "-")}"
-        title="${esc(r.evidence_note)}">${esc(r.evidence)}</span></td>
-      <td class="hide-sm nums">LOA ${fmtPct(r.loa)}<br>
-        <span class="dim">impl ${fmtPct(r.implied)} / typ ${fmtPct(r.expected)}</span><br>
-        <span class="dim">cash ${r.runway === null ? "—" : Math.round(r.runway) + "mo"} · 20d ${fmtPct(r.ret20)}</span></td>
-      <td class="hide-sm">${r.squeeze
-        ? `<span class="sq sq-${r.squeeze}">${esc(r.squeeze)}</span>
-           <div class="dim">${r.dtc === null ? "—" : r.dtc.toFixed(1) + "d to cover"}</div>
-           <div class="dim">${r.short_pct === null ? "" : (r.short_pct * 100).toFixed(1) + "% of shares"}</div>`
-        : '<span class="dim">—</span>'}</td>
-      <td class="hide-sm">${r.sentiment === null ? '<span class="dim">—</span>'
-        : `<span class="sent ${sentCls}">${r.sentiment > 0 ? "+" : ""}${r.sentiment.toFixed(2)}</span>
-           <div class="dim">${r.sent_n || 0} scored${r.sent_thin ? " · thin" : ""}</div>`}
-        ${r.eightk !== null ? `<div class="dim">${r.eightk} 8-K/90d</div>` : ""}</td>
-      <td class="hide-sm why">${chips(r.reasons)}</td>
-    </tr>`;
-  }).join("") + "</tbody></table>";
-  wireExpansion(rows);
+  host.querySelectorAll(".row").forEach(el => el.addEventListener("click", () => {
+    const i = +el.dataset.i;
+    OPEN = (OPEN===i) ? null : i;
+    renderUpcoming();
+  }));
 }
 
-// Reasons arrive as one pipe-joined string; median 138 characters and up to
-// 476, which is unreadable in a table cell. Split into chips and tint the
-// ones that carry a direction.
-function chips(reasons) {
-  if (!reasons) return "";
-  const parts = String(reasons).split("|").map(x => x.trim()).filter(Boolean);
-  return '<div class="chips-why">' + parts.map(p => {
-    const l = p.toLowerCase();
-    const caution = l.startsWith("caution");
-    const neg = !caution && /squeeze|thin|immaterial|rare issuer|runs out|only \d+mo|ran up|size unknown/.test(l);
-    const pos = /serial issuer|loaded|8-ks in 90d|microcap:|priced a deal|financing not forced|expectations reset/.test(l);
-    return `<span class="chip-why ${caution ? "caution" : neg ? "neg" : pos ? "pos" : ""}">${esc(p)}</span>`;
-  }).join("") + "</div>";
-}
-
-function detailRow(r) {
-  const row = (k, v) => `<div><dt>${k}</dt><dd>${v}</dd></div>`;
-  return `<tr class="detail"><td colspan="10"><dl>
-    ${row("Company", esc(r.company || "—"))}
-    ${row("Stage", esc(r.stage || "—"))}
-    ${row("Trial design", esc((r.design || "unknown").replace(/_/g, " "))
-        + (r.enrollment ? " · n=" + r.enrollment : ""))}
-    ${row("Catalyst window", esc(r.date) + (r.date_hi ? " \u2192 " + esc(String(r.date_hi).slice(0,10)) : "")
-        + " (" + esc(r.precision) + ")")}
-    ${r.guide_phrase ? `<div class="full"><b>Company guidance:</b> \u201c${esc(r.guide_phrase)}\u201d</div>` : ""}
-    ${row("Market cap", fmtCap(r.mcap))}
-    ${row("Base-rate LOA", fmtPct(r.loa))}
-    ${row("Implied / typical move", fmtPct(r.implied) + " / " + fmtPct(r.expected))}
-    ${row("Cash runway", (r.runway === null ? "—" : Math.round(r.runway) + " months")
-        + (r.runway_stale ? ' <span style="color:var(--vol)">(stale)</span>' : ""))}
-    ${row("Cash as of", esc(r.cash_asof || "—"))}
-    ${row("Offerings (24mo)", r.offerings_24m ?? "—")}
-    ${row("Dilution readiness", esc(r.dilution || "—"))}
-    ${row("Days to cover", r.dtc === null || r.dtc === undefined ? "—" : r.dtc.toFixed(1))}
-    ${row("Short % of shares", r.short_pct === null || r.short_pct === undefined ? "—" : fmtPct(r.short_pct, 1))}
-    ${row("Insider tilt (90d)", r.insider_tilt === null || r.insider_tilt === undefined ? "—" : (r.insider_tilt > 0 ? "+" : "") + r.insider_tilt.toFixed(2))}
-    ${row("Insider buyers (90d)", (r.form4_filings ?? 0) + " filings" + (r.cluster_buy ? " \u00b7 cluster buy" : ""))}
-    ${row("C-suite net (90d)", r.senior_net_usd ? "$" + Math.round(r.senior_net_usd).toLocaleString() : "—")}
-    ${row("8-Ks (90d)", r.eightk ?? "—")}
-    ${row("20-day return", fmtPct(r.ret20))}
-    ${row("Evidence", esc(r.evidence))}
-    <div class="full"><b>Evidence note:</b> ${esc(r.evidence_note || "—")}</div>
-    ${r.insider_note ? `<div class="full"><b>Notable insider move:</b> ${esc(r.insider_note)}</div>` : ""}
-    ${r.headline ? `<div class="full"><b>Recent headline:</b> ${esc(r.headline)}</div>` : ""}
-    ${r.nct ? `<div class="full"><a href="https://clinicaltrials.gov/study/${esc(r.nct)}" target="_blank" rel="noopener">${esc(r.nct)} on ClinicalTrials.gov \u2197</a></div>` : ""}
-  </dl></td></tr>`;
-}
-
-function wireExpansion(rows) {
-  document.querySelectorAll("tr.row").forEach(tr => {
-    tr.addEventListener("click", e => {
-      if (e.target.closest("a")) return;          // let ticker links through
-      const next = tr.nextElementSibling;
-      if (next && next.classList.contains("detail")) { next.remove(); return; }
-      document.querySelectorAll("tr.detail").forEach(d => d.remove());
-      tr.insertAdjacentHTML("afterend", detailRow(rows[+tr.dataset.i]));
-    });
-  });
-}
-
-let VIEW = "upcoming";
-
-function renderRecent() {
-  const wrap = document.getElementById("tablewrap");
+function renderRecent(){
   const mode = document.getElementById("recentsort").value;
-  const rows = (DATA.recent || []).slice().sort((a, b) => mode === "date"
+  const rows = (DATA.recent||[]).slice().sort((a,b) => mode==="date"
     ? String(b.date).localeCompare(String(a.date))
-    : Math.abs(b.move_todate ?? 0) - Math.abs(a.move_todate ?? 0));
-  document.getElementById("tally").innerHTML = "";
+    : Math.abs(b.move_todate??0)-Math.abs(a.move_todate??0));
+  const up = rows.filter(r => (r.move_todate??0)>0).length;
   document.getElementById("sub").textContent =
-    `${rows.length} catalysts that have already happened · last 45 days`
-    + ` · ${rows.filter(r => (r.move_todate ?? 0) > 0).length} up, `
-    + `${rows.filter(r => (r.move_todate ?? 0) < 0).length} down`;
+    `${rows.length} catalysts already passed · last 45 days`;
+  document.getElementById("recentcount").textContent = `${up} up · ${rows.length-up} down`;
 
-  if (!rows.length) {
-    wrap.innerHTML = '<div class="empty">No completed catalysts in the window yet.</div>';
-    return;
-  }
-  const cls = v => v === null || v === undefined ? "flat"
-    : v > 0.02 ? "up" : v < -0.02 ? "down" : "flat";
-  const sign = v => v === null || v === undefined ? "—"
-    : (v > 0 ? "+" : "") + (v * 100).toFixed(1) + "%";
-
-  wrap.innerHTML = `<table><thead><tr>
-      <th>Ticker</th><th>Catalyst</th><th>Date</th>
-      <th>Day 1</th><th>Since</th><th class="hide-sm">Abnormal vs XBI</th>
-      <th class="hide-sm">Verdict beforehand</th>
-    </tr></thead><tbody>` + rows.map(r => `<tr>
-      <td class="tick"><a href="${esc(r.robinhood)}" target="_blank" rel="noopener">${esc(r.ticker)}</a></td>
-      <td>${esc((r.drug || "").slice(0, 60))}
-        <div class="dim">${esc((r.indication || "").slice(0, 52))}${r.stage ? " · " + esc(r.stage) : ""}</div></td>
-      <td>${esc(r.date)}</td>
-      <td><span class="move ${cls(r.move_1d)}">${sign(r.move_1d)}</span></td>
-      <td><span class="move ${cls(r.move_todate)}">${sign(r.move_todate)}</span>
-        <div class="dim">to ${esc(r.last_date)}</div></td>
-      <td class="hide-sm nums"><span class="${cls(r.abn_1d)}">${sign(r.abn_1d)}</span> day 1<br>
-        <span class="dim"><span class="${cls(r.abn_todate)}">${sign(r.abn_todate)}</span> since</span></td>
-      <td class="hide-sm">${r.prior_verdict
-        ? `<span class="verdict v-${r.prior_verdict.replace(/ /g, "")}">${esc(r.prior_verdict)}</span>`
-        : '<span class="dim">not yet logged</span>'}</td>
-    </tr>`).join("") + "</tbody></table>";
+  const host = document.getElementById("rows");
+  if(!rows.length){ host.innerHTML='<div class="empty">Nothing yet.</div>'; return; }
+  host.innerHTML = rows.map(r => `<div class="row" style="grid-template-columns:104px 1fr 132px 96px">
+    <div><span class="mv ${cls(r.move_todate)}">${sgn(r.move_todate)}</span>
+      <div class="sub2">since readout</div></div>
+    <div><div class="tick"><a href="${esc(r.robinhood)}" target="_blank" rel="noopener">${esc(r.ticker)}</a></div>
+      <div class="what">${esc((r.drug||"").slice(0,70))}${
+        r.indication?' <span class="more">· '+esc(r.indication.slice(0,42))+'</span>':""}</div></div>
+    <div><div class="when">${esc(r.date)}</div>
+      <div class="win">day 1: <span class="${cls(r.move_1d)}">${sgn(r.move_1d)}</span></div></div>
+    <div class="conv"><div class="convn ${cls(r.abn_todate)}">${sgn(r.abn_todate)}</div>
+      <div class="sub2">vs XBI</div>
+      <div class="sub2">${r.prior_verdict ? esc(r.prior_verdict) : "not yet logged"}</div></div>
+  </div>`).join("");
 }
 
-function show() { VIEW === "recent" ? renderRecent() : render(); }
+function show(){
+  const recent = VIEW==="recent";
+  document.getElementById("bar").style.display = recent ? "none" : "";
+  document.getElementById("recentbar").style.display = recent ? "" : "none";
+  recent ? renderRecent() : renderUpcoming();
+}
 
 document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
   document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
   t.classList.add("active");
-  VIEW = t.dataset.view;
-  document.getElementById("filters").style.display = VIEW === "recent" ? "none" : "";
-  document.getElementById("recentbar").style.display = VIEW === "recent" ? "" : "none";
-  show();
+  VIEW = t.dataset.view; OPEN = null; show();
 }));
-
-["sort", "setup", "horizon", "minconv", "q", "evidence"].forEach(id =>
-  document.getElementById(id).addEventListener("input", render));
+["q","show","sort","horizon"].forEach(id =>
+  document.getElementById(id).addEventListener("input", () => { OPEN=null; renderUpcoming(); }));
 document.getElementById("recentsort").addEventListener("input", renderRecent);
 
-fetch("board.json?v=" + Date.now())
-  .then(r => r.json())
+fetch("board.json?v="+Date.now()).then(r => r.json())
   .then(d => { DATA = d; show(); })
-  .catch(e => {
-    document.getElementById("tablewrap").innerHTML =
-      '<div class="empty">Could not load board.json — ' + esc(e) + "</div>";
-  });
+  .catch(e => { document.getElementById("rows").innerHTML =
+    '<div class="empty">Could not load board.json — '+esc(e)+"</div>"; });
 </script>
 </body>
 </html>

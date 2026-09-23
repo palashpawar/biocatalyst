@@ -99,19 +99,32 @@ def test_benchmark_is_the_shared_one():
     assert BENCHMARK == "XBI"
 
 
-def test_site_table_headers_match_row_cells():
-    # Regression: the Squeeze <td> was added but its <th> insert silently
-    # missed, so the table rendered 10 cells under 9 headers and every column
-    # after "Numbers" was shifted one to the left.
+def test_site_grid_columns_match_cells_per_row():
+    # The table became a grid, but the same failure mode exists: if
+    # grid-template-columns and the number of cells in a row disagree, every
+    # column after the mismatch shifts. Previously this shipped as 10 cells
+    # under 9 headers.
     import re
     html = (pathlib.Path(__file__).resolve().parent.parent
             / "web" / "index.html").read_text()
 
-    thead = re.search(r"<thead>(.*?)</thead>", html, re.S).group(1)
-    n_headers = len(re.findall(r"<th[ >]", thead))
+    tmpl = re.search(r"\.row\{[^}]*grid-template-columns:([^;]+);", html)
+    assert tmpl, "row grid template not found"
+    n_cols = len(tmpl.group(1).split())
 
-    # The row template is the block between `<tbody>` and the closing backtick.
-    body = html.split("</thead><tbody>")[1].split('"</tbody></table>"')[0]
-    n_cells = len(re.findall(r"<td[ >]", body))
+    body = html[html.index("function rowHtml"):html.index("function detailHtml")]
+    n_cells = len(re.findall(r'<div class="cell-', body))
+    assert n_cols == n_cells, f"{n_cols} grid columns vs {n_cells} cells"
 
-    assert n_headers == n_cells, f"{n_headers} headers vs {n_cells} cells"
+
+def test_recent_grid_columns_match_cells():
+    import re
+    html = (pathlib.Path(__file__).resolve().parent.parent
+            / "web" / "index.html").read_text()
+    body = html[html.index("function renderRecent"):]
+    inline = re.search(r'grid-template-columns:([^"]+)"', body)
+    assert inline, "recent grid template not found"
+    n_cols = len(inline.group(1).split())
+    row = body[body.index('<div class="row"'):body.index("`).join")]
+    n_cells = len(re.findall(r"<div(?: class=\"(?:conv)\")?>", row))
+    assert n_cells == n_cols, f"{n_cols} columns vs {n_cells} cells"

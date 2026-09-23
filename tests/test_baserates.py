@@ -121,3 +121,37 @@ def test_design_does_not_move_the_prior():
     import inspect
     params = set(inspect.signature(b.loa).parameters)
     assert params == {"stage", "indication", "designations"}
+
+
+def test_is_missing_covers_every_null_flavour():
+    # Three separate outages came from hand-rolled null checks: NaN is truthy,
+    # NaT is not None, and pd.NA raises in a boolean context. Which one a
+    # column yields depends on pandas dtype inference, so all three passed
+    # locally and failed in CI.
+    import numpy as np
+    import pandas as pd
+    for null in (None, np.nan, float("nan"), pd.NA, pd.NaT):
+        assert b.is_missing(null), repr(null)
+    for real in (0, 42, -1.5, "", "x", [], False):
+        assert not b.is_missing(real), repr(real)
+
+
+def test_as_num():
+    import pandas as pd
+    assert b.as_num(pd.NA) is None
+    assert b.as_num(None, default=0) == 0
+    assert b.as_num("12") == 12.0
+    assert b.as_num("not a number") is None
+
+
+def test_design_adjustment_with_nullable_enrollment():
+    # Regression: enrollment arrives as a nullable Int64, so nulls are pd.NA
+    # and `enrollment == enrollment` raised TypeError in CI.
+    import numpy as np
+    import pandas as pd
+    for null in (pd.NA, np.nan, None):
+        out = b.design_adjustment("RANDOMIZED", "DOUBLE", null, "phase3")
+        assert out["design_bucket"] == "randomized_blinded"
+        assert "n=" not in (out["design_note"] or "")
+    assert "underpowered" in b.design_adjustment(
+        "RANDOMIZED", "DOUBLE", 40, "phase3")["design_note"]

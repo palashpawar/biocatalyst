@@ -12,6 +12,9 @@ from __future__ import annotations
 
 import re
 
+import numpy as np
+import pandas as pd
+
 # Likelihood of approval from the start of each phase, all therapeutic areas.
 LOA_BY_PHASE: dict[str, float] = {
     "preclinical": 0.04,
@@ -95,6 +98,39 @@ DESIGNATION_BONUS: dict[str, float] = {
 }
 
 
+def is_missing(value) -> bool:
+    """One null check for every flavour of missing this project produces.
+
+    Three separate outages came from hand-rolled variants of this:
+
+      * `if not indication` let NaN through, because NaN is truthy.
+      * `if guide_lo is None` let NaT through, because NaT is not None.
+      * `enrollment == enrollment` raised on pd.NA, because NA in a boolean
+        context is ambiguous rather than False.
+
+    Which one you get depends on pandas dtype inference, so all three passed
+    locally and failed in CI. Route every optional value through here.
+    """
+    if value is None:
+        return True
+    try:
+        result = pd.isna(value)
+    except (TypeError, ValueError):
+        return False
+    # pd.isna on a list or array gives an array; a scalar is what we want.
+    return bool(result) if isinstance(result, (bool, np.bool_)) else False
+
+
+def as_num(value, default=None):
+    """A float, or `default` when the value is missing in any sense."""
+    if is_missing(value):
+        return default
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
 def as_text(value) -> str:
     """Coerce a possibly-missing cell to a plain string.
 
@@ -104,12 +140,10 @@ def as_text(value) -> str:
     with how many rows in the column happen to be null, so this failed only in
     CI. Every free-text field from the database goes through here.
     """
-    if value is None:
-        return ""
-    if isinstance(value, float):      # NaN, or a stray numeric cell
+    if is_missing(value) or isinstance(value, float):
         return ""
     text = str(value).strip()
-    return "" if text.lower() in ("nan", "nat", "none") else text
+    return "" if text.lower() in ("nan", "nat", "none", "<na>") else text
 
 
 def _kw_matches(word: str, text: str) -> bool:
@@ -254,13 +288,14 @@ def design_adjustment(allocation: str | None, masking: str | None,
     notes = []
     if bucket != "unknown":
         notes.append(bucket.replace("_", " "))
-    if enrollment is not None and enrollment == enrollment:   # not NaN
-        if enrollment < SMALL_ENROLLMENT:
+    n = as_num(enrollment)
+    if n is not None:
+        if n < SMALL_ENROLLMENT:
             mult *= 0.85
-            notes.append(f"n={int(enrollment)}, underpowered")
-        elif enrollment >= 300:
+            notes.append(f"n={int(n)}, underpowered")
+        elif n >= 300:
             mult *= 1.05
-            notes.append(f"n={int(enrollment)}")
+            notes.append(f"n={int(n)}")
 
     # Damped for the same reason the therapeutic-area multiplier is: by the
     # time a filing is accepted, design quality has already been adjudicated.

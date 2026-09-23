@@ -23,6 +23,7 @@ import re
 import pandas as pd
 
 from ..http import get
+from ..baserates import is_missing
 from .bpc import parse_catalyst_date
 from .discovery import _clean_filing
 
@@ -169,21 +170,6 @@ def fetch(months_back: int = 9, per_query: int = 100,
               .reset_index(drop=True))
 
 
-def _missing(v) -> bool:
-    """None, NaN and NaT all mean 'no date'.
-
-    `v is None` is not enough: a date column round-tripped through pandas
-    comes back as NaT, which is not None and raises on comparison. Same trap
-    as NaN being truthy.
-    """
-    if v is None:
-        return True
-    try:
-        return bool(pd.isna(v))
-    except (TypeError, ValueError):
-        return False
-
-
 def narrow(window_lo, window_hi, guide_lo, guide_hi):
     """Intersect a trial's readout window with company guidance.
 
@@ -192,12 +178,12 @@ def narrow(window_lo, window_hi, guide_lo, guide_hi):
     the trial cannot support is more likely to be about a different programme
     than evidence the trial will read out early.
     """
-    if _missing(guide_lo) or _missing(window_lo):
+    if is_missing(guide_lo) or is_missing(window_lo):
         return window_lo, window_hi, "trial"
     lo = max(window_lo, guide_lo)
     hi = (min(window_hi, guide_hi)
-          if not _missing(guide_hi) and not _missing(window_hi)
+          if not is_missing(guide_hi) and not is_missing(window_hi)
           else window_hi)
-    if _missing(hi) or lo > hi:
+    if is_missing(hi) or lo > hi:
         return window_lo, window_hi, "trial"
     return lo, hi, "guidance"

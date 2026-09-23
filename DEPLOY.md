@@ -13,6 +13,36 @@ there are ~150 option chains to price. Vercel functions cap at 60s on Hobby and
 Instead GitHub Actions runs the pipeline nightly (6-hour ceiling, free), commits
 `web/board.json`, and Vercel redeploys on push. No Vercel CLI or deploy token.
 
+## Why Vercel runs the clock
+
+GitHub's own `schedule` trigger never fired for this repo. Two cron
+expressions, zero `schedule` events, with Actions enabled, the workflow valid
+and on the default branch, and the repo neither forked nor archived. GitHub
+documents scheduled workflows as best-effort and they can be dropped entirely.
+
+So Vercel Cron keeps the time and GitHub still does the work. `api/refresh.js`
+makes a single `workflow_dispatch` call; the ~8 minute refresh runs on Actions,
+where there is no function timeout to fight.
+
+Two environment variables are needed on the Vercel project:
+
+| Variable | What |
+|---|---|
+| `GH_DISPATCH_TOKEN` | Fine-grained PAT, **Actions: read and write**, scoped to this repo only |
+| `CRON_SECRET` | Any random string. Vercel sends it as a bearer token on cron invocations, and the function rejects anything else — without it the endpoint is a public button that starts a job in your repo. |
+
+Verify a dispatch by hand once deployed:
+
+```bash
+curl -s -X GET "https://<your-app>.vercel.app/api/refresh" \
+  -H "Authorization: Bearer $CRON_SECRET"
+# {"ok":true,"dispatched":"palashpawar/biocatalyst@master", ...}
+gh run list --limit 1
+```
+
+Note that Hobby-plan cron jobs run once per day at an approximate time, which
+is fine for a daily board.
+
 ## One-time setup
 
 ```bash

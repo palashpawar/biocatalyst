@@ -5,7 +5,18 @@
   "headers": [
     {
       "source": "/board.json",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, s-maxage=1800, stale-while-revalidate=86400" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, s-maxage=1800, stale-while-revalidate=86400"
+        }
+      ]
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/refresh",
+      "schedule": "23 11 * * *"
     }
   ]
 }

@@ -69,12 +69,21 @@ def _signature_verdict(r) -> tuple:
             _day(r.get("catalyst_date")))
 
 
+def _boolish(v):
+    """True/False from a bool, a numpy bool, or the strings a CSV holds."""
+    if is_missing(v):
+        return None
+    if isinstance(v, str):
+        return v.strip().lower() in ("true", "1", "yes")
+    return bool(v)
+
+
 def _signature_sentiment(r) -> tuple:
     s = r.get("sentiment")
     return (None if is_missing(s) else round(float(s), 2),
             None if is_missing(r.get("scored_articles")) else int(r["scored_articles"]),
             None if is_missing(r.get("eightk_90d")) else int(r["eightk_90d"]),
-            bool(r.get("thin")) if not is_missing(r.get("thin")) else None)
+            _boolish(r.get("thin")))
 
 
 SIGNATURE = {VERDICTS: _signature_verdict, SENTIMENT: _signature_sentiment}
@@ -84,7 +93,11 @@ def _read(table: str) -> pd.DataFrame:
     path = FILES[table]
     if not path.exists() or path.stat().st_size == 0:
         return pd.DataFrame()
-    df = pd.read_csv(path)
+    # Only a genuinely empty cell is missing. pandas' default NA list includes
+    # "n/a", which is the evidence label for every NO_EDGE row -- so those
+    # rows loaded as NaN, never matched their fresh selves, and were re-logged
+    # every night. Then the round trip wrote them back as blanks.
+    df = pd.read_csv(path, keep_default_na=False, na_values=[""])
     for c in DATE_COLS[table]:
         if c in df.columns:
             df[c] = pd.to_datetime(df[c], errors="coerce").dt.date
@@ -146,6 +159,22 @@ def dump(con) -> dict[str, int]:
         df.to_csv(path, index=False)
         counts[table] = len(df)
     return counts
+
+
+def repair_evidence(con) -> int:
+    """Refill evidence labels blanked by the old "n/a"-as-NaN round trip.
+
+    Evidence is a pure function of the setup, so it can be restored exactly.
+    """
+    from .score import SETUP_EVIDENCE
+    fixed = 0
+    for setup, (label, _) in SETUP_EVIDENCE.items():
+        n = con.execute(
+            "UPDATE verdict_log SET evidence = ? "
+            "WHERE setup = ? AND (evidence IS NULL OR evidence = '')",
+            [label, setup]).fetchone()
+        fixed += n[0] if n else 0
+    return fixed
 
 
 def compact(con, table: str) -> int:

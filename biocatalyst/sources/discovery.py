@@ -312,12 +312,20 @@ def _simplify_stage(raw: str | None) -> str:
 
 
 def trial_readouts(horizon_days: int = 180, phases=("PHASE2", "PHASE3"),
-                   max_studies: int = 1000,
+                   max_studies: int = 20_000,
                    lookback_days: int = 0) -> pd.DataFrame:
     """Industry-sponsored trials whose primary completion falls in the window.
 
     `lookback_days` reaches back past today so recently-passed catalysts can be
     scored against what the stock actually did.
+
+    `max_studies` is a runaway guard, not a sampling limit. It used to be
+    1,000 against a query matching ~3,800 studies, so the calendar silently
+    covered whichever thousand the API happened to return first. Because the
+    date window slides daily the cutoff landed somewhere different each night,
+    which dropped about a third of eligible trials and made the catalyst set
+    unstable from one run to the next. Paging through everything costs under
+    two seconds more.
     """
     today = dt.date.today()
     start_window = today - dt.timedelta(days=lookback_days)

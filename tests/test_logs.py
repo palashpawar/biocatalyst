@@ -131,3 +131,55 @@ def test_workflow_commits_logs_and_guards_against_shrinking():
     wf = (ROOT / ".github" / "workflows" / "refresh.yml").read_text()
     assert "git add web/board.json logs/" in wf
     assert "Refuse to shrink the forward logs" in wf
+
+
+def test_na_string_labels_survive_the_csv_round_trip(tmp_path, monkeypatch):
+    # Regression: pandas reads "n/a" as NaN by default. Every NO_EDGE row
+    # carries evidence "n/a", so they loaded as NaN, never matched their
+    # fresh selves, and ~300 rows were re-logged as "changes" every night.
+    monkeypatch.setattr(logs, "LOG_DIR", tmp_path)
+    monkeypatch.setattr(logs, "FILES", {
+        "verdict_log": tmp_path / "v.csv", "sentiment": tmp_path / "s.csv"})
+    con = _con()
+    row = _verdict(1, D1, verdict="NO TRADE", setup="NO_EDGE")
+    row["evidence"] = "n/a"
+    logs.append(con, "verdict_log", pd.DataFrame([row]))
+    logs.dump(con)
+
+    fresh = _con()
+    logs.load(fresh)
+    assert fresh.execute("select evidence from verdict_log").fetchone()[0] == "n/a"
+    assert logs.append(fresh, "verdict_log",
+                       pd.DataFrame([{**row, "snapshot_date": D2}])) == 0
+
+
+def test_thin_flag_read_back_as_a_string_is_not_truthy():
+    # bool("False") is True; the CSV hands back strings.
+    assert logs._boolish("False") is False
+    assert logs._boolish("True") is True
+    assert logs._boolish(False) is False
+    assert logs._boolish(float("nan")) is None
+
+
+def test_repair_evidence_restores_blank_labels():
+    con = _con()
+    blank = _verdict(1, D1, verdict="NO TRADE", setup="NO_EDGE")
+    blank["evidence"] = ""
+    upsert(con, "verdict_log", pd.DataFrame([blank]))
+    assert logs.repair_evidence(con) >= 1
+    assert con.execute("select evidence from verdict_log").fetchone()[0] == "n/a"
+
+
+def test_trial_calendar_is_not_capped_at_a_thousand():
+    import inspect
+    from biocatalyst.sources.discovery import trial_readouts
+    cap = inspect.signature(trial_readouts).parameters["max_studies"].default
+    assert cap >= 10_000
+
+
+def test_dependencies_are_pinned():
+    # A `>=` range let CI install pandas 3 while development ran pandas 2,
+    # and the two disagree about missing values.
+    reqs = (ROOT / "requirements.txt").read_text().splitlines()
+    pkgs = [l for l in reqs if l.strip() and not l.startswith("#")]
+    assert pkgs and all("==" in l for l in pkgs), pkgs

@@ -133,7 +133,14 @@ def snapshot_verdicts(con, board: pd.DataFrame) -> pd.DataFrame:
 
 
 def recent(con, lookback_days: int = 45) -> pd.DataFrame:
-    """Passed catalysts joined to the verdict that was live beforehand."""
+    """Passed catalysts joined to the verdict that was live beforehand.
+
+    The filter on snapshot date has to be applied *before* choosing the latest
+    snapshot. Picking the latest snapshot first and then requiring it to
+    predate the catalyst drops every row whose final snapshot landed on or
+    after the event day -- which is all of them for a PDUFA, since it is still
+    on the board the morning it happens.
+    """
     return con.execute("""
         SELECT o.*, c.drug_name, c.indication, c.stage, c.company_name,
                c.catalyst_date_raw,
@@ -141,13 +148,11 @@ def recent(con, lookback_days: int = 45) -> pd.DataFrame:
                v.conviction AS prior_conviction, v.snapshot_date AS verdict_asof
         FROM outcomes o
         LEFT JOIN catalysts c ON o.drug_id = c.drug_id
-        LEFT JOIN (
-            SELECT * FROM verdict_log
-            QUALIFY ROW_NUMBER() OVER (
-                PARTITION BY drug_id
-                ORDER BY snapshot_date DESC
-            ) = 1
-        ) v ON o.drug_id = v.drug_id AND v.snapshot_date < o.catalyst_date
+        LEFT JOIN verdict_log v
+               ON o.drug_id = v.drug_id AND v.snapshot_date < o.catalyst_date
         WHERE o.catalyst_date >= current_date - INTERVAL (?) DAY
+        QUALIFY ROW_NUMBER() OVER (
+            PARTITION BY o.drug_id, o.catalyst_date
+            ORDER BY v.snapshot_date DESC NULLS LAST) = 1
         ORDER BY o.catalyst_date DESC
     """, [lookback_days]).fetchdf()

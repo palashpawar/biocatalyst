@@ -69,11 +69,24 @@ jobs:
               sys.exit("board.json is stale — export did not run")
           PY
 
+      # The logs only ever grow. If one got shorter, the refresh started from
+      # an empty table and is about to overwrite history -- stop instead.
+      - name: Refuse to shrink the forward logs
+        run: |
+          for f in logs/verdicts.csv logs/sentiment.csv; do
+            before=$(git show HEAD:"$f" 2>/dev/null | wc -l || echo 0)
+            after=$(wc -l < "$f" 2>/dev/null || echo 0)
+            echo "$f: $before -> $after lines"
+            if [ "$after" -lt "$before" ]; then
+              echo "::error::$f shrank from $before to $after lines"; exit 1
+            fi
+          done
+
       - name: Commit if changed
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add web/board.json
+          git add web/board.json logs/
           if git diff --staged --quiet; then
             echo "no change"
           else

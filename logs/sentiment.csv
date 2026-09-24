@@ -1,0 +1,267 @@
+ticker,snapshot_date,articles,scored_articles,pos_hits,neg_hits,sentiment,thin,top_positive,top_negative,eightk_30d,eightk_90d,eightk_365d,days_since_8k,pulled_at
+AAPG,2026-09-21,0,0,0,0,0.0,True,,,0.0,0.0,0.0,,2026-09-21 23:52:28.683172
+ABBV,2026-09-21,64,12,8,4,0.394,False,AbbVie lines up Qulipta expansion with phase 3 win in untapped menstrual migraine indication - Fierce Pharma,"AbbVie's blood cancer therapy lowers disease progression, death risk in trial - Reuters",1.0,5.0,15.0,18.0,2026-09-21 23:52:29.205154
+ABCL,2026-09-21,10,0,0,0,0.0,True,,,0.0,6.0,16.0,39.0,2026-09-21 23:52:29.775971
+ABOS,2026-09-21,14,0,0,0,0.0,True,,,1.0,2.0,10.0,5.0,2026-09-21 23:52:30.211161
+ACET,2026-09-21,2,0,0,0,0.0,True,,,2.0,3.0,14.0,13.0,2026-09-21 23:52:30.801122
+ACLX,2026-09-21,2,6,4,2,0.333,False,Arcellx (ACLX) Q4 2025 Earnings: Narrower-Than-Expected Loss as EPS Beats Estimates - Earnings Power Value - dars.gov.et,,,,,,2026-09-21 23:52:31.307236
+ALDX,2026-09-21,2,2,0,2,-1.0,True,,"Aldeyra Therapeutics, Inc. (ALDX) Investigation: Bronstein, Gewirtz & Grossman, LLC Encourages Investors to Contact the Firm to Learn More About the Investigation - ACCESS Newswire",0.0,2.0,11.0,53.0,2026-09-21 23:52:31.863310
+ALGS,2026-09-21,10,2,2,0,1.0,True,Why is Aligos Therapeutics stock rallying 7% today? - Investing.com,,1.0,3.0,9.0,6.0,2026-09-21 23:52:32.313588
+ALZN,2026-09-21,9,9,4,5,-0.193,False,ALZN Q2 2026 Earnings: Narrower-Than-Expected Loss Beats Consensus as Shares Dip - Post-Announcement Reaction - careplusvn.com,Alzamend Neuro Inc expected to post a loss of 23 cents a share - Earnings Preview - TradingView,0.0,2.0,9.0,49.0,2026-09-21 23:52:32.826118
+AMGN,2026-09-21,82,29,10,19,-0.178,False,Amgen stock gains as FDA approval and price targets land - AD HOC NEWS,Amgen Falls 10% as Novartis Trial Failure Clouds a Cholesterol Drug Class; NVS Stock Drops 14% - Yahoo Finance,0.0,2.0,10.0,48.0,2026-09-21 23:52:33.748824
+ANNX,2026-09-21,6,2,2,0,1.0,True,Annexon Reports Inducement Grants to New Employees Under Nasdaq Listing Rule 5635(c)(4) - Yahoo Finance,,0.0,4.0,12.0,40.0,2026-09-21 23:52:34.254214
+ANRO,2026-09-21,3,0,0,0,0.0,True,,,1.0,4.0,12.0,25.0,2026-09-21 23:52:34.780578
+APOG,2026-09-21,21,9,4,5,-0.009,False,AbbVie Completes Acquisition of Apogee Therapeutics - Yahoo Finance,"Apogee Therapeutics, Inc.(NasdaqGM: APGE) dropped from S&P TMI Index - marketscreener.com",2.0,6.0,15.0,7.0,2026-09-21 23:52:35.307687
+ARDX,2026-09-21,31,11,0,11,-1.0,False,,Investors in Ardelyx face lawsuit over alleged misleading revenue guidance and stock drop. - Pluang,0.0,3.0,10.0,35.0,2026-09-21 23:52:35.884378
+ARGX,2026-09-21,21,4,4,0,1.0,False,2 Wall Street Analysts Think Argenx Can Soar More Than 40%. Here's Why They're Right. - Yahoo Finance,,0.0,0.0,0.0,,2026-09-21 23:52:36.526908
+ARVN,2026-09-21,8,3,1,2,-0.333,True,,"ARVN Q2 2026 Earnings: EPS Surges to $2.58 Against a Projected Loss, Though Shares Slip 2.18% - Earnings Deceleration Risk - careplusvn.com",0.0,2.0,16.0,48.0,2026-09-21 23:52:37.010981
+ARWR,2026-09-21,30,2,2,0,1.0,True,Is Arrowhead Pharmaceuticals (ARWR) A Bargain On Strong ARO DIMER PA Trial Data? - simplywall.st,,0.0,1.0,10.0,48.0,2026-09-21 23:52:37.587734
+ATOS,2026-09-21,5,2,0,2,-1.0,True,,"Atossa Therapeutics, Inc.(NasdaqCM: ATOS) dropped from S&P Global BMI Index - marketscreener.com",1.0,2.0,17.0,3.0,2026-09-21 16:43:53.559233
+AVIR,2026-09-21,3,0,0,0,0.0,True,,,0.0,1.0,6.0,40.0,2026-09-21 23:52:37.993397
+AVLN,2026-09-21,18,1,1,0,1.0,True,Avalyn Publishes Phase 1 Data Highlighting AP02’s Lung-Targeted Delivery and Encouraging Safety Profile - GlobeNewswire,,1.0,3.0,6.0,5.0,2026-09-21 23:52:38.687530
+AXSM,2026-09-21,48,4,4,0,1.0,False,"Axsome Therapeutics, Inc. (AXSM) Stock Analysis: Promising 37% Upside Potential Amidst Strong Buy Ratings - DirectorsTalk Interviews",,0.0,2.0,13.0,42.0,2026-09-21 23:52:39.234529
+AZN,2026-09-21,65,44,27,17,0.336,False,AstraZeneca (AZN) Wins FDA Approval for its Breast Cancer Pill After Regulators Voiced Doubts - Yahoo Finance,"AstraZeneca’s Etcamah flunks first-line breast cancer trial, adding to oral SERDs’ failure record - Fierce Pharma",0.0,0.0,0.0,,2026-09-21 23:52:39.925224
+AZTR,2026-09-21,7,0,0,0,0.0,True,,,1.0,4.0,18.0,13.0,2026-09-21 16:43:56.050237
+BBIO,2026-09-21,24,2,2,0,1.0,True,BridgeBio Pharma Reports Inducement Grants under Nasdaq Listing Rule 5635(c)(4) - The Manila Times,,1.0,6.0,18.0,21.0,2026-09-21 23:52:40.561034
+BEAM,2026-09-21,23,8,6,2,0.303,False,Beam Therapeutics Targets Accelerated FDA Approval for Base-Editing Treatment - Yahoo Finance,BEAM Investors Have Opportunity to Join Beam Therapeutics Inc. Fraud Investigation with SBS Law - Business Wire,0.0,1.0,10.0,48.0,2026-09-21 23:52:41.330068
+BFRI,2026-09-21,15,22,21,1,0.974,False,Biofrontera wins FDA approval for Ameluz to treat skin cancer - Investing.com,,1.0,2.0,15.0,7.0,2026-09-21 23:52:41.768548
+BHVN,2026-09-21,8,3,0,3,-1.0,True,,Biohaven’s epilepsy drug hit with FDA clinical hold,2.0,5.0,14.0,11.0,2026-09-21 23:52:42.268135
+BIIB,2026-09-21,28,10,7,3,0.508,False,Biogen (BIIB) Wins China Approval For At Home Weekly Alzheimer’s Treatment - simplywall.st,Biogen stock heads into the open after a 1.6 percent decline - AD HOC NEWS,0.0,2.0,14.0,54.0,2026-09-21 23:52:42.976119
+BIOA,2026-09-21,4,3,0,3,-1.0,True,,"BIOAGE Labs Inc (BIOA) Risk Assessment: Volatility, Financial Risk & Investment Risk - TradingKey",0.0,1.0,9.0,47.0,2026-09-21 23:52:43.592655
+BMEA,2026-09-21,9,3,2,1,-0.567,True,BMEA Surges 6.85%: Biomea Fusion Approaches Key $1.88 Resistance - Box Spread - careplusvn.com,"Biomea Fusion, Inc.(NasdaqGS: BMEA) dropped from S&P Global BMI Index - marketscreener.com",0.0,1.0,10.0,47.0,2026-09-21 16:44:00.375055
+BMRN,2026-09-21,56,8,7,1,0.728,False,BioMarin Announces Positive Results of Phase 3 VOXZOGO® (vosoritide) Study in Hypochondroplasia Published in NEJM Evidence - PR Newswire,BioMarin drops Voxzogo development for Noonan syndrome as treatment landscape shifts - Fierce Pharma,4.0,7.0,22.0,6.0,2026-09-21 23:52:44.279010
+BMY,2026-09-21,38,5,4,1,0.596,False,Bristol Myers Squibb Reports Positive Results for CAR T-Cell Therapy in Heavily Pretreated Multiple Myeloma - Cure Today,Bristol Myers Squibb (BMY) Declines More Than Market: Some Information for Investors - Yahoo Finance,0.0,1.0,9.0,53.0,2026-09-21 23:52:45.007162
+BPRE,2026-09-21,0,0,0,0,0.0,True,,,0.0,2.0,2.0,45.0,2026-09-21 23:52:45.528157
+BTAI,2026-09-21,45,12,1,11,-0.913,False,"Interim DIP Financing Approved for BioXcel Therapeutics, Inc. - marketscreener.com",BioXcel Therapeutics Received Notice of Delisting - TradingView,,,,,2026-09-21 23:52:46.099711
+CADL,2026-09-21,20,10,5,5,0.287,False,Candel Therapeutics stock jumps on BofA upgrade to buy - Investing.com,CADL Q2 2026 Earnings: EPS of -$0.52 Misses Consensus by 115.41% as Shares Decline 3.41% - Quarterly Financial Update - careplusvn.com,2.0,4.0,13.0,11.0,2026-09-21 23:52:46.582145
+CAPR,2026-09-21,55,31,4,27,-0.894,False,CAPR Stock Skyrockets 144% in a Month: What Is Driving the Rally? - TradingView,"1 WEEK CAPR INVESTOR DEADLINE: Capricor Therapeutics, Inc. Investors with Substantial Losses Have Opportunity to Lead Class Action Lawsuit - PR Newswire",1.0,6.0,15.0,28.0,2026-09-21 23:52:47.372855
+CELZ,2026-09-21,5,0,0,0,0.0,True,,,1.0,2.0,6.0,21.0,2026-09-21 23:52:47.763293
+CGEM,2026-09-21,32,2,2,0,1.0,True,Cullinan Therapeutics (NASDAQ:CGEM) Price Target Raised to $40.00 at BTIG Research - marketbeat.com,,1.0,3.0,14.0,7.0,2026-09-21 23:52:48.415095
+CGEN,2026-09-21,10,2,2,0,1.0,True,All You Need to Know About Compugen (CGEN) Rating Upgrade to Buy - Yahoo Finance,,0.0,0.0,0.0,,2026-09-21 23:52:48.937001
+CGON,2026-09-21,10,1,1,0,1.0,True,"CGON: Durable efficacy, operational simplicity, and pivotal trial catalysts drive strong outlook - TradingView",,0.0,1.0,11.0,46.0,2026-09-21 23:52:49.460966
+CL,2026-09-21,50,2,2,0,1.0,True,Colgate Palmolive (India) stock gains after strong Q1 results and Piper Sandler target cut - AD HOC NEWS,,0.0,1.0,9.0,52.0,2026-09-21 23:52:50.282890
+CLDX,2026-09-21,4,0,0,0,0.0,True,,,0.0,3.0,7.0,46.0,2026-09-21 23:52:50.820321
+COCP,2026-09-21,9,0,0,0,0.0,True,,,1.0,5.0,20.0,12.0,2026-09-21 23:52:51.553051
+COGT,2026-09-21,17,2,1,1,0.496,True,Cogent Bio wins third FDA review for lead asset (COGT:NASDAQ) - Seeking Alpha,How (COGT) Movements Inform Risk Allocation Models - Stock Traders Daily,1.0,3.0,11.0,19.0,2026-09-21 23:52:52.081286
+CORT,2026-09-21,29,9,7,2,0.505,False,"Corcept Therapeutics shares surge 22% after Q2 beat, guidance raise - scanx.trade","Corcept Therapeutics (CORT) Dropped, So What Is Behind The Latest Attention? - simplywall.st",0.0,1.0,13.0,54.0,2026-09-21 23:52:52.662520
+COYA,2026-09-21,14,1,1,0,1.0,True,Coya Therapeutics (COYA) Rises Modestly as Shares Hold Above $4.41 Support - Momentum Surge Alerts - dars.gov.et,,1.0,4.0,14.0,6.0,2026-09-21 23:52:53.460455
+CRBP,2026-09-21,2,1,0,1,-1.0,True,,Corbus CRB-913 Delivers 5% Weight Loss in Phase 1b Obesity Study,1.0,3.0,19.0,7.0,2026-09-21 23:52:53.972294
+CRDF,2026-09-21,20,5,4,1,0.377,False,Cardiff Oncology Shares Rise After Upgrade From HC Wainwright - Moomoo,"Cardiff Oncology, Inc.(NasdaqCM: CRDF) dropped from S&P Global BMI Index - marketscreener.com",1.0,3.0,14.0,7.0,2026-09-21 23:52:54.708965
+CRDL,2026-09-21,23,6,1,5,-0.649,False,,Cardiol Therapeutics Inc. Class A (TSX:CRDL) Declines 6.86% as Selling Pressure Builds - kalkine.ca,0.0,0.0,0.0,,2026-09-21 23:52:55.274814
+CSLLY,2026-09-21,3,1,0,1,-1.0,True,,Montco’s CSL Enters White House Pricing Framework Amid Layoffs at Home - MONTCO.Today,0.0,0.0,0.0,,2026-09-21 23:52:55.939511
+CYTK,2026-09-21,39,5,5,0,1.0,False,Cytokinetics Announces Inducement Grants Under Nasdaq Listing Rule 5635(c)(4) - GlobeNewswire,,1.0,3.0,14.0,24.0,2026-09-21 23:52:56.554321
+DBVT,2026-09-21,17,4,1,3,-0.301,False,,DBVT Slides As DBV Technologies Leads European Biotech Declines - timothysykes.com,0.0,2.0,12.0,67.0,2026-09-21 23:52:57.026186
+DFNS,2026-09-21,1,0,0,0,0.0,True,,,3.0,11.0,47.0,10.0,2026-09-21 23:52:57.465877
+DFTX,2026-09-21,8,4,4,0,1.0,False,Definium Reports Second Phase III Success in Anxiety Disorder Program,,2.0,5.0,17.0,7.0,2026-09-21 23:52:58.024718
+DMAC,2026-09-21,6,2,1,1,0.147,True,Wall Street Analysts Think DiaMedica Therapeutics (DMAC) Could Surge 129.97%: Read This Before Placing a Bet - Eastern Progress,(DMAC) Risk Channels and Responsive Allocation - Stock Traders Daily,0.0,1.0,7.0,42.0,2026-09-21 23:52:58.534821
+DNLI,2026-09-21,11,1,1,0,1.0,True,"DNLI: AVLAYAH's launch validates a brain-targeted biologics platform, driving pipeline and global expansion - TradingView",,0.0,2.0,16.0,46.0,2026-09-21 23:52:59.113089
+DSGN,2026-09-21,2,0,0,0,0.0,True,,,0.0,1.0,8.0,49.0,2026-09-21 23:52:59.572659
+DWTX,2026-09-21,5,0,0,0,0.0,True,,,0.0,1.0,13.0,39.0,2026-09-21 23:53:00.089880
+EIKN,2026-09-21,12,4,4,0,1.0,False,"Mizuho Upgrades Eikon Therapeutics (NASDAQ:EIKN) to ""Strong-Buy"" - marketbeat.com",,0.0,3.0,8.0,38.0,2026-09-21 23:53:00.624166
+ELDN,2026-09-21,6,0,0,0,0.0,True,,,0.0,1.0,8.0,39.0,2026-09-21 16:44:20.301314
+ENLV,2026-09-21,2,1,0,1,-1.0,True,,Enlivex Therapeutics stock gains on upcoming Q1 2026 earnings and steep year-to-date decline - AD HOC NEWS,0.0,0.0,0.0,,2026-09-21 16:44:20.826366
+ESLA,2026-09-21,0,0,0,0,0.0,True,,,1.0,3.0,9.0,13.0,2026-09-21 23:53:01.001819
+EWTX,2026-09-21,8,1,1,0,1.0,True,Edgewise Therapeutics Reports Inducement Grants as permitted by the Nasdaq Listing Rules - PR Newswire,,0.0,3.0,10.0,46.0,2026-09-21 23:53:01.673868
+FDMT,2026-09-21,15,3,3,0,1.0,True,4D Molecular Therapeutics Grants RSUs to Seven New Non-Executive Employees - Quiver Quantitative,,0.0,3.0,16.0,39.0,2026-09-21 23:53:02.222323
+GEHC,2026-09-21,49,6,2,4,-0.208,False,GEHC Q2 2026 Earnings: EPS Beat of 7.03% as GE HealthCare Tops Consensus - CEO Earnings Statement - careplusvn.com,Securities Fraud Investigation Into GE HealthCare - GlobeNewswire,0.0,4.0,12.0,34.0,2026-09-21 16:44:23.475158
+GILD,2026-09-21,53,11,6,5,0.085,False,Gilead Sciences Just Won Its Third FDA Approval in Less Than 4 Months. Is the Stock Still Underrating This Turnaround Play? - Yahoo Finance,THNR's Weight-Loss Index Swaps Hims & Hers for Gilead - ETF Database,0.0,1.0,10.0,48.0,2026-09-21 23:53:02.874492
+GKOS,2026-09-21,14,1,1,0,1.0,True,Glaukos Corporation (GKOS) Investor Outlook: A Promising 17.88% Upside Potential in the Medical Device Sector - DirectorsTalk Interviews,,0.0,2.0,10.0,49.0,2026-09-21 23:53:03.354375
+GMAB,2026-09-21,22,2,2,0,1.0,True,Genmab A/S (GMAB) Stock Analysis: Strong Buy Ratings and 12.66% Potential Upside Drive Investor Interest - DirectorsTalk Interviews,,0.0,0.0,0.0,,2026-09-21 23:53:03.977237
+GNLX,2026-09-21,7,1,0,1,-1.0,True,,GNLX Q2 2026 Earnings: Wider-than-Expected Loss Reflects Continued Clinical Investment - Next Quarter Guidance - careplusvn.com,0.0,0.0,6.0,91.0,2026-09-21 23:53:04.557503
+GOVX,2026-09-21,6,0,0,0,0.0,True,,,3.0,5.0,17.0,11.0,2026-09-21 23:53:05.033275
+HAFC,2026-09-21,1,0,0,0,0.0,True,,,0.0,6.0,18.0,35.0,2026-09-21 23:53:05.585048
+HRMY,2026-09-21,18,0,0,0,0.0,True,,,0.0,2.0,11.0,48.0,2026-09-21 23:53:06.143788
+IBO,2026-09-21,2,1,1,0,1.0,True,IMPACT Therapeutics Wins EMA Panel Backing for Ovarian Cancer Drug Senaparib - TipRanks,,2.0,2.0,5.0,4.0,2026-09-21 23:53:06.760253
+IBRX,2026-09-21,19,3,0,3,-1.0,True,,"Bronstein, Gewirtz & Grossman, LLC Announces an Investigation Against ImmunityBio, Inc. (IBRX) and Encourages Shareholders to Learn More About the Investigation - ACCESS Newswire",0.0,2.0,17.0,48.0,2026-09-21 23:53:07.550111
+IDYA,2026-09-21,20,6,5,1,-0.211,False,"IDEAYA Biosciences Announces Successful FDA Type C Meeting for IDE849, DLL3 TOP1 ADC, on Phase 3 Registrational Trial Design for Potential Accelerated and Full Approval in Extensive Stage Small Cell Lung Cancer - PR News",How (IDYA) Movements Inform Risk Allocation Models - Stock Traders Daily,0.0,2.0,16.0,48.0,2026-09-21 23:53:08.017569
+IMCR,2026-09-21,0,0,0,0,0.0,True,,,1.0,2.0,9.0,7.0,2026-09-21 23:53:08.479268
+IMUX,2026-09-21,2,0,0,0,0.0,True,,,2.0,6.0,22.0,10.0,2026-09-21 23:53:09.001955
+INCY,2026-09-21,22,3,3,0,1.0,True,Incyte Corporation (INCY) Stock Analysis: Navigating Biotech Growth with a 37.7% Revenue Surge - DirectorsTalk Interviews,,1.0,3.0,14.0,21.0,2026-09-21 23:53:09.579141
+INO,2026-09-21,11,2,1,1,0.496,True,Inovio Pharmaceuticals Inc. stock outperforms competitors on strong trading day - MarketWatch,"INO Stockholders Have Opportunity to Lead Inovio Pharmaceuticals, Inc. Class Action Lawsuit – Contact Bronstein, Gewirtz and Grossman, LLC Today! - ACCESS Newswire",0.0,3.0,12.0,40.0,2026-09-21 23:53:10.068330
+INSM,2026-09-21,25,14,12,2,0.881,False,"FDA Grants Priority Review to Insmed's sNDA for ARIKAYCE® (amikacin liposome inhalation suspension) for Treatment of MAC Lung Disease With PDUFA Target Action Date Set for January 28, 2027 - PR Newswire",Exiting Insmed (INSM) Following Disappointing Key Drug Uptake - Yahoo Finance,0.0,2.0,11.0,46.0,2026-09-21 23:53:10.666645
+IONS,2026-09-21,33,14,8,6,-0.359,False,Ionis Drug Wins FDA Approval as First Alexander Disease Treatment - Yahoo Finance,Ionis Pharmaceuticals Eyes TRYNGOLZA Growth as Pipeline Faces Cardio Setbacks - Yahoo Finance,2.0,6.0,20.0,17.0,2026-09-21 23:53:11.203486
+IRD,2026-09-21,29,10,8,2,0.618,False,Opus Genetics Announces Positive Low Dose Cohort 1 Data from Phase 1/2 Clinical Trial of OPGx-BEST1 and Successful FDA Type C Meeting with Potential Phase 3 Dosing in 2027 - Yahoo Finance,Opus Genetics (IRD) Declines 4.5% to $4.46 as Shares Approach Key Support - Insider Sentiment - careplusvn.com,2.0,3.0,19.0,10.0,2026-09-21 23:53:11.675524
+IRON,2026-09-21,42,8,6,2,0.169,False,Disc Medicine Reports Positive Initial RESTORE-PV Results for DISC-3405 in Polycythemia Vera - Quiver Quantitative,"Rosen Law Firm Encourages Disc Medicine, Inc. Investors to Inquire About Securities Class Action Investigation - IRON - PR Newswire",1.0,4.0,16.0,11.0,2026-09-21 23:53:12.281810
+JAZZ,2026-09-21,48,10,10,0,1.0,False,Jazz Pharmaceuticals debt upgraded by S&P on stronger recovery - Investing.com,,3.0,7.0,15.0,6.0,2026-09-21 23:53:12.805228
+KARD,2026-09-21,3,0,0,0,0.0,True,,,0.0,2.0,2.0,41.0,2026-09-21 23:53:13.199468
+KPRX,2026-09-21,6,0,0,0,0.0,True,,,1.0,3.0,10.0,13.0,2026-09-21 23:53:13.732270
+KPTI,2026-09-21,11,8,8,0,1.0,False,Karyopharm Therapeutics submits sNDA seeking accelerated approval for selinexor plus ruxolitinib in myelofibrosis - TradingView,,3.0,6.0,17.0,3.0,2026-09-21 23:53:14.325520
+KRYS,2026-09-21,30,10,10,0,1.0,False,"Rossi Dino A Granted 1,658 Derivative Securities of Krystal Biotech, Inc. on September 14, 2026 - Kalkine Media",,0.0,2.0,10.0,49.0,2026-09-21 23:53:14.831099
+LABT,2026-09-21,1,0,0,0,0.0,True,,,0.0,1.0,3.0,68.0,2026-09-21 23:53:15.281850
+LLY,2026-09-21,52,13,9,4,0.32,False,Lilly CEO Dave Ricks says Foundayo winning new pill patients - Yahoo Finance,Novo says CagriSema shows greater weight loss than Lilly rival in diabetes patients - Reuters,0.0,1.0,7.0,47.0,2026-09-21 23:53:15.983890
+LRMR,2026-09-21,3,1,1,0,1.0,True,Why Did Larimar Therapeutics’ Stock Surge Over 30% Pre-Market Today? - Stocktwits,,0.0,2.0,15.0,48.0,2026-09-21 23:53:16.454481
+LTRN,2026-09-21,7,0,0,0,0.0,True,,,0.0,2.0,10.0,38.0,2026-09-21 23:53:16.954198
+LUMN,2026-09-21,3,0,0,0,0.0,True,,,0.0,1.0,31.0,48.0,2026-09-21 23:53:17.427616
+MANE,2026-09-21,8,2,1,1,-0.333,True,Veradermics (MANE) Stock Looks Overvalued After Its 161% Rally,Veradermics at citigroup summit: oral hair-loss drug nears key data - Investing.com Nigeria,0.0,2.0,8.0,41.0,2026-09-21 23:53:18.028146
+MAZE,2026-09-21,34,1,0,1,-1.0,True,,"Maze Therapeutics (MAZE) Slides On Weak Momentum, Is The Current Valuation About Right? - simplywall.st",0.0,2.0,10.0,35.0,2026-09-21 23:53:18.556191
+MDGL,2026-09-21,16,3,3,0,1.0,True,Madrigal Pharmaceuticals Announces Grants of Inducement Awards under Nasdaq Listing Rule 5635(c)(4) - GlobeNewswire,,0.0,2.0,9.0,40.0,2026-09-21 23:53:19.159734
+MDWD,2026-09-21,4,0,0,0,0.0,True,,,0.0,0.0,0.0,,2026-09-21 16:44:41.321524
+MIRM,2026-09-21,26,4,3,1,0.524,False,Mirum Pharmaceuticals: Oversold And Set To Rally On Critical Pipeline-Related Events - Seeking Alpha,Precision Trading with Mirum Pharmaceuticals Inc. (MIRM) Risk Zones - Stock Traders Daily,1.0,2.0,16.0,13.0,2026-09-21 23:53:19.662594
+MLTX,2026-09-21,1,0,0,0,0.0,True,,,0.0,3.0,12.0,42.0,2026-09-21 23:53:20.061948
+MNKD,2026-09-21,9,4,0,4,-1.0,False,,MannKind (MNKD) Bets On Inhaled Weight Loss Amid Widening Losses,0.0,3.0,12.0,31.0,2026-09-21 23:53:20.641324
+MRK,2026-09-21,3,2,2,0,1.0,True,Moderna Surges 9% as Phase 3 Melanoma Data Wins Presidential Symposium Slot; Merck and BioNTech Edge Higher,,0.0,1.0,7.0,48.0,2026-09-21 23:53:21.260619
+NAMS,2026-09-21,32,13,9,4,0.69,False,NewAmsterdam Pharma wins EU approval for obicetrapib as Ubeslo and Evlarco - TradingView,Stifel reiterates Buy on NewAmsterdam Pharma stock after trial failure By Investing.com - Investing.com Australia,1.0,6.0,13.0,0.0,2026-09-21 23:53:21.763710
+NBIX,2026-09-21,36,6,6,0,1.0,False,"Neurocrine Biosciences, Inc. (NBIX) Stock Analysis: Exploring a Promising 43% Potential Upside - DirectorsTalk Interviews",,0.0,2.0,9.0,52.0,2026-09-21 16:44:44.979299
+NPCE,2026-09-21,29,4,3,1,0.706,False,"NeuroPace (NASDAQ:NPCE) Upgraded to ""Strong-Buy"" at KeyCorp - marketbeat.com",Precision Trading with Neuropace Inc. (NPCE) Risk Zones - Stock Traders Daily,0.0,2.0,6.0,41.0,2026-09-21 23:53:22.264781
+NTHI,2026-09-21,3,4,1,3,-0.356,False,"NeOnc Executives Invest Approximately $629,000 in Open-Market Stock Purchases Following Positive NEO100 Phase 2a Results","NeOnc Technologies Holdings, Inc. Announces Pricing of $15 Million Registered Direct Offering Priced At-The-Market Under Nasdaq Rules with New and Existing Institutional Investors",3.0,11.0,34.0,0.0,2026-09-21 23:53:22.706805
+NTLA,2026-09-21,32,16,12,4,0.674,False,Intellia Therapeutics Shares Rise as FDA Grants Priority Review to Lonvo-z,Intellia Therapeutics Secures Non-Dilutive Debt Facility with OrbiMed for up to $400 Million - Yahoo Finance,2.0,3.0,18.0,13.0,2026-09-21 23:53:23.570853
+NUVB,2026-09-21,21,8,8,0,1.0,False,Nuvation Bio Announces FDA Approval of Supplemental New Drug Application for IBTROZI® (taletrectinib) with Updated Duration of Response in TKI-Naïve Advanced ROS1-Positive Non-Small Cell Lung Cancer - PR Newswire,,0.0,3.0,10.0,46.0,2026-09-21 23:53:24.125335
+NVO,2026-09-21,82,25,6,19,-0.521,False,"Novo Nordisk's CagriSema Beats Tirzepatid in Head-to-Head Trial, Yet Shares Slide as London Strategy - AD HOC NEWS","Novo-Nordisk A/S's weight-loss drug CagriSema has ""hit a wall""! A 12.4% weight loss failed to allay market concerns. - news.futunn.com",0.0,0.0,0.0,,2026-09-21 23:53:24.752989
+NVS,2026-09-21,7,8,1,7,-0.688,False,NVS Gets Positive CHMP Opinion for Cosentyx for Another Indication,Novartis (NVS) Faces Another Pipeline Setback as ALS Drug Fails Mid-Stage Trial - Yahoo Finance,0.0,0.0,0.0,,2026-09-21 23:53:25.323076
+OCGN,2026-09-21,25,3,1,2,-0.333,True,,OCGN: Proposal to increase authorized shares delayed due to insufficient votes; adjournment approved - TradingView,1.0,3.0,21.0,13.0,2026-09-21 23:53:25.922374
+OCS,2026-09-21,11,3,1,2,-0.746,True,Wall Street Analysts Believe Oculis Holding AG (OCS) Could Rally 199.75%: Here's is How to Trade,Oculis Holding AG: Navigating Through Major Trial Setback (NASDAQ:OCS) - Seeking Alpha,0.0,0.0,0.0,,2026-09-21 23:53:26.448624
+OCUL,2026-09-21,18,7,7,0,1.0,False,Ocular Therapeutix (OCUL): Faster Path To Approval Comes With Rising Costs - Yahoo Finance,,0.0,1.0,11.0,49.0,2026-09-21 23:53:26.930075
+OLMA,2026-09-21,19,5,3,2,-0.312,False,Olema Pharmaceuticals (NASDAQ: OLMA) grants CFO 650K options expiring in 2036 - Stock Titan,Olema Pharmaceuticals (OLMA) Shares Drop 15% After AstraZeneca B - GuruFocus,0.0,3.0,15.0,39.0,2026-09-21 23:53:27.736517
+OMER,2026-09-21,5,3,3,0,1.0,True,OMER Stock Surges 5% After Hours On Novo Nordisk Deal Windfall And Drug Launch Optimism - Stocktwits,,0.0,5.0,13.0,39.0,2026-09-21 23:53:28.257655
+ONC,2026-09-21,25,9,9,0,1.0,False,FDA Approval Marks A Turning Point For BeOne Medicines (ONC) - Yahoo Finance,,1.0,3.0,12.0,26.0,2026-09-21 23:53:28.862540
+ORIC,2026-09-21,11,4,3,1,0.63,False,Oric Pharmaceuticals (ORIC) Stock Analysis: A 60% Upside Potential with Strong Buy Ratings in Biotech - DirectorsTalk Interviews,ORIC Falls After Hours On Safety Concerns Around Prostate Cancer Candidate At Higher Doses - Stocktwits,0.0,2.0,10.0,49.0,2026-09-21 23:53:29.359011
+ORN,2026-09-21,0,0,0,0,0.0,True,,,1.0,3.0,15.0,0.0,2026-09-21 23:53:29.827575
+PCVX,2026-09-21,36,5,1,4,-0.586,False,Vaxcyte stock holds near recent highs as OPUS-1 Phase 3 data window narrows - AD HOC NEWS,"Vaxcyte (PCVX) Dropped, So What Is Driving Attention Now? - Yahoo Finance",1.0,4.0,12.0,18.0,2026-09-21 23:53:30.599859
+PEPG,2026-09-21,5,8,5,3,0.265,False,"PEPG Q2 2026 Earnings: Narrower Loss Beats Estimates, Shares Rise 4.35% - Consensus Beat Rate - dars.gov.et",PEPG Q2 2026 Earnings: Narrower-Than-Expected Loss Drives 3.34% Bounce - Earnings Miss Streak - careplusvn.com,0.0,1.0,13.0,46.0,2026-09-21 23:53:31.142366
+PFE,2026-09-21,62,6,4,2,0.009,False,Pfizer (PFE) After FDA Vaccine Approval Faces A Fair Value Reality Check - Yahoo Finance,Medicuss Pfizer Deal Was Not a Fire Sale: A Strategic Bet on De-Risked ADC Drug - Streetwise Reports,0.0,1.0,10.0,48.0,2026-09-21 23:53:31.833631
+PGEN,2026-09-21,15,1,1,0,1.0,True,FDA grants platform technology status to Precigen’s AdenoVerse - Investing.com,,0.0,2.0,5.0,48.0,2026-09-21 23:53:32.616514
+PHAT,2026-09-21,4,1,0,1,-1.0,True,,"PHAT Investors Have Opportunity to Join Phathom Pharmaceuticals, Inc. Fraud Investigation with SBS Law - The National Law Review",0.0,2.0,11.0,53.0,2026-09-21 23:53:33.183623
+PII,2026-09-21,3,0,0,0,0.0,True,,,0.0,1.0,9.0,55.0,2026-09-21 23:53:33.661348
+PMVP,2026-09-21,15,3,1,2,-0.333,True,PMV Pharmaceuticals Announces Updated Promising Rezatapopt - GlobeNewswire,PMV Pharma Announces Pricing of Oversubscribed $50 Million Public Offering of Securities - GlobeNewswire,2.0,3.0,7.0,19.0,2026-09-21 23:53:34.091383
+PRAX,2026-09-21,7,6,5,1,0.871,False,Praxis Precision Medicines: Still Potential Upside After Huge Rally (Rating Upgrade) - Seeking Alpha,"S&P 500 Futures Drop in Premarket Trading; Praxis Precision Meds, Science Applications Lead - Barron's",0.0,4.0,22.0,46.0,2026-09-21 23:53:34.766480
+QNRX,2026-09-21,22,7,5,2,0.171,False,Quoin in line for priority review voucher if rare paediatric drug approved,Potential dilution looms as Quoin (NASDAQ: QNRX) registers ADS resales tied to warrant exercises - Stock Titan,2.0,5.0,15.0,11.0,2026-09-21 23:53:35.363669
+RARE,2026-09-21,70,72,56,16,0.825,False,Ultragenyx's $4 million gene therapy wins FDA approval for a rare brain and nervous system disorder - The Business Journals,Ultragenyx drops on Phase 3 trial failure for Angelman syndrome drug (RARE:NASDAQ) - Seeking Alpha,2.0,5.0,19.0,4.0,2026-09-21 23:53:36.136772
+REGN,2026-09-21,44,20,4,16,-0.404,False,Regeneron Beats Investor Suit Over Medicare Drug Price Reporting - Bloomberg Law News,"MONDAY REGN INVESTOR DEADLINE: Regeneron Pharmaceuticals, Inc. Investors with Substantial Losses Have Opportunity to Lead Shareholder Class Action Lawsuit, Robbins Geller Rudman & Dowd LLP Announces - FinancialContent",0.0,2.0,9.0,53.0,2026-09-21 23:53:36.655915
+RGNX,2026-09-21,17,4,2,2,0.514,False,"RGNX: Late-stage gene therapy programs advance toward commercialization, with strong data and funding - TradingView",Regenxbio’s Gene Therapy Faces Another FDA Setback in Hunter Syndrome - Yahoo Finance,2.0,5.0,12.0,27.0,2026-09-21 23:53:37.313346
+RNAC,2026-09-21,5,1,1,0,1.0,True,Cartesian Therapeutics Announces New Employment Inducement Grants - GlobeNewswire,,0.0,1.0,14.0,46.0,2026-09-21 23:53:37.831636
+RPRX,2026-09-21,34,13,4,9,-0.173,False,Wall Street Zen Upgrades Royalty Pharma (NASDAQ:RPRX) to Strong-Buy - marketbeat.com,Royalty Pharma (RPRX): Can Downside Protection Offset Pelacarsen’s Phase 3 Failure? - Yahoo Finance,0.0,1.0,9.0,47.0,2026-09-21 23:53:38.403780
+RYTM,2026-09-21,14,0,0,0,0.0,True,,,0.0,2.0,15.0,48.0,2026-09-21 23:53:38.906842
+SBFM,2026-09-21,1,0,0,0,0.0,True,,,3.0,6.0,14.0,5.0,2026-09-21 23:53:39.400773
+SGIOF,2026-09-21,11,8,8,0,1.0,False,Why Shionogi (TSE:4507) Is Up 5.4% After Winning Pediatric Approval For VTAMA Cream – And What’s Next - Yahoo Finance,,0.0,0.0,0.0,,2026-09-21 23:53:40.134570
+SHNTY,2026-09-21,2,0,0,0,0.0,True,,,0.0,0.0,0.0,,2026-09-21 23:53:40.700781
+SIGA,2026-09-21,8,3,0,3,-1.0,True,,SIGA Technologies: A Risk Analysis - Seeking Alpha,0.0,1.0,6.0,46.0,2026-09-21 23:53:41.364391
+SKBBY,2026-09-21,2,3,3,0,1.0,True,"Kelun-Biotech's Partner Windward Bio Announces Positive Phase 2 Results of SKB378/WIN378 in Asthma, and Initiates Phase 3 Study - Eastern Progress",,0.0,0.0,0.0,,2026-09-21 23:53:41.890785
+SKM,2026-09-21,0,0,0,0,0.0,True,,,0.0,0.0,0.0,,2026-09-21 23:53:42.409457
+SKYE,2026-09-21,11,1,0,1,-1.0,True,,5AM funds sell Skye Bioscience (SKYE) shares after reverse split - Stock Titan,2.0,6.0,17.0,10.0,2026-09-21 23:53:42.938056
+SLDB,2026-09-21,11,4,3,1,0.575,False,Solid Biosciences wins new Outperform at RBC on DMD opportunity - Seeking Alpha,"RBC Initiates Solid Biosciences at Outperform, Speculative Risk With $18 Price Target - marketscreener.com",0.0,1.0,6.0,46.0,2026-09-21 23:53:43.461409
+SMMT,2026-09-21,16,5,5,0,1.0,False,SMMT Stock Soars on NSCLC Drug Survival Data Beating Keytruda in China,,4.0,8.0,19.0,6.0,2026-09-21 23:53:44.149205
+SNDX,2026-09-21,21,5,5,0,1.0,False,"Syndax Pharmaceuticals, Inc. (SNDX) Stock Analysis: Unveiling a 112% Potential Upside with a Strong Buy Consensus - DirectorsTalk Interviews",,0.0,2.0,11.0,48.0,2026-09-21 23:53:44.701806
+SNY,2026-09-21,36,8,4,4,-0.089,False,Press Release: Sanofi and Cheplapharm to create new strategic partnership in mature medicines - GlobeNewswire,Sanofi: Information concerning the total number of voting rights and shares - August 2026 - Yahoo Finance,0.0,0.0,0.0,,2026-09-21 23:53:45.565245
+SOGP,2026-09-21,0,0,0,0,0.0,True,,,0.0,0.0,0.0,,2026-09-21 16:45:08.851935
+SPTX,2026-09-21,17,6,6,0,1.0,False,Seaport Therapeutics Reports Positive Topline Results from Phase 1 Driving Simulation Trial of GlyphAllo™ in Healthy Volunteers - Yahoo Finance,,0.0,1.0,3.0,49.0,2026-09-21 16:45:09.479067
+SRPT,2026-09-21,16,3,0,3,-1.0,True,,"Sarepta Therapeutics Investigation Initiated: Kahn Swick & Foti, LLC Investigates the Officers and Directors of Sarepta Therapeutics, Inc. - SRPT - PR Newswire",0.0,2.0,11.0,47.0,2026-09-21 23:53:46.086126
+SRRK,2026-09-21,8,10,10,0,1.0,False,Scholar Rock Holding (SRRK) Wins FDA Approval for ISEMBYLD. Can Add-On Use Scale?,,2.0,4.0,15.0,6.0,2026-09-21 23:53:46.615273
+STOK,2026-09-21,20,4,2,2,0.523,False,"Stoke Therapeutics Announces Inducement Grants Under Nasdaq Listing Rule 5635(C)(4) - September 16, 2026 - BioSpace","Stoke Therapeutics and Biogen Present Long-Term Clinical Data that Support the Disease-Modifying Potential of Zorevunersen, an Investigational Medicine for the Treatment of Dravet Syndrome, at the 16th European Epilepsy ",0.0,3.0,13.0,49.0,2026-09-21 23:53:47.132904
+SUNI,2026-09-21,5,0,0,0,0.0,True,,,0.0,0.0,3.0,98.0,2026-09-21 23:53:47.729372
+SUPN,2026-09-21,10,4,2,2,0.029,False,Supernus Pharmaceuticals Inc (SUPN) Shares Surge 3.6% -- What GF Score of 87 Tells Investors - GuruFocus,Supernus at Wells Fargo conference: growth after patent losses By Investing.com - Investing.com Canada,0.0,5.0,17.0,49.0,2026-09-21 23:53:48.405970
+SVA,2026-09-21,0,0,0,0,0.0,True,,,0.0,0.0,0.0,9461.0,2026-09-21 23:53:48.868008
+SXTP,2026-09-21,0,0,0,0,0.0,True,,,2.0,6.0,16.0,7.0,2026-09-21 23:53:49.395892
+TAK,2026-09-21,36,18,17,1,0.85,False,Takeda Pharmaceutical (TAK) Gets Priority Review. Can Zasocitinib Win in Psoriasis? - Yahoo Finance,Takeda Can't Decertify Amitiza Class After $885M Jury Loss - Law360,0.0,0.0,0.0,,2026-09-21 23:53:50.144856
+TECX,2026-09-21,13,4,3,1,0.689,False,"Tectonic Therapeutic (TECX) grants 24,250 options to its CMO - Stock Titan",TECX Q2 2026 Earnings: Narrower Loss Delivers 14.62% EPS Surprise; Shares Slip 3.41% - Forward EPS Estimate - dars.gov.et,0.0,1.0,8.0,46.0,2026-09-21 23:53:50.675868
+TGTX,2026-09-21,14,6,3,3,0.102,False,"TG Therapeutics, Inc. (TGTX) Stock Analysis: Strong Revenue Growth and Promising Potential Upside for Investors - DirectorsTalk Interviews",TGTX Stock Pares Opening Losses After Analyst Dismisses Competition From Novartis,0.0,1.0,9.0,49.0,2026-09-21 23:53:51.329100
+TLTFF,2026-09-21,14,1,1,0,1.0,True,Cancer fighter Theralase aims to turn lab wins into human trials | 2026-09-15 | Investing News - Stockhouse,,0.0,0.0,0.0,,2026-09-21 23:53:51.852030
+TPB,2026-09-21,5,1,0,1,-1.0,True,,"Turning Point Brands (TPB) Stock Dropped, So What Is Driving Attention Now?",1.0,2.0,8.0,0.0,2026-09-21 23:53:52.283421
+TRAW,2026-09-21,0,0,0,0,0.0,True,,,0.0,4.0,21.0,38.0,2026-09-21 16:45:17.574693
+TVRD,2026-09-21,0,0,0,0,0.0,True,,,0.0,4.0,13.0,38.0,2026-09-21 16:45:18.060813
+TVTX,2026-09-21,52,1,1,0,1.0,True,Travere Therapeutics Reports Inducement Grants Under Nasdaq Listing Rule 5635(c)(4) - marketscreener.com,,1.0,3.0,13.0,0.0,2026-09-21 23:53:52.961536
+TYRA,2026-09-21,54,9,3,6,-0.243,False,"Stock grant lifts Tyra Biosciences (NASDAQ: TYRA) finance VP stake to 11,258 shares - Stock Titan",Tyra Biosciences Stock Plunges 22% as Bladder Cancer Pill Fails to Impress,2.0,3.0,11.0,6.0,2026-09-21 23:53:53.436174
+URGN,2026-09-21,13,4,4,0,1.0,False,UroGen Pharma advances with strong Zusduri sales and promising URGN-103 approval ahead - Pluang,,0.0,3.0,8.0,32.0,2026-09-21 23:53:54.270720
+VERA,2026-09-21,25,11,10,1,0.807,False,Vera set for full FDA approval of Trutakna after late-stage trial win - Seeking Alpha,"VERA Stock Jumps 16% Premarket – Trutakna Cuts Kidney Disease Progression Risk By 76%, Full FDA Filing Planned In Q4 - TradingView",1.0,4.0,14.0,6.0,2026-09-21 23:53:54.863878
+VERX,2026-09-21,5,0,0,0,0.0,True,,,0.0,1.0,8.0,49.0,2026-09-21 23:53:55.523264
+VIR,2026-09-21,14,1,1,0,1.0,True,"WINTON GROUP Ltd Trims Stake in Vir Biotechnology, Inc. $VIR - marketbeat.com",,0.0,2.0,13.0,47.0,2026-09-21 23:53:56.046678
+VNDA,2026-09-21,9,2,1,1,-0.6,True,DC’s Vanda Pharmaceuticals Wins EU Orphan Status for Its Rare Skin Disease Drug - BioBuzz,Vanda Pharmaceuticals stock slips as 2025 loss widens - AD HOC NEWS,0.0,1.0,15.0,47.0,2026-09-21 23:53:56.569027
+VRTX,2026-09-21,8,1,1,0,1.0,True,"Vertex Pharmaceuticals (VRTX) executive gets 8,682-share stock grant - Stock Titan",,1.0,3.0,9.0,20.0,2026-09-21 23:53:56.990384
+VSTM,2026-09-21,13,1,0,1,-1.0,True,,Verastem Repeat Insider Selling Not A Positive Indicator - Moomoo,0.0,3.0,15.0,45.0,2026-09-21 23:53:57.622602
+XENE,2026-09-21,51,15,1,14,-0.836,False,Why Xenon Pharmaceuticals (XENE) Is Down 32.2% After Pausing Psychiatry Trials Despite Positive NDA Data - Yahoo Finance,Xenon Stock Craters 30% on Drug Trial Setback. Its Failure Could Be This Biotech’s Gain.,0.0,1.0,13.0,46.0,2026-09-21 23:53:58.153176
+ZBIO,2026-09-21,0,0,0,0,0.0,True,,,0.0,1.0,10.0,39.0,2026-09-21 23:53:58.799786
+ZLAB,2026-09-21,1,0,0,0,0.0,True,,,0.0,1.0,7.0,46.0,2026-09-21 23:53:59.198872
+ZURA,2026-09-21,1,1,0,1,-1.0,True,,Zura Bio (ZURA) Hits Enrollment Milestones As Losses Widen Sharply,0.0,3.0,21.0,35.0,2026-09-21 23:53:59.712141
+ZYME,2026-09-21,18,1,1,0,1.0,True,Zymeworks stock gains on merger approval and a $41 target - AD HOC NEWS,,1.0,3.0,13.0,27.0,2026-09-21 23:54:00.390628
+ABBV,2026-09-22,81,27,24,3,0.922,False,AbbVie's Rinvoq Wins EU Approval in Juvenile Idiopathic Arthritis - Yahoo Finance,"AbbVie's blood cancer therapy lowers disease progression, death risk in trial - Reuters",1.0,5.0,15.0,19.0,2026-09-22 13:23:34.558709
+ABCL,2026-09-22,13,2,2,0,1.0,True,ABCL Stock Surges 121% in 3 Months: Here's What You Need to Know - Yahoo Finance,,0.0,6.0,16.0,40.0,2026-09-22 13:23:35.238433
+ABVX,2026-09-22,29,9,3,6,-0.437,False,Abivax SA Sponsored ADR (ABVX) Upgraded to Buy: Here's Why - Eastern Progress,Abivax (NASDAQ:ABVX) Shares Down 3.4% Following Weak Earnings - MarketBeat,0.0,0.0,0.0,,2026-09-22 13:23:35.974544
+ACLX,2026-09-22,0,0,0,0,0.0,True,,,,,,,2026-09-22 13:23:36.983832
+ADAG,2026-09-22,19,7,6,1,0.561,False,Adagene (ADAG) Upgraded to Buy: Here's What You Should Know - Eastern Progress,Adagene Announces NMPA Clearance of Investigational New - GlobeNewswire,0.0,0.0,0.0,,2026-09-22 13:23:37.509887
+ALKS,2026-09-22,10,3,3,0,1.0,True,Alkermes Posts Positive Data From Phase I ADHD Study on ALKS 7290,,2.0,6.0,20.0,1.0,2026-09-22 13:23:39.270335
+AMGN,2026-09-22,90,35,21,14,0.537,False,AMGEN ANNOUNCES POSITIVE TOPLINE PHASE 3 RESULTS FOR DAZODALIBEP IN MODERATE-TO-SEVERE SYSTEMIC SJÖGREN'S DISEASE - PR Newswire,Amgen Falls 10% as Novartis Trial Failure Clouds a Cholesterol Drug Class; NVS Stock Drops 14% - Yahoo Finance,0.0,2.0,10.0,49.0,2026-09-22 13:23:40.519417
+ANNX,2026-09-22,5,3,3,0,1.0,True,Annexon Reports Inducement Grants to New Employees Under Nasdaq Listing Rule 5635(c)(4) - Yahoo Finance,,0.0,4.0,12.0,41.0,2026-09-22 13:23:41.185683
+APOG,2026-09-22,20,10,5,5,0.407,False,AbbVie Completes Acquisition of Apogee Therapeutics - Yahoo Finance,"Apogee Therapeutics, Inc.(NasdaqGM: APGE) dropped from S&P TMI Index - marketscreener.com",2.0,6.0,15.0,8.0,2026-09-22 13:23:41.849242
+ARDX,2026-09-22,32,13,0,13,-1.0,False,,Investors in Ardelyx face lawsuit over alleged misleading revenue guidance and stock drop. - Pluang,0.0,3.0,10.0,36.0,2026-09-22 13:23:42.534365
+ARGX,2026-09-22,22,5,5,0,1.0,False,2 Wall Street Analysts Think Argenx Can Soar More Than 40%. Here's Why They're Right. - Yahoo Finance,,0.0,0.0,0.0,,2026-09-22 13:23:43.278149
+AURA,2026-09-22,8,4,2,2,-0.418,False,Aura Biosciences Announces Inducement Grants under Nasdaq Listing Rule 5635(c)(4) - GlobeNewswire,AURA Q2 2026 Earnings: Wider-Than-Expected Loss as Clinical-Stage Biotech Misses EPS Estimate - Low Growth Earnings - dars.gov.et,0.0,3.0,10.0,42.0,2026-09-22 13:23:44.552727
+AZN,2026-09-22,56,30,22,8,0.596,False,Enhertu recommended for approval in the EU by CHMP as adjuvant treatment for patients with residual disease after neoadjuvant treatment for HER2-positive early breast cancer - AstraZeneca,"Stripped of AstraZeneca safety net, BMS could face ‘carnage’ if high-risk clinical trial fails - BioSpace",0.0,0.0,0.0,,2026-09-22 13:23:47.359472
+BCDA,2026-09-22,10,0,0,0,0.0,True,,,3.0,5.0,32.0,1.0,2026-09-22 13:23:49.305982
+BFRI,2026-09-22,12,16,15,1,0.963,False,Biofrontera wins FDA approval for Ameluz to treat skin cancer - Investing.com,,1.0,2.0,15.0,8.0,2026-09-22 13:23:50.624990
+BIIB,2026-09-22,28,9,6,3,0.416,False,Biogen (BIIB) Wins China Approval For At Home Weekly Alzheimer’s Treatment - simplywall.st,Biogen stock heads into the open after a 1.6 percent decline - AD HOC NEWS,0.0,2.0,14.0,55.0,2026-09-22 13:23:51.977212
+BMEA,2026-09-22,10,4,2,2,-0.717,False,BMEA Surges 6.85%: Biomea Fusion Approaches Key $1.88 Resistance - Box Spread - careplusvn.com,"Biomea Fusion, Inc.(NasdaqGS: BMEA) dropped from S&P Global BMI Index - marketscreener.com",0.0,1.0,10.0,48.0,2026-09-22 13:23:53.512889
+BNTX,2026-09-22,55,13,8,5,0.166,False,Moderna Surges 9% as Phase 3 Melanoma Data Wins Presidential Symposium Slot; Merck and BioNTech Edge Higher,BioNTech Stock Recently Got Downgraded. But Is Wall Street Underestimating Its Cancer Pipeline? - Currently.com,0.0,0.0,0.0,,2026-09-22 13:23:55.172880
+BRTX,2026-09-22,6,3,0,3,-1.0,True,,BioRestorative Therapies Announces Reverse Stock Split - Ortho Spine News,5.0,7.0,16.0,11.0,2026-09-22 13:23:56.632502
+BTAI,2026-09-22,39,13,0,13,-1.0,False,,BioXcel Therapeutics Received Notice of Delisting - TradingView,,,,,2026-09-22 13:23:57.446209
+CAPR,2026-09-22,56,28,4,24,-0.89,False,CAPR Stock Skyrockets 144% in a Month: What Is Driving the Rally? - TradingView,"CAPR INVESTOR DEADLINE: Capricor Therapeutics, Inc. Investors with Substantial Losses Have Opportunity to Lead Shareholder Class Action Lawsuit Before September 28, 2026 Deadline - newsfilecorp.com",1.0,6.0,15.0,29.0,2026-09-22 13:23:59.032860
+CGEN,2026-09-22,8,0,0,0,0.0,True,,,0.0,0.0,0.0,,2026-09-22 00:38:55.790880
+CL,2026-09-22,51,3,2,1,0.144,True,Colgate Palmolive (India) stock gains after strong Q1 results and Piper Sandler target cut - AD HOC NEWS,Colgate-Palmolive stock heads into the open after a 1.38 percent drop - AD HOC NEWS,0.0,1.0,9.0,53.0,2026-09-22 00:38:57.118394
+CLDX,2026-09-22,24,7,4,3,0.143,False,Celldex monoclonal antibody rebounds with pair of phase 3 wins for chronic skin condition - Fierce Biotech,"CLDX Stock Slumps 11% – This Analyst Sees Nearly 90% Upside, Calls Phase 3 Trial Safety Concerns ‘Misplaced’ - TradingView",1.0,4.0,8.0,0.0,2026-09-22 13:24:01.489071
+CMND,2026-09-22,27,5,5,0,1.0,False,"Clearmind Medicine Receives Yale IRB Approval, Enabling Patient Recruitment for Parts B and C of CMND-100 Phase I/II Trial, Following Positive Safety Results - The Manila Times",,0.0,0.0,0.0,,2026-09-22 13:24:02.169866
+CNTB,2026-09-22,1,1,0,1,-1.0,True,,Connect Biopharma Rademikibart Phase 2 Data Shows Lung Function Improvement but Primary Endpoint Misses Significance,1.0,2.0,8.0,7.0,2026-09-22 13:24:02.682959
+DBVT,2026-09-22,19,5,2,3,-0.164,False,DBV Technologies (DBVT) Soars 5.3%: Is Further Upside Left in the Stock? - Eastern Progress,DBVT Slides As DBV Technologies Leads European Biotech Declines - timothysykes.com,0.0,2.0,12.0,68.0,2026-09-22 00:39:04.759640
+DCTH,2026-09-22,11,2,2,0,1.0,True,Wall Street Analysts Believe Delcath Systems (DCTH) Could Rally 52.44%: Here's is How to Trade - Eastern Progress,,0.0,2.0,10.0,39.0,2026-09-22 13:24:07.411109
+ENLV,2026-09-22,3,2,0,2,-1.0,True,,Enlivex terminates securities deal with Rain Foundation By Investing.com - Investing.com Canada,0.0,0.0,0.0,,2026-09-22 13:24:10.614747
+ENTA,2026-09-22,3,0,0,0,0.0,True,,,0.0,2.0,12.0,43.0,2026-09-22 13:24:11.376579
+EWTX,2026-09-22,12,2,2,0,1.0,True,EWTX: EDG-7500 improves cardiac relaxation in HCM and advances to Phase 3 after positive Phase 2 data - TradingView,,0.0,3.0,10.0,47.0,2026-09-22 13:24:12.654808
+GEHC,2026-09-22,47,3,0,3,-1.0,True,,Securities Fraud Investigation Into GE HealthCare - GlobeNewswire,0.0,4.0,12.0,35.0,2026-09-22 13:24:14.139414
+GILD,2026-09-22,50,8,5,3,0.236,False,Gilead Sciences Just Won Its Third FDA Approval in Less Than 4 Months. Is the Stock Still Underrating This Turnaround Play? - Yahoo Finance,THNR's Weight-Loss Index Swaps Hims & Hers for Gilead - ETF Database,0.0,1.0,10.0,49.0,2026-09-22 13:24:14.789849
+GNLX,2026-09-22,5,0,0,0,0.0,True,,,0.0,0.0,6.0,92.0,2026-09-22 13:24:16.754036
+GRCE,2026-09-22,0,0,0,0,0.0,True,,,1.0,4.0,13.0,4.0,2026-09-22 13:24:17.445168
+HELP,2026-09-22,3,0,0,0,0.0,True,,,0.0,0.0,0.0,,2026-09-22 13:24:17.893071
+IDYA,2026-09-22,19,3,2,1,-0.567,True,Citizens upgrades Ideaya Biosciences stock rating on IDE849 progress - Investing.com,How (IDYA) Movements Inform Risk Allocation Models - Stock Traders Daily,0.0,1.0,16.0,49.0,2026-09-22 00:39:16.277069
+IMVT,2026-09-22,2,0,0,0,0.0,True,,,1.0,2.0,8.0,19.0,2026-09-22 13:24:20.174089
+INCY,2026-09-22,21,4,3,1,0.24,False,Incyte Corporation (INCY) Stock Analysis: Navigating Biotech Growth with a 37.7% Revenue Surge - DirectorsTalk Interviews,"Incyte's Colorectal Cancer Program Remains Risky, Long-Term, RBC Says",1.0,3.0,14.0,22.0,2026-09-22 13:24:20.874591
+IONS,2026-09-22,35,17,11,6,0.155,False,Ionis Drug Wins FDA Approval as First Alexander Disease Treatment - Yahoo Finance,Ionis Pharmaceuticals Eyes TRYNGOLZA Growth as Pipeline Faces Cardio Setbacks - Yahoo Finance,2.0,6.0,20.0,18.0,2026-09-22 13:24:22.635766
+IRON,2026-09-22,40,7,5,2,0.22,False,Disc Medicine Reports Positive Initial RESTORE-PV Results for DISC-3405 in Polycythemia Vera - Quiver Quantitative,"Rosen Law Firm Encourages Disc Medicine, Inc. Investors to Inquire About Securities Class Action Investigation - IRON - PR Newswire",1.0,4.0,16.0,12.0,2026-09-22 13:24:23.938352
+JAZZ,2026-09-22,45,8,8,0,1.0,False,Jazz Pharmaceuticals debt upgraded by S&P on stronger recovery - Investing.com,,3.0,7.0,15.0,7.0,2026-09-22 13:24:24.722478
+KARD,2026-09-22,3,0,0,0,0.0,True,,,0.0,1.0,2.0,42.0,2026-09-22 13:24:25.408893
+KOD,2026-09-22,5,0,0,0,0.0,True,,,0.0,1.0,7.0,40.0,2026-09-22 13:24:25.948857
+KPTI,2026-09-22,8,4,4,0,1.0,False,Karyopharm Seeks FDA Approval for XPOVIO Plus Ruxolitinib in Myelofibrosis - Cure Today,,3.0,6.0,17.0,4.0,2026-09-22 13:24:27.343291
+KRYS,2026-09-22,30,12,11,1,0.68,False,"Rossi Dino A Granted 1,658 Derivative Securities of Krystal Biotech, Inc. on September 14, 2026 - Kalkine Media",Precision Trading with Krystal Biotech Inc. (KRYS) Risk Zones - Stock Traders Daily,0.0,2.0,10.0,50.0,2026-09-22 13:24:28.092422
+LLY,2026-09-22,54,9,4,5,-0.318,False,What Lilly Stock's Breast Cancer Drug Approval Means For Shareholders - simplywall.st,Novo Nordisk and Eli Lilly are being sued over weight loss drugs' link to vision loss - qz.com,0.0,1.0,7.0,48.0,2026-09-22 13:24:28.921985
+LXEO,2026-09-22,14,0,0,0,0.0,True,,,1.0,3.0,13.0,0.0,2026-09-22 13:24:30.295060
+MCUJF,2026-09-22,15,2,0,2,-1.0,True,,Medicure Inc. Stock Under Pressure After 4.67% Decline: Is Weak Sentiment Signaling Further Downside? - kalkine.ca,0.0,0.0,0.0,,2026-09-22 13:24:32.363654
+MDWD,2026-09-22,7,1,0,1,-1.0,True,,Reviewers found no safety concerns in MediWound's wound trial. - Stock Titan,0.0,0.0,0.0,,2026-09-22 13:24:33.625264
+MRK,2026-09-22,4,0,0,0,0.0,True,,,0.0,1.0,7.0,49.0,2026-09-22 13:24:36.271872
+NAMS,2026-09-22,33,14,9,5,0.459,False,NewAmsterdam Pharma wins EU approval for obicetrapib as Ubeslo and Evlarco - TradingView,Stifel reiterates Buy on NewAmsterdam Pharma stock after trial failure By Investing.com - Investing.com Australia,1.0,6.0,13.0,1.0,2026-09-22 13:24:36.949433
+NTHI,2026-09-22,3,4,1,3,-0.356,False,"NeOnc Executives Invest Approximately $629,000 in Open-Market Stock Purchases Following Positive NEO100 Phase 2a Results","NeOnc Technologies Holdings, Inc. Announces Pricing of $15 Million Registered Direct Offering Priced At-The-Market Under Nasdaq Rules with New and Existing Institutional Investors",3.0,10.0,34.0,1.0,2026-09-22 13:24:38.871157
+NTLA,2026-09-22,32,17,14,3,0.834,False,Intellia Therapeutics Shares Rise as FDA Grants Priority Review to Lonvo-z,Intellia Therapeutics Secures Non-Dilutive Debt Facility with OrbiMed for up to $400 Million - Yahoo Finance,2.0,3.0,18.0,14.0,2026-09-22 13:24:39.487152
+NUVB,2026-09-22,18,6,6,0,1.0,False,Nuvation Bio Announces FDA Approval of Supplemental New Drug Application for IBTROZI® (taletrectinib) with Updated Duration of Response in TKI-Naïve Advanced ROS1-Positive Non-Small Cell Lung Cancer - PR Newswire,,0.0,3.0,10.0,47.0,2026-09-22 13:24:40.108231
+NVO,2026-09-22,97,31,3,28,-0.839,False,Novo Nordisk says Wegovy approved in China for liver disease MASH - Reuters,"Novo-Nordisk A/S's weight-loss drug CagriSema has ""hit a wall""! A 12.4% weight loss failed to allay market concerns. - 富途牛牛",0.0,0.0,0.0,,2026-09-22 13:24:40.998822
+NVS,2026-09-22,8,6,1,5,-0.566,False,NVS Gets Positive CHMP Opinion for Cosentyx for Another Indication,Novartis halts ALS drug development after mid-stage trial failure - Reuters,0.0,0.0,0.0,,2026-09-22 13:24:41.758768
+OCGN,2026-09-22,26,0,0,0,0.0,True,,,1.0,3.0,21.0,14.0,2026-09-22 13:24:42.423731
+OCS,2026-09-22,11,2,0,2,-1.0,True,,Oculis Holding AG: Navigating Through Major Trial Setback (NASDAQ:OCS) - Seeking Alpha,0.0,0.0,0.0,,2026-09-22 13:24:43.414769
+OGN,2026-09-22,5,1,1,0,1.0,True,Organon (OGN) Wins FDA Review Acceptance For Its Hormone Free Contraceptive Device,,0.0,3.0,12.0,53.0,2026-09-22 13:24:44.772376
+OLMA,2026-09-22,17,5,3,2,-0.312,False,Olema Pharmaceuticals (NASDAQ: OLMA) grants CFO 650K options expiring in 2036 - Stock Titan,Olema Pharmaceuticals (OLMA) Shares Drop 15% After AstraZeneca B - GuruFocus,0.0,2.0,15.0,40.0,2026-09-22 13:24:45.339794
+ONC,2026-09-22,22,7,7,0,1.0,False,FDA Approval Marks A Turning Point For BeOne Medicines (ONC) - Yahoo Finance,,1.0,3.0,12.0,27.0,2026-09-22 13:24:45.992903
+ORIC,2026-09-22,12,4,3,1,0.287,False,Oric Pharmaceuticals (ORIC) Stock Analysis: A 60% Upside Potential with Strong Buy Ratings in Biotech - DirectorsTalk Interviews,ORIC Falls After Hours On Safety Concerns Around Prostate Cancer Candidate At Higher Doses - Stocktwits,0.0,2.0,10.0,50.0,2026-09-22 13:24:46.572022
+PCRX,2026-09-22,2,1,1,0,1.0,True,Pacira BioSciences Reports Inducement Grants Under Nasdaq Listing Rule 5635(c)(4) - markets.businessinsider.com,,0.0,2.0,8.0,49.0,2026-09-22 13:24:47.507011
+PCVX,2026-09-22,33,3,1,2,-0.309,True,Vaxcyte stock holds near recent highs as OPUS-1 Phase 3 data window narrows - AD HOC NEWS,Vaxcyte Has $2.5 Billion in Cash and a $605 Million Half-Year Loss. Here's How to Read Its CFO's Latest Insider Filing - The Motley Fool,1.0,3.0,12.0,19.0,2026-09-22 13:24:48.311880
+PEPG,2026-09-22,4,5,3,2,0.223,False,"PEPG Q2 2026 Earnings: Narrower Loss Beats Estimates, Shares Rise 4.35% - Consensus Beat Rate - dars.gov.et",PEPG Q2 2026 Earnings: Narrower-Than-Expected Loss Drives 3.34% Bounce - Earnings Miss Streak - careplusvn.com,0.0,1.0,13.0,47.0,2026-09-22 13:24:48.853412
+PFE,2026-09-22,68,7,3,4,-0.615,False,Pfizer (PFE) After FDA Vaccine Approval Faces A Fair Value Reality Check - Yahoo Finance,Pfizer Refocuses Growth Strategy as New Products Offset COVID Decline - Yahoo Finance,0.0,1.0,10.0,49.0,2026-09-22 13:24:49.549057
+PHAT,2026-09-22,4,1,0,1,-1.0,True,,"PHAT Investors Have Opportunity to Join Phathom Pharmaceuticals, Inc. Fraud Investigation with SBS Law - The National Law Review",0.0,1.0,11.0,54.0,2026-09-22 00:39:43.444547
+PMVP,2026-09-22,9,0,0,0,0.0,True,,,2.0,3.0,7.0,20.0,2026-09-22 13:24:51.279691
+PRAX,2026-09-22,6,5,5,0,1.0,False,Praxis Precision Medicines: Still Potential Upside After Huge Rally (Rating Upgrade) - Seeking Alpha,,0.0,4.0,22.0,47.0,2026-09-22 13:24:51.978194
+QNRX,2026-09-22,22,11,8,3,0.382,False,Quoin in line for priority review voucher if rare paediatric drug approved,Potential dilution looms as Quoin (NASDAQ: QNRX) registers ADS resales tied to warrant exercises - Stock Titan,2.0,4.0,15.0,12.0,2026-09-22 13:24:52.524232
+RARE,2026-09-22,68,70,57,13,0.87,False,Ultragenyx's $4 million gene therapy wins FDA approval for a rare brain and nervous system disorder - The Business Journals,Ultragenyx drops on Phase 3 trial failure for Angelman syndrome drug (RARE:NASDAQ) - Seeking Alpha,2.0,5.0,19.0,5.0,2026-09-22 13:24:53.100260
+RCUS,2026-09-22,15,5,4,1,0.608,False,Arcus Biosciences Announces New Employment Inducement Grants - marketscreener.com,,0.0,1.0,12.0,48.0,2026-09-22 13:24:53.745466
+REGN,2026-09-22,46,19,4,15,-0.446,False,Regeneron Beats Investor Suit Over Medicare Drug Price Reporting - Bloomberg Law News,"MONDAY REGN INVESTOR DEADLINE: Regeneron Pharmaceuticals, Inc. Investors with Substantial Losses Have Opportunity to Lead Shareholder Class Action Lawsuit, Robbins Geller Rudman & Dowd LLP Announces - FinancialContent",0.0,2.0,9.0,54.0,2026-09-22 13:24:54.302376
+RYTM,2026-09-22,12,1,1,0,1.0,True,Rhythm Pharmaceuticals Announces Health Canada Approval of IMCIVREE® (setmelanotide) for Weight Management in Adult and Pediatric Patients 4 years of Age and Older with Acquired Hypothalamic Obesity - The Manila Times,,0.0,2.0,15.0,49.0,2026-09-22 13:24:56.423058
+SKYE,2026-09-22,11,1,0,1,-1.0,True,,5AM funds sell Skye Bioscience (SKYE) shares after reverse split - Stock Titan,2.0,5.0,17.0,11.0,2026-09-22 13:24:59.326780
+SLN,2026-09-22,2,0,0,0,0.0,True,,,0.0,4.0,15.0,41.0,2026-09-22 13:25:00.030504
+SNY,2026-09-22,37,7,4,3,0.146,False,Press Release: Sanofi and Cheplapharm to create new strategic partnership in mature medicines - GlobeNewswire,Sanofi: Information concerning the total number of voting rights and shares - August 2026 - Yahoo Finance,0.0,0.0,0.0,,2026-09-22 13:25:02.086238
+SRPT,2026-09-22,15,2,0,2,-1.0,True,,"Sarepta Therapeutics Investigation Initiated: Kahn Swick & Foti, LLC Investigates the Officers and Directors of Sarepta Therapeutics, Inc. - SRPT - PR Newswire",0.0,2.0,11.0,48.0,2026-09-22 13:25:03.414738
+SUPN,2026-09-22,6,2,1,1,0.333,True,Supernus Pharmaceuticals Inc (SUPN) Shares Surge 3.6% -- What GF Score of 87 Tells Investors - GuruFocus,Supernus at Wells Fargo conference: growth after patent losses By Investing.com - Investing.com Canada,0.0,5.0,17.0,50.0,2026-09-22 13:25:05.434106
+SYRE,2026-09-22,28,7,5,2,0.675,False,Spyre Therapeutics Announces Grants of Inducement Awards - The Manila Times,"Spyre Therapeutics (SYRE) Advances 2.12% to $90.87, Holding Above Key Support - Risk Parity Rebalance - careplusvn.com",2.0,3.0,15.0,14.0,2026-09-22 13:25:07.191094
+TAK,2026-09-22,34,14,14,0,1.0,False,Takeda Pharmaceutical (TAK) Gets Priority Review. Can Zasocitinib Win in Psoriasis? - Yahoo Finance,,0.0,0.0,0.0,,2026-09-22 13:25:07.931276
+TARA,2026-09-22,4,0,0,0,0.0,True,,,0.0,2.0,12.0,42.0,2026-09-22 13:25:08.522369
+TDAC,2026-09-22,0,0,0,0,0.0,True,,,0.0,2.0,6.0,57.0,2026-09-22 13:25:09.275320
+TGTX,2026-09-22,12,3,0,3,-1.0,True,,TGTX Stock Pares Opening Losses After Analyst Dismisses Competition From Novartis,0.0,1.0,9.0,50.0,2026-09-22 13:25:10.037813
+TLSA,2026-09-22,20,3,1,2,-0.426,True,Tiziana (TLSA) Up +25.96% — Will the Rally Hold Through Earnings? 2026-09-17 - Combination Correction - siam.in,Tiziana Life Sciences Ltd(NasdaqCM: TLSA) dropped from S&P Global BMI Index - marketscreener.com,0.0,0.0,0.0,1797.0,2026-09-22 13:25:10.523672
+TLX,2026-09-22,5,0,0,0,0.0,True,,,0.0,0.0,0.0,,2026-09-22 13:25:11.517639
+TNGX,2026-09-22,7,1,1,0,1.0,True,Tango Therapeutics Announces Inducement Grants Under Nasdaq Listing Rule 5635(c)(4) - GlobeNewswire,,0.0,4.0,18.0,42.0,2026-09-22 13:25:12.143340
+TTRX,2026-09-22,13,2,2,0,1.0,True,Turn Therapeutics (TTRX) Surges 7.34% to $10.38 as Biotech Momentum Accelerates - Breakout Stock Alerts - careplusvn.com,,2.0,7.0,26.0,12.0,2026-09-22 13:25:13.740342
+TYRA,2026-09-22,55,10,3,7,-0.429,False,"Stock grant lifts Tyra Biosciences (NASDAQ: TYRA) finance VP stake to 11,258 shares - Stock Titan",Tyra Biosciences Stock Plunges 22% as Bladder Cancer Pill Fails to Impress,2.0,3.0,11.0,7.0,2026-09-22 13:25:15.588136
+URGN,2026-09-22,13,4,4,0,1.0,False,UroGen Pharma advances with strong Zusduri sales and promising URGN-103 approval ahead - Pluang,,0.0,2.0,8.0,33.0,2026-09-22 13:25:16.147164
+VSTM,2026-09-22,12,1,0,1,-1.0,True,,Verastem Repeat Insider Selling Not A Positive Indicator - Moomoo,0.0,2.0,15.0,46.0,2026-09-22 00:40:08.658750
+WVE,2026-09-22,2,0,0,0,0.0,True,,,0.0,3.0,18.0,46.0,2026-09-22 13:25:19.671830

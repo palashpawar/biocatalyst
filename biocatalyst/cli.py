@@ -8,6 +8,7 @@ import sys
 import pandas as pd
 
 from . import export as exporter
+from . import logs
 from . import features, score
 from .backtest import run as bt
 from .backtest import stats as btstats
@@ -49,6 +50,11 @@ def cmd_refresh(args) -> int:
     # keep everything already in the past. Deleting the whole table each run
     # threw away the history needed to see what a catalyst actually did.
     with connect() as con:
+        # CI starts from an empty database. Seed the forward logs from the
+        # committed CSVs first, or tonight's appends would have nothing to
+        # append to and every accumulated verdict would be lost.
+        seeded = logs.load(con)
+        print(f"      seeded logs: {seeded}")
         # Rebuild the forward slice and the lookback window; anything older
         # stays as history.
         con.execute(
@@ -94,7 +100,8 @@ def cmd_refresh(args) -> int:
         sent = news.fetch(tickers, companies, verbose=True)
         print(f"      {len(sent)} tickers scored")
         with connect() as con:
-            upsert(con, "sentiment", sent)
+            n_sent = logs.append(con, "sentiment", sent)
+        print(f"      {n_sent} sentiment changes logged")
     else:
         sent = pd.DataFrame()
 
@@ -180,10 +187,13 @@ def cmd_refresh(args) -> int:
         feat = features.build(con, horizon_days=args.horizon)
         board = score.score(feat) if not feat.empty else pd.DataFrame()
         snaps = outcomes_mod.snapshot_verdicts(con, board)
-        upsert(con, "verdict_log", snaps)
+        n_verd = logs.append(con, "verdict_log", snaps)
         outs = outcomes_mod.compute(con, lookback_days=args.lookback, verbose=True)
         upsert(con, "outcomes", outs)
-    print(f"      {len(snaps)} verdicts logged, {len(outs)} outcomes scored")
+        written = logs.dump(con)
+    print(f"      {n_verd} of {len(snaps)} verdicts changed and were logged; "
+          f"{len(outs)} outcomes scored")
+    print(f"      logs on disk: {written}")
 
     print(f"\nwrote catalysts={len(cal)} trials={len(trials)} "
           f"financials={len(fins)} prices={len(px)} implied={len(imp)} "

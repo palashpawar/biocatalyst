@@ -90,7 +90,13 @@ The board keeps catalysts for 45 days after they happen and scores what the
 stock did — day-one move, move since, and abnormal move against XBI, measured
 the same way as the backtest so the numbers are comparable.
 
-Verdicts are snapshotted on every refresh into `verdict_log`. An outcome joins
+Verdicts are snapshotted on every refresh into `verdict_log`, which is
+persisted to `logs/verdicts.csv` and committed with the board — the nightly job
+runs on a fresh runner with an empty database, so anything meant to
+*accumulate* has to live in git or it is lost every night. Appends are
+change-only: a verdict that has not moved is not rewritten, and the row in
+effect on any date is the last one logged on or before it. The workflow
+refuses to commit a log that got shorter. An outcome joins
 the last snapshot taken *before* its catalyst date, so the engine is graded on
 what it said in advance rather than on a verdict re-derived with the answer
 visible. That column reads "not yet logged" for catalysts that passed before
@@ -254,6 +260,8 @@ biocatalyst/
     run.py            the six studies
 dashboard/app.py      local Flask board
 web/                  static site published to Vercel
+logs/                 forward logs (verdicts, sentiment), committed nightly
+api/refresh.js        Vercel Cron -> workflow_dispatch
 .github/workflows/    nightly refresh
 ```
 

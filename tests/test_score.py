@@ -182,3 +182,60 @@ def test_insider_activity_never_moves_conviction():
                            cluster_buy=True, n_buyers=4,
                            senior_net_usd=500_000))
     assert plain["conviction"] == flagged["conviction"]
+
+
+# Fields classify() may read that can legitimately be missing for a ticker on
+# any given night: a throttled SEC fetch, a name with no options, no news.
+OPTIONAL = [
+    "cluster_buy", "n_buyers", "senior_net_usd", "biggest_delta_own",
+    "biggest_move_desc", "offerings_24m", "days_since_offering",
+    "dilution_label", "eightk_90d", "squeeze_risk", "squeeze_label",
+    "days_to_cover", "short_build", "move_ratio", "implied_move",
+    "expected_move", "materiality", "baseline_move", "ret_20d", "loa",
+    "designations", "date_confidence", "market_cap", "runway_stale",
+    "microcap", "illiquid",
+]
+
+
+def test_classify_survives_every_optional_field_missing():
+    # Regression: `int(r.get('n_buyers') or 0)` crashed the nightly job on
+    # 28 Sep and 4 Oct. NaN is truthy, so `NaN or 0` is NaN. It only fired
+    # when a shorted ticker had no insider row -- i.e. when SEC throttled
+    # that night's Form 4 fetch -- which is why it was intermittent.
+    nan = float("nan")
+    scenarios = {
+        "short": dict(runway_at_catalyst=-2.0),
+        "long": dict(loa=0.8, runway_at_catalyst=30.0),
+        "vol": dict(move_ratio=2.0, implied_move=0.6),
+        "neutral": {},
+    }
+    for name, base in scenarios.items():
+        # every optional field missing at once
+        r = classify(row(**{**base, **{k: nan for k in OPTIONAL if k not in base}}))
+        assert 0 <= r["conviction"] <= 100, name
+        # and each one missing on its own, so no single field can hide
+        for k in OPTIONAL:
+            if k in base:
+                continue
+            out = classify(row(**{**base, k: nan}))
+            assert 0 <= out["conviction"] <= 100, (name, k)
+            assert "nan" not in out["reasons"].lower().split(), (name, k)
+
+
+def test_short_with_no_insider_row():
+    # The exact failing case: a short whose insider fields are all NaN.
+    nan = float("nan")
+    r = classify(row(runway_at_catalyst=-2.0, cluster_buy=nan, n_buyers=nan,
+                     senior_net_usd=nan))
+    assert r["setup"] == "DILUTION_SHORT"
+    assert "CAUTION" not in r["reasons"]
+
+
+def test_missing_issuance_history_is_not_called_rare():
+    # Unknown is not the same as clean. Treating NaN as zero offerings
+    # labelled the company a rare issuer and halved the short.
+    unknown = classify(row(runway_at_catalyst=-2.0, offerings_24m=float("nan")))
+    rare = classify(row(runway_at_catalyst=-2.0, offerings_24m=0))
+    assert "rare issuer" not in unknown["reasons"]
+    assert "unavailable" in unknown["reasons"]
+    assert unknown["conviction"] > rare["conviction"]

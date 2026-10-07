@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import pandas as pd
 
+from .baserates import as_num, as_text, is_missing
+
 from .config import (IMPLIED_RICH_RATIO, RUNUP_HOT_20D,
                      RUNWAY_CRITICAL_MONTHS, RUNWAY_WARN_MONTHS)
 
@@ -60,6 +62,22 @@ SETUPS = {
 }
 
 
+def _num(r, key: str, default=None):
+    """A numeric field, or `default` when it is missing in any sense.
+
+    `r.get(key) or 0` is not a safe default: NaN is truthy, so it passes
+    straight through the `or`. That pattern crashed the nightly job twice
+    (int(NaN) on a short with no insider row) and silently mis-scored others.
+    """
+    return as_num(r.get(key), default)
+
+
+def _flag(r, key: str) -> bool:
+    """A boolean field where missing means False, not 'truthy NaN'."""
+    v = r.get(key)
+    return False if is_missing(v) else bool(v)
+
+
 def _runway_component(r) -> tuple[float, str | None]:
     runway = r.get("runway_at_catalyst")
     if pd.isna(runway):
@@ -103,8 +121,9 @@ def _loa_component(r) -> tuple[float, str | None]:
         return 0.0, None
     score = (loa - 0.4) * 1.2
     note = f"base-rate LOA {loa:.0%} for {r.get('stage')} {r.get('ta')}"
-    if r.get("designations"):
-        note += f" ({r['designations']})"
+    desig = as_text(r.get("designations"))
+    if desig:
+        note += f" ({desig})"
     return max(-1.0, min(1.0, score)), note
 
 
@@ -123,7 +142,7 @@ def classify(r) -> dict:
             f"immaterial: asset is ~{r['expected_move']:.0%} of cap vs "
             f"{r['baseline_move']:.0%} baseline noise")
     ratio = r.get("move_ratio")
-    conf = float(r.get("date_confidence") or 0.0)
+    conf = _num(r, "date_confidence", 0.0)
 
     # Setup selection, most actionable first.
     setup = "NO_EDGE"
@@ -151,7 +170,7 @@ def classify(r) -> dict:
         setup, lean = "VOL_BUY_CHEAP", "long vol"
     elif runup_s <= -0.6 and loa_s < 0 and r.get("is_binary"):
         setup, lean = "RUNUP_FADE", "short"
-    elif loa_s > 0.25 and runway_s >= 0.2 and (r.get("ret_20d") or 0) < RUNUP_HOT_20D:
+    elif loa_s > 0.25 and runway_s >= 0.2 and _num(r, "ret_20d", 0.0) < RUNUP_HOT_20D:
         setup, lean = "BASE_RATE_LONG", "long"
 
     # A crowded short is how this setup goes wrong: the thesis can be correct
@@ -187,9 +206,9 @@ def classify(r) -> dict:
     # a finding. A single extreme case can still inform a human reading the
     # row, so contradictions are surfaced; they just carry no weight.
     if lean == "short":
-        if r.get("cluster_buy"):
+        if _flag(r, "cluster_buy"):
             reasons.append(
-                f"CAUTION: {int(r.get('n_buyers') or 0)} insiders bought "
+                f"CAUTION: {int(_num(r, 'n_buyers', 0))} insiders bought "
                 "(cluster) -- tested, not supported, not scored")
         senior = r.get("senior_net_usd")
         if pd.notna(senior) and senior > 100_000:
@@ -211,16 +230,21 @@ def classify(r) -> dict:
         # and -27.7% @126d (both survive multiple testing) while rare issuers
         # ran -0.3% (p=0.87) and +2.2% (p=0.64) -- nothing at all. Low cash
         # only predicts a decline when the company habitually raises.
-        serial = (r.get("offerings_24m") or 0) >= 2
-        if serial:
+        offerings = _num(r, "offerings_24m")
+        if offerings is None:
+            # No filing history is not the same as a clean one. Treating it
+            # as zero labelled the company a rare issuer and halved the short
+            # on the strength of data we did not have.
+            reasons.append("issuance history unavailable: not adjusted")
+        elif offerings >= 2:
             strength = min(1.0, strength * 1.35)
             reasons.append(
-                f"{int(r['offerings_24m'])} offerings in 24mo: serial issuer "
+                f"{int(offerings)} offerings in 24mo: serial issuer "
                 "(-27.7% @126d vs +2.2% for rare issuers)")
         else:
             strength *= 0.5
             reasons.append("rare issuer: low runway alone tested flat (p=0.87)")
-        if r.get("runway_stale"):
+        if _flag(r, "runway_stale"):
             # The thesis rests on a cash figure the company has already
             # superseded. Direction of the error is known -- they have more
             # money than the filing shows -- so the short is weaker than it
@@ -234,8 +258,8 @@ def classify(r) -> dict:
         if pd.notna(since) and since <= 120:
             reasons.append(f"priced a deal {int(since)}d ago (-9.0% @126d)")
 
-        busy = (r.get("eightk_90d") or 0) >= 6
-        if r.get("microcap"):
+        busy = _num(r, "eightk_90d", 0) >= 6
+        if _flag(r, "microcap"):
             strength = min(1.0, strength * 1.25)
             reasons.append("microcap: -10.5% abn @126d for the size bucket")
         if busy:
@@ -249,7 +273,7 @@ def classify(r) -> dict:
         strength *= 0.3
 
     conviction = round(100 * strength * (0.35 + 0.65 * conf) * squeeze_penalty)
-    if r.get("illiquid"):
+    if _flag(r, "illiquid"):
         conviction = round(conviction * 0.6)
         reasons.append("thin: under $1M/day traded")
 
